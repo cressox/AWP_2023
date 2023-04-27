@@ -1,0 +1,15 @@
+Für die Implementierung des Machine Learning-Modells werde ich Flask als 
+Backend-Server verwenden, der mit der Hybrid-App über eine REST-API 
+kommunizieren kann. Dadurch können wir die Vorhersage von bspw. Sekundenschlaf 
+in Echtzeit ermöglichen.
+
+Als Frontend-Framework werde ich React Native nutzen, da es eine breite
+Unterstützung für mobile Plattformen bietet und es eine große Community 
+von Entwicklern gibt, die auf React Native spezialisiert sind. React 
+Native ist auch gut dokumentiert und bietet viele Bibliotheken, um 
+die Entwicklung von mobilen Anwendungen zu erleichtern.
+
+Das Deployment kann entweder auf einem Cloud-Service wie Heroku oder 
+AWS EC2 erfolgen, oder auf einem eigenen Server, der den Anforderungen
+der Anwendung entspricht. Dabei sollten wir die Performance und die 
+Verfügbarkeit der Anwendung berücksichtigt.
