@@ -30,16 +30,30 @@ const WebcamCapture = () => {
     canvasRef.current.getContext('2d').drawImage(videoRef.current, 0, 0, 640, 480);
     const image = canvasRef.current.toDataURL('image/jpeg', 1.0);
 
-    axios.post('http://localhost:5000/check-sleep', {
-      image: image
-    })
-    .then((response) => {
-      console.log(response.data);
-      setResult(response.data);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+    const formData = new FormData();
+    formData.append('image', dataURLtoBlob(image));
+
+    axios.post('http://localhost:5000/check-face', formData)
+      .then((response) => {
+        console.log(response.data);
+        setResult(response.data.face_detected.toString());
+      })    
+      .catch((error) => {
+        console.log(error);
+      });
+
+    // Hilfsfunktion, um das Base64-codierte Bild in ein Blob-Objekt zu konvertieren
+    function dataURLtoBlob(dataURL) {
+      const arr = dataURL.split(',');
+      const mime = arr[0].match(/:(.*?);/)[1];
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], {type:mime});
+    }
   }
 
   // Aufruf der captureFrame-Funktion alle 1000ms (1s).
@@ -53,15 +67,16 @@ const WebcamCapture = () => {
 
   // Rendert das Video- und das Canvas-Element
   return (
-    <div>
+    <div className={result ? 'result-true' : 'result-false'}>
       <video autoPlay={true} ref={videoRef} width="640" height="480" />
       <canvas ref={canvasRef} width="640" height="480" style={{ display: 'none' }} />
       {result ? (
-        <p>API call returned: {result}</p>
+        <p>API call returned:<h1>{result}</h1></p>
       ) : (
         <p>Loading...</p>
-      )}    
+      )}
     </div>
+
   );
 }
 
