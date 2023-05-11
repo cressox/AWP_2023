@@ -1,5 +1,17 @@
 # Dokumentation - Arbeitsfortschritt und Erkenntnisse
 
+## Grundidee
+# Verwendung von Flask und React Native für das Deployment
+
+Eine der ursprünglichen Ideen für das Deployment war die Verwendung von Flask als Backend-Server und React Native als Frontend-Framework für die Entwicklung einer Hybrid-App. Hierbei sollte eine REST-API verwendet werden, um die Kommunikation zwischen der App und dem Backend zu ermöglichen. 
+
+Flask wurde als Backend-Server gewählt, da es eine einfache und flexible Möglichkeit bietet, eine REST-API zu implementieren und mit der App zu kommunizieren. React Native wurde als Frontend-Framework gewählt, da es eine breite Unterstützung für mobile Plattformen bietet und eine große Entwicklercommunity hat.
+
+Allerdings haben sich die Anforderungen im Laufe der Entwicklung geändert und es ist sehr wahrscheinlich, dass wir kein Machine Learning-Modell mehr verwenden. Dadurch ergeben sich auch andere Anforderungen an das Deployment. Die ursprüngliche Idee mit Flask und React Native wird den neuen Anforderungen nicht mehr gerecht.
+
+Ich werde daher alternative Ansätze und Technologien in Betracht ziehen, die besser zu den aktuellen Anforderungen passen. Im Folgenden werde ich den aktuellen Arbeitsfortschritt und die Erkenntnisse dokumentieren, um eine fundierte Entscheidung zu treffen.
+
+
 ## Arbeitsfortschritt
 
 Im Laufe meiner Recherche zum Thema habe ich verschiedene Möglichkeiten und Optionen in Betracht gezogen. Hier ist ein Überblick über meinen bisherigen Arbeitsfortschritt:
