@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 @app.route('/')
 def hello():
@@ -15,8 +15,8 @@ def hello():
 
 mp_face_detection = mp.solutions.face_detection
 
-@app.route('/check-face', methods=['POST'])
-def check_face():
+@app.route('/check-face-slow', methods=['POST'])
+def check_face_slow():
     image_data = request.files['image'].read()
     nparr = np.fromstring(image_data, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -31,6 +31,7 @@ def check_face():
         result = {'face_detected': False}
 
     return jsonify(result)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

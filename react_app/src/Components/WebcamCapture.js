@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
+import styles from './WebcamCapture.module.css';
 
 const WebcamCapture = () => {
   // Erstelle Referenzen zu den Video- und Canvas-Elementen
@@ -33,7 +34,7 @@ const WebcamCapture = () => {
     const formData = new FormData();
     formData.append('image', dataURLtoBlob(image));
 
-    axios.post('http://localhost:5000/check-face', formData)
+    axios.post('http://localhost:5000/check-face-slow', formData)
       .then((response) => {
         console.log(response.data);
         setResult(response.data.face_detected.toString());
@@ -67,7 +68,7 @@ const WebcamCapture = () => {
 
   // Rendert das Video- und das Canvas-Element
   return (
-    <div className={result ? 'result-true' : 'result-false'}>
+    <div className={result === 'true' ? styles['result-true'] : styles['result-false']}>
       <video autoPlay={true} ref={videoRef} width="640" height="480" />
       <canvas ref={canvasRef} width="640" height="480" style={{ display: 'none' }} />
       {result ? (
