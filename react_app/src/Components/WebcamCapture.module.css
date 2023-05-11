@@ -1,0 +1,19 @@
+.result-true {
+    border: 100px solid green;
+  }
+  
+.result-false {
+    animation: blink 1s infinite;
+}
+  
+@keyframes blink {
+  0% {
+    border: 100px solid red;
+  }
+  50% {
+    border: 100px solid transparent;
+  }
+  100% {
+    border: 100px solid red;
+  }
+}

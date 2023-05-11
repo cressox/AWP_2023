@@ -1,0 +1,6 @@
+flask
+flask-cors
+cython
+opencv-python-headless
+mediapipe
+numpy
