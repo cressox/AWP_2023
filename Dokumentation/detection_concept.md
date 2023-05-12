@@ -52,13 +52,12 @@ Auf Basis des bisherigen Arbeitsfortschritts sind nun folgende Punkte zu bearbei
 
 [Aru2020] Arunasalam, M.; Yaakob, N.; Amir, A.; Elshaikh, M.; Azahar, N. F. (2020): Real-Time Drowsiness Detection System for Driver Monitoring. In: IOP Conf. Ser.: Mater. Sci. Eng. 767 (1), S. 12066. DOI: 10.1088/1757-899X/767/1/012066
 
-[Gho2019] Ghoddoosian, Reza; Galib, Marnim; Athitsos, Vassilis (2019): A Realistic Dataset and Baseline Temporal Model for Early Drowsiness Detection. Online verfügbar unter <http://arxiv.org/pdf/1904.07312v1>
-
-[Ramzan2019] Ramzan, Muhammad; Khan, Hikmat Ullah; Awan, Shahid Mahmood; Ismail, Amina; Ilyas, Mahwish; Mahmood, Ahsan (2019): A Survey on State-of-the-Art Drowsiness Detection Techniques. In: IEEE Access 7, S. 61904–61919. DOI: 10.1109/ACCESS.2019.2914373
-
-[Kum2018] Kumar, Ashu; Kaur, Amandeep; Kumar, Munish (2019): Face detection techniqeues: a review. In: Artif Intell Rev 52 (2), S. 927–948. DOI: 10.1007/s10462-018-9650-2
+[Dre2020] Mariella Dreißig, Mohamed Hedi Baccour, Tim Schäck, Enkelejda Kasneci (2020): Driver Drowsiness Classification Based on Eye Blink and Head Movement Features Using the k-NN Algorithm.
 
 [Ebr2016] Parisa Ebrahim (2016): Driver drowsiness monitoring using eye movement features derived from electrooculography. Doktorarbeit.
 
-[Dre2020] Mariella Dreißig, Mohamed Hedi Baccour, Tim Schäck, Enkelejda Kasneci (2020): Driver Drowsiness Classification Based on Eye Blink and Head Movement Features Using the k-NN Algorithm. 
+[Gho2019] Ghoddoosian, Reza; Galib, Marnim; Athitsos, Vassilis (2019): A Realistic Dataset and Baseline Temporal Model for Early Drowsiness Detection. Online verfügbar unter <http://arxiv.org/pdf/1904.07312v1>
 
+[Kum2018] Kumar, Ashu; Kaur, Amandeep; Kumar, Munish (2019): Face detection techniqeues: a review. In: Artif Intell Rev 52 (2), S. 927–948. DOI: 10.1007/s10462-018-9650-2
+
+[Ramzan2019] Ramzan, Muhammad; Khan, Hikmat Ullah; Awan, Shahid Mahmood; Ismail, Amina; Ilyas, Mahwish; Mahmood, Ahsan (2019): A Survey on State-of-the-Art Drowsiness Detection Techniques. In: IEEE Access 7, S. 61904–61919. DOI: 10.1109/ACCESS.2019.2914373
