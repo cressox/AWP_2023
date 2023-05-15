@@ -7,14 +7,17 @@ from kivy.uix.progressbar import ProgressBar
 from kivy.uix.label import Label
 from kivy.uix.switch import Switch
 import cv2
+import threading
 import os
 import dlib
 import time
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.uix.image import Image
+
 os.environ['KIVY_CAMERA'] = 'opencv'
 
+SCREENS = {}
 
 class MainScreen(Screen):
     def __init__(self, **kwargs):
@@ -58,57 +61,15 @@ class LoadingScreen(Screen):
         self.add_widget(layout)
 
     def update_progress_bar(self, dt):
-        if self.progress_value < 100:
+        if hasattr(SCREENS['detection'], 'capture'):
+            self.manager.current = 'detection'
+            Clock.unschedule(self.progress_update_event)
+        elif self.progress_value < 100:
             self.progress_value += 1
             self.progress_bar.value = self.progress_value
         else:
-            # After the ProgressBar reaches its maximum, go to DetectionScreen
-            self.manager.current = 'detection'
-            Clock.unschedule(self.progress_update_event)
-
-class DetectionScreen2(Screen):
-    def initialize(self):
-        layout = BoxLayout(orientation='vertical')
-
-        button_to_main = Button(text='Go to Main')
-        button_to_main.bind(on_press=lambda x: self.set_screen('main'))
-        layout.add_widget(button_to_main)
-
-        self.image = Image()
-        layout.add_widget(self.image)
-        self.capture = cv2.VideoCapture(0)
-        self.detector = dlib.get_frontal_face_detector()
-
-        # Startet den Timer für die Bildaktualisierung
-        Clock.schedule_interval(self.update, 0.05)
-        self.add_widget(layout)
-
-    def update(self, dt):
-        ret, frame = self.capture.read()
-        if ret:
-            # Führe Gesichtserkennung aus
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            faces = self.detector(gray)
-
-            # Zeichne Rechtecke um erkannte Gesichter
-            for rect in faces:
-                x1 = rect.left()
-                y1 = rect.top()
-                x2 = rect.right()
-                y2 = rect.bottom()
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
-
-            # Konvertiere das Bild in ein Format, das von Kivy verwendet werden kann
-            buf1 = cv2.flip(frame, 0)
-            buf = buf1.tostring()
-            image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
-            image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
-
-            # Zeige das Bild an
-            self.image.texture = image_texture
-
-    def set_screen(self, screen_name):
-        self.manager.current = screen_name
+            self.progress_value = 0
+            self.progress_bar.value = self.progress_value
 
 class DetectionScreen(Screen):
     def initialize(self):
@@ -120,38 +81,45 @@ class DetectionScreen(Screen):
 
         self.image = Image()
         layout.add_widget(self.image)
+
+        self.add_widget(layout)
+
+        # Starte das Laden der Modelle und das Starten der Videoaufnahme in einem separaten Thread
+        threading.Thread(target=self.initialize_resources).start()
+
+        Clock.schedule_interval(self.update, 0.05)
+
+    def initialize_resources(self):
         self.capture = cv2.VideoCapture(0)
 
         # Lade den dlib Detektor und den Shape Predictor
         self.detector = dlib.get_frontal_face_detector()
         self.predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")  # Path to the shape predictor model
 
-        Clock.schedule_interval(self.update, 0.05)
-        self.add_widget(layout)
-
     def update(self, dt):
-        ret, frame = self.capture.read()
-        if ret:
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            faces = self.detector(gray)
-            for rect in faces:
-                # Zeichne ein Rechteck um das erkannte Gesicht
-                x1, y1, x2, y2 = rect.left(), rect.top(), rect.right(), rect.bottom()
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
+        if hasattr(self, 'capture'):
+            ret, frame = self.capture.read()
+            if ret:
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                faces = self.detector(gray)
+                for rect in faces:
+                    # Zeichne ein Rechteck um das erkannte Gesicht
+                    x1, y1, x2, y2 = rect.left(), rect.top(), rect.right(), rect.bottom()
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
 
-                # Erhalte die Landmarks für das Gesicht und zeichne sie
-                shape = self.predictor(gray, rect)
-                for i in range(shape.num_parts):
-                    p = shape.part(i)
-                    cv2.circle(frame, (p.x, p.y), 2, (0, 255, 0), -1)
+                    # Erhalte die Landmarks für das Gesicht und zeichne sie
+                    shape = self.predictor(gray, rect)
+                    for i in range(shape.num_parts):
+                        p = shape.part(i)
+                        cv2.circle(frame, (p.x, p.y), 2, (0, 255, 0), -1)
 
-            # Konvertiere das Bild in ein Format, das von Kivy verwendet werden kann
-            buf1 = cv2.flip(frame, 0)
-            buf = buf1.tostring()
-            image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
-            image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+                # Konvertiere das Bild in ein Format, das von Kivy verwendet werden kann
+                buf1 = cv2.flip(frame, 0)
+                buf = buf1.tostring()
+                image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
+                image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
 
-            self.image.texture = image_texture
+                self.image.texture = image_texture
 
     def set_screen(self, screen_name):
         self.manager.current = screen_name
@@ -193,11 +161,18 @@ class HelpScreen(Screen):
 class MyScreenManager(ScreenManager):
     def __init__(self, **kwargs):
         super(MyScreenManager, self).__init__(**kwargs)
-        self.add_widget(MainScreen(name='main'))
-        self.add_widget(DetectionScreen(name='detection'))
-        self.add_widget(LoadingScreen(name='loading'))  # Add LoadingScreen
-        self.add_widget(SettingsScreen(name='settings'))
-        self.add_widget(HelpScreen(name='help'))
+        SCREENS['main']=MainScreen(name='main')
+        SCREENS['detection']=DetectionScreen(name='detection')
+        SCREENS['loading']=LoadingScreen(name='loading')
+        SCREENS['settings']=SettingsScreen(name='settings')
+        SCREENS['help']=HelpScreen(name='help')
+
+        self.add_widget(SCREENS['main'])
+        self.add_widget(SCREENS['detection'])
+        self.add_widget(SCREENS['loading'])  # Add LoadingScreen
+        self.add_widget(SCREENS['settings'])
+        self.add_widget(SCREENS['help'])
+
 
 class MyApp(App):
     def build(self):
