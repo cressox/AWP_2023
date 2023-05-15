@@ -22,8 +22,8 @@ Bei unserer Arbeit wird das Verhalten des Fahrers analysiert, wobei der Fokus au
 
 Dabei hängen die Gesichts- und Landmarkdetektion eng zusammen, denn die Wahl des Algorithmus für die Gesichtsdetektion ist abhängig von dem Hintergrund der Detektion. Einen guten Überblick bietet Kumar et al. [Kum2018]. In unserem Fall möchten wir Landmarks in einem Gesicht finden, wofür sich der Viola-Jones Algorithmus eignet. Für die Detektion von Gesichtern zur Müdigkeitsdetektion wurde dieser Algorithmus vielfach verwendet (Ghoddoosian et al. [Gho2019], Arunasalam et al [Aru2020]).
 
-Eine gute Implementierung des Viola-Jones Algorithmus bietet der Dlib Face Detector. Dabei wurde der Viola-Jones Algorithmus angepasst und erweitert, um eine Realzeitanwendung zu relaisieren. Genauere Infos zu dem Algorithmus finden sich hier: <http://dlib.net/face_landmark_detection.py.html>
-Eine andere Mögichkeit ist, den MediaPipe Face Detector zu nutzen, welcher jedoch schwieriger zu implementieren ist. Ein Vorteil des Dlib Face Detectors ist, dass das Modell vortrainiert wurde und offline anwendbar ist. Das Modell gibt 68 Landmarks im Gesicht, wovon es 6 Landmarks pro Auge gibt. Diese reichen aus, um Features zu extrahieren, wie auch von Ghoddoosian et al. [Gho2019].
+Eine gute Implementierung des Viola-Jones Algorithmus bietet der Dlib Face Detector. Dabei wurde der Viola-Jones Algorithmus angepasst und erweitert, um eine Realzeitanwendung zu realisieren. Genauere Infos zu dem Algorithmus finden sich hier: <http://dlib.net/face_landmark_detection.py.html>
+Eine andere Möglichkeit ist, den MediaPipe Face Detector zu nutzen, welcher jedoch schwieriger zu implementieren ist. Ein Vorteil des Dlib Face Detectors ist, dass das Modell vortrainiert wurde und offline anwendbar ist. Das Modell gibt 68 Landmarks im Gesicht, wovon es 6 Landmarks pro Auge gibt. Diese reichen aus, um Features zu extrahieren, wie auch von Ghoddoosian et al. [Gho2019].
 
 Eine grundlegende Metrik, auf welcher weitere Features aufbauen, ist der Wert der Eye Aspect Ratio (EAR). Der Wert berechnet das Verhältnis zwischen den Augenliedern, um die Augenöffnung zu bestimmen. Dies ist ein wichtiger Indikator für den Müdigkeitsstatus. Darauffolgend oder auch unabhängig vom EAR-Wert lassen sich viele weitere Features berechnen. Eine Liste an möglichen Features bietet Ebrahim et al. [Ebr2016]. Auch entscheidend ist die Frequenz des Blinzelns (PERCLOS-Wert). Bei Müdigkeit verändert sich das Blinzelverhalten. Bei Dreißig et al. [Dre2020] spielt dieser Wert eine entscheidende Rolle bei der Müdigkeitsdetektion.
 
@@ -31,9 +31,9 @@ Der nächste Schritt ist die Einteilung in wach oder müde auf Grundlage der aus
 
 Vor der Klassifikation mittels der Features müssen diese vorher Vorverarbeitet werden, um individuelle Unterschiede herauszufiltern. Dies erfolgt durch eine Normalisierung der Features, wie in Ghoddoosian et al. [Gho2019] beschrieben. Zudem ist eine Kalibrierung bei Aufnahme einer neuen Person wichtig, um Individualitäten zu berücksichtigen. Auch hier muss das weitere Vorgehen noch weiter bestimmt werden.
 
-## Erkentnisse
+## Erkenntnisse
 
-Wie sich aus der Rechnerche ergeben hat, sind einige Methoden zur Gesichtsdetektion in der Praxis für Realzeitanwendungen nicht geeignet, da deren Berechnungszeit für unseren Anwendungsbereich zu groß ist. Auch gibt es nicht viele Gesichtserkennungsmethoden, welche für die eigene Implementierung genutzt werden können, viele Gesichtserkennungsmethoden müssen bezahlt werden. Diese sind meistens noch genauer und bieten mehr Landmarks, was für unsere Anwendung jedoch nicht nötig ist, denn 6 Landmarks pro Auge sind für unsere Features bereits ausreichend.
+Wie sich aus der Recherche ergeben hat, sind einige Methoden zur Gesichtsdetektion in der Praxis für Realzeitanwendungen nicht geeignet, da deren Berechnungsaufwand für unseren Anwendungsbereich zu groß ist. Auch gibt es nicht viele Gesichtserkennungsmethoden, welche für die eigene Implementierung genutzt werden können, viele Gesichtserkennungsmethoden müssen bezahlt werden. Diese sind meistens noch genauer und bieten mehr Landmarks, was für unsere Anwendung jedoch nicht nötig ist, denn 6 Landmarks pro Auge sind für unsere Features bereits ausreichend.
 
 Es gibt viele Kleinigkeiten zu beachten, insbesondere die Vorverarbeitung der Features. Dies hatten wir in der Planung missachtet, es erscheint jedoch, wie im Arbeitsfortschritt beschrieben, als unerlässlich.
 
@@ -41,7 +41,7 @@ Es gibt viele Kleinigkeiten zu beachten, insbesondere die Vorverarbeitung der Fe
 
 Auf Basis des bisherigen Arbeitsfortschritts sind nun folgende Punkte zu bearbeiten:
 
-1. Exktraktion der entscheidenden Features aus der großen Auswahl an möglichen Features
+1. Extraktion der entscheidenden Features aus der großen Auswahl an möglichen Features
 2. Bestimmung des Vorgehens bei der Vorverarbeitung
 3. Auswahl des besten Klassifikators nach den Aspekten Implementierbarkeit und Performance
 4. Auswahl geeigneter Datensätze zum Trainieren des Klassifikators
