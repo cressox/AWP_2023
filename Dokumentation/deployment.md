@@ -19,7 +19,10 @@ Im Laufe meiner Recherche zum Thema habe ich verschiedene Möglichkeiten und Opt
 
 2. **Flask-API**: Ursprünglich hatte ich die Idee, eine Flask-API zu erstellen, um die WebcamCapture-Komponente zu unterstützen und die Datenverarbeitung auf einem Server durchzuführen. Allerdings habe ich mich aufgrund der Geschwindigkeitsprobleme gegen diese Lösung entschieden.
 
-3. **Pyscript und React**: Anschließend habe ich mich mit Pyscript beschäftigt und versucht herauszufinden, ob und wie gut es mit React harmoniert. Dabei stehe ich jedoch vor der Herausforderung, zu entscheiden, ob Pyscript die richtige Wahl ist und wie ich es in eine App (egal ob webbasiert oder appbasiert) einbetten kann.
+3. **Kivy als Framework**: Ich habe auch das Kivy-Framework in Betracht gezogen, um meine Anwendung zu entwickeln. Kivy ist ein Open-Source-Python-Bibliothek zur Entwicklung von Multitouch-Anwendungen und unterstützt sowohl Android als auch iOS. Die Entscheidung für Kivy würde es ermöglichen, den gesamten Code in Python zu schreiben, was den Entwicklungsprozess vereinfachen und die Notwendigkeit eliminieren könnte, eine separate API für die Kommunikation zwischen Frontend und Backend zu schreiben. Zusätzlich könnte die Offline-Fähigkeit von Kivy besonders nützlich für das vorgeschlagene Szenario sein, in dem die Anwendung die Fähigkeit haben sollte, ohne ständige Internetverbindung zu funktionieren.
+
+4. **Vergleich: Kivy vs. React Native mit Flask REST API**
+Hier ein ausführlicher Vergleich[hier](./kivy_vs_react.md)
 
 ## Erkenntnisse
 
