@@ -52,11 +52,11 @@ class DetectionScreen(Screen):
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 faces = self.detector(gray)
                 for rect in faces:
-                    # Zeichne ein Rechteck um das erkannte Gesicht
+                    # Draw a rectangle around the detected face
                     x1, y1, x2, y2 = rect.left(), rect.top(), rect.right(), rect.bottom()  # noqa: E501
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
 
-                    # Erhalte die Landmarks für das Gesicht und zeichne sie
+                    # Get the landmarks for the face and draw them
                     shape = self.predictor(gray, rect)
                     for i in range(shape.num_parts):
                         p = shape.part(i)
@@ -84,7 +84,7 @@ class DetectionScreen(Screen):
                                     cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                         count_frame = 0
         
-                # Konvertiere das Bild in ein Format, das von Kivy verwendet werden kann
+                # Convert the image to a format that Kivy can use
                 buf1 = cv2.flip(frame, 0)
                 buf = buf1.tostring()
                 image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), 

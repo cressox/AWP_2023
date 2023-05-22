@@ -29,3 +29,4 @@ def calculate_EAR(eye: list):
     EAR = (vertical1+vertical2)/horizontal
                 
     return EAR
+
