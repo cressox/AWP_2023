@@ -1,8 +1,4 @@
 import os
-import time
-import threading
-import cv2
-import dlib
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.button import Button
@@ -11,7 +7,7 @@ from kivy.uix.progressbar import ProgressBar
 from kivy.uix.label import Label
 from kivy.uix.switch import Switch
 from kivy.clock import Clock
-from face_detection_mediapipe import DetectionScreen
+from face_detection_dlib import DetectionScreen
 
 os.environ["KIVY_CAMERA"] = "opencv"
 
@@ -119,7 +115,8 @@ class SettingsScreen(Screen):
 
 class HelpScreen(Screen):
     """
-    This is the help screen of the app, it provides information about how to use the app.
+    This is the help screen of the app, it provides information about 
+    how to use the app.
     """
 
     def __init__(self, **kwargs):

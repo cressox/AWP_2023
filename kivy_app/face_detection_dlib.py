@@ -34,7 +34,8 @@ class DetectionScreen(Screen):
         # loading the dlib face detector
         self.detector = dlib.get_frontal_face_detector()
         # Path to the shape predictor model
-        self.predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+        self.predictor = dlib.shape_predictor(
+            "Predictors/shape_predictor_68_face_landmarks.dat")
 
     def update(self, dt):            
         
