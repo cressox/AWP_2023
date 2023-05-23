@@ -51,6 +51,7 @@ class DetectionScreen(Screen):
             if ret:
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 faces = self.detector(gray)
+                
                 for rect in faces:
                     # Draw a rectangle around the detected face
                     x1, y1, x2, y2 = rect.left(), rect.top(), rect.right(), rect.bottom()  # noqa: E501
@@ -83,7 +84,6 @@ class DetectionScreen(Screen):
                         cv2.putText(frame, 'Blink Detected', (30, 30),
                                     cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                         count_frame = 0
-        
                 # Convert the image to a format that Kivy can use
                 buf1 = cv2.flip(frame, 0)
                 buf = buf1.tostring()

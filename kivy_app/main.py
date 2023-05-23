@@ -7,7 +7,7 @@ from kivy.uix.label import Label
 from kivy.uix.switch import Switch
 import os
 from kivy.clock import Clock
-from face_detection_dlib import DetectionScreen
+from face_detection_mediapipe import DetectionScreen
 
 os.environ['KIVY_CAMERA'] = 'opencv'
 
@@ -65,7 +65,7 @@ class LoadingScreen(Screen):
         else:
             self.progress_value = 0
             self.progress_bar.value = self.progress_value
-            
+
 class SettingsScreen(Screen):
     def __init__(self, **kwargs):
         super(SettingsScreen, self).__init__(**kwargs)
