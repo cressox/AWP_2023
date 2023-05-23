@@ -9,6 +9,10 @@ from kivy.uix.image import Image
 import features as feat
 
 class DetectionScreen(Screen):
+    """
+    This is the detection screen of the app, it uses OpenCV to capture video 
+    and detect faces and landmarks.
+    """
     def initialize(self):
         layout = BoxLayout(orientation='vertical')
 
