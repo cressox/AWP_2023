@@ -15,7 +15,7 @@ def calculate_EAR(eye: list):
         to Improve Driver Safety. Electronics 2022, 11, 3183.
 
     Returns:
-        float: The calculated EAR ratio
+        float: The calculated EAR value
     """
         
     # calculate the vertical distances
@@ -26,7 +26,6 @@ def calculate_EAR(eye: list):
     horizontal = dist.euclidean(eye[0], eye[3])
             
     # calculate the EAR
-    EAR = (vertical1+vertical2)/horizontal
+    EAR = (vertical1+vertical2)/2*horizontal
                 
     return EAR
-

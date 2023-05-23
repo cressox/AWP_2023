@@ -34,8 +34,7 @@ class DetectionScreen(Screen):
         # loading the dlib face detector
         self.detector = dlib.get_frontal_face_detector()
         # Path to the shape predictor model
-        self.predictor = dlib.shape_predictor(
-            "Predictors/shape_predictor_68_face_landmarks.dat")
+        self.predictor = dlib.shape_predictor("Predictors/shape_predictor_68_face_landmarks.dat")
 
     def update(self, dt):            
         
@@ -79,12 +78,28 @@ class DetectionScreen(Screen):
         
                     # Avg of left and right eye EAR
                     avg = (left_EAR+right_EAR)/2
+
+                    # blink detector
                     if avg < blink_thresh:
                         count_frame += 1  # incrementing the frame count
                     else:
                         cv2.putText(frame, 'Blink Detected', (30, 30),
                                     cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                         count_frame = 0
+
+                    # Calculate PERCLOS 
+                    total_frames = 0
+                    closed_frames = 0
+                    perclos_thresh = 0.2
+
+                    if avg < perclos_thresh:
+                        closed_frames += 1
+                    
+                    total_frames += 1
+
+                    perclos = (closed_frames / total_frames) * 100
+
+
                 # Convert the image to a format that Kivy can use
                 buf1 = cv2.flip(frame, 0)
                 buf = buf1.tostring()
