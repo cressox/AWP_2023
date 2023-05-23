@@ -6,7 +6,7 @@ import threading
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.uix.image import Image
-import features as feat
+import mediapipe as mp
 
 class DetectionScreen(Screen):
     """
@@ -39,13 +39,10 @@ class DetectionScreen(Screen):
         if hasattr(self, 'capture'):
             ret, frame = self.capture.read()
             if ret:
-                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                
-                # Convert the image to a format that Kivy can use
+                # Convert the image to a format that can be used by Kivy
                 buf1 = cv2.flip(frame, 0)
                 buf = buf1.tostring()
-                image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), 
-                                               colorfmt='bgr')
+                image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
                 image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
 
                 self.image.texture = image_texture
