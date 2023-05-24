@@ -7,7 +7,7 @@ from kivy.uix.progressbar import ProgressBar
 from kivy.uix.label import Label
 from kivy.uix.switch import Switch
 from kivy.clock import Clock
-from face_detection_mediapipe import DetectionScreen
+from face_detection_dlib import DetectionScreen
 
 os.environ["KIVY_CAMERA"] = "opencv"
 
@@ -66,7 +66,7 @@ class LoadingScreen(Screen):
 
         self.progress_value = 0
         self.progress_update_event = Clock.schedule_interval(
-            self.update_progress_bar, 0.05
+            self.update_progress_bar, 0.02
         )
 
         self.add_widget(layout)

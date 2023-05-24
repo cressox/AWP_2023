@@ -42,7 +42,8 @@ class DetectionScreen(Screen):
                 # Convert the image to a format that can be used by Kivy
                 buf1 = cv2.flip(frame, 0)
                 buf = buf1.tostring()
-                image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
+                image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), 
+                                               colorfmt='bgr')
                 image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
 
                 self.image.texture = image_texture

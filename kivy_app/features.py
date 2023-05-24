@@ -26,6 +26,6 @@ def calculate_EAR(eye: list):
     horizontal = dist.euclidean(eye[0], eye[3])
             
     # calculate the EAR
-    EAR = (vertical1+vertical2)/2*horizontal
+    EAR = (vertical1+vertical2)/(2*horizontal)
                 
     return EAR
