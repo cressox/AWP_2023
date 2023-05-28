@@ -8,11 +8,9 @@ from kivy.graphics.texture import Texture
 from kivy.uix.image import Image
 import mediapipe as mp
 
+#Class DetectionScreen is working in Kivy with Mediapipe Version 0.9.0
+
 class DetectionScreen(Screen):
-    """
-    This is the detection screen of the app, it uses OpenCV to capture video 
-    and detect faces and landmarks.
-    """
     def initialize(self):
         layout = BoxLayout(orientation='vertical')
 
@@ -25,26 +23,41 @@ class DetectionScreen(Screen):
 
         self.add_widget(layout)
 
-        #Starting the video in a new Thread
+        # Starte das Video in einem neuen Thread
         threading.Thread(target=self.initialize_resources).start()
 
         Clock.schedule_interval(self.update, 0.05)
 
     def initialize_resources(self):
-
         self.capture = cv2.VideoCapture(0)
 
-    def update(self, dt):            
+        self.mp_drawing = mp.solutions.drawing_utils
+        self.mp_face_mesh = mp.solutions.face_mesh
 
+        self.face_mesh = self.mp_face_mesh.FaceMesh()
+
+    def update(self, dt):
         if hasattr(self, 'capture'):
             ret, frame = self.capture.read()
             if ret:
-                # Convert the image to a format that can be used by Kivy
-                buf1 = cv2.flip(frame, 0)
+                image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                
+                results = self.face_mesh.process(image)
+
+                if results.multi_face_landmarks:
+                    for face_landmarks in results.multi_face_landmarks:
+                        self.mp_drawing.draw_landmarks(
+                            image=image,
+                            landmark_list=face_landmarks,
+                            connections=self.mp_face_mesh.FACEMESH_TESSELATION,
+                            landmark_drawing_spec=None,
+                            connection_drawing_spec=self.mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=1, circle_radius=1),
+                        )
+
+                buf1 = cv2.flip(image, 0)
                 buf = buf1.tostring()
-                image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), 
-                                               colorfmt='bgr')
-                image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+                image_texture = Texture.create(size=(image.shape[1], image.shape[0]), colorfmt='rgb')
+                image_texture.blit_buffer(buf, colorfmt='rgb', bufferfmt='ubyte')
 
                 self.image.texture = image_texture
 
