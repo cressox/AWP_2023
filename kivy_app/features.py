@@ -31,6 +31,7 @@ def calculate_EAR(eye: list):
     return EAR
 
 def get_coord_points(landmark_list: list, eye_idxs: list, imgW: int, imgH: int):
+
     """Function for getting all six coordinate points of one eye
 
     Parameters:
@@ -55,3 +56,4 @@ def get_coord_points(landmark_list: list, eye_idxs: list, imgW: int, imgH: int):
         coords_points.append(coord)
 
     return coords_points
+

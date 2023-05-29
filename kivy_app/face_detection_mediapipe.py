@@ -6,6 +6,7 @@ import threading
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.uix.image import Image
+from kivy.logger import Logger
 import mediapipe as mp
 import numpy as np
 import features as feat
@@ -28,7 +29,12 @@ class DetectionScreen(Screen):
         # Strating the video in a new Thread
         threading.Thread(target=self.initialize_resources).start()
 
-        Clock.schedule_interval(self.update, 0.05)
+        framerate = 50
+
+        Clock.schedule_interval(self.update, 1/framerate)
+
+        Logger.info("Base: Framerate is %s", framerate)
+
 
     def initialize_resources(self):
 
@@ -50,8 +56,16 @@ class DetectionScreen(Screen):
                     refine_landmarks=True,         # Default=False
                     min_detection_confidence=0.5,   # Default=0.5
                     min_tracking_confidence= 0.5,)
+        
+        self.count_frame = 0
+        self.blink_thresh = 0.2
+        self.succ_frame = 2
+
+        Logger.info("Mediapipe: 478 Landmarks are detected")
+        
 
     def update(self, dt):
+        
         if hasattr(self, 'capture'):
             ret, frame = self.capture.read()
             if ret:
@@ -84,14 +98,15 @@ class DetectionScreen(Screen):
 
                         eye_idxs = left_eye_idxs + right_eye_idxs
 
-                        #Drawing the 6 landmarks per eye
-                        for landmark_idx, landmark in enumerate(face_landmarks.landmark):
+                        # Drawing the 6 landmarks per eye
+                        for landmark_idx, landmark in enumerate(
+                            face_landmarks.landmark):
                             if landmark_idx in eye_idxs:
                                 pred_cord = self.denormalize_coordinates(
                                     landmark.x, landmark.y, imgW, imgH)
                                 cv2.circle(image, pred_cord,3,(255, 255, 255), -1)
 
-                        #Getting the coordinate points for left and right eye
+                        # Getting the coordinate points for left and right eye
                         coord_points_left = feat.get_coord_points(
                             face_landmarks.landmark, left_eye_idxs, imgW, imgH)
                         
@@ -99,15 +114,33 @@ class DetectionScreen(Screen):
                             face_landmarks.landmark, right_eye_idxs, imgW, imgH)
                         
                         #Calculating the Eye Aspect ratio for the left and right eye
-                        ear_left = feat.calculate_EAR(coord_points_left)
+                        EAR_left = feat.calculate_EAR(coord_points_left)
                         
-                        ear_right = feat.calculate_EAR(coord_points_right)
+                        EAR_right = feat.calculate_EAR(coord_points_right)
 
-                        #Calculating the Average EAR for both eyes
-                        avg_ear = (ear_right+ear_left)/2
+                        # Calculating the Average EAR for both eyes
+                        avg_EAR = (EAR_right+EAR_left)/2
 
-                        print(avg_ear)
+                        # Blink Detection Algorithm
 
+                        # Counting the frames when there is a blink
+                        if avg_EAR < self.blink_thresh:
+                            self.count_frame +=1
+
+                        else:
+                            # The blink is done, if the counting stops 
+                            # and the EAR is bigger tan the blink threshold
+                            if self.count_frame >= self.succ_frame:
+                                # Blink is detected, so counting set to zero 
+                                # to start again when there is a new blink
+                                self.count_frame = 0
+                                # Putting a text, that a blink is detected
+                                cv2.putText(image, 'Blink Detected', (30, 30),
+                                cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+                            else:
+                                # When there is no blink 
+                                self.count_frame = 0
+                        
                 buf1 = cv2.flip(image, 0)
                 buf = buf1.tostring()
                 image_texture = Texture.create(size=(image.shape[1], image.shape[0]), 
