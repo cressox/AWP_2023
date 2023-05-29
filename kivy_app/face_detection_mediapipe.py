@@ -57,9 +57,13 @@ class DetectionScreen(Screen):
                     min_detection_confidence=0.5,   # Default=0.5
                     min_tracking_confidence= 0.5,)
         
+        #Initialisierung der Werte für die Blinzeldetektion
         self.count_frame = 0
         self.blink_thresh = 0.2
         self.succ_frame = 2
+
+        #Initialisierung der Liste der Frames für die PERCLOS Berechnung
+        self.list_of_frames = []
 
         Logger.info("Mediapipe: 478 Landmarks are detected")
         
@@ -122,24 +126,29 @@ class DetectionScreen(Screen):
                         avg_EAR = (EAR_right+EAR_left)/2
 
                         # Blink Detection Algorithm
+                        blink, closed_eye = self.blink_detection(avg_EAR)
 
-                        # Counting the frames when there is a blink
-                        if avg_EAR < self.blink_thresh:
-                            self.count_frame +=1
+                        #PERCLOS Calculation based on frames
+                        perclos = self.calculate_perclos(closed_eye, 1000)
 
+                        perclos = round(perclos, 2)
+
+                        #Putting Text, first loading percentage, then Perclos value
+                        if perclos > 1:
+                            string_perclos = "Loading: " + str(perclos) + "%"
+                            cv2.putText(image, string_perclos, (30, 120),
+                            cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                         else:
-                            # The blink is done, if the counting stops 
-                            # and the EAR is bigger tan the blink threshold
-                            if self.count_frame >= self.succ_frame:
-                                # Blink is detected, so counting set to zero 
-                                # to start again when there is a new blink
-                                self.count_frame = 0
-                                # Putting a text, that a blink is detected
-                                cv2.putText(image, 'Blink Detected', (30, 30),
-                                cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-                            else:
-                                # When there is no blink 
-                                self.count_frame = 0
+                            string_perclos = "PERCLOS: " + str(perclos)
+                            cv2.putText(image, string_perclos, (30, 120),
+                            cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+                        
+
+                        if blink:
+                            # Putting a text, that a blink is detected
+                            cv2.putText(image, 'Blink Detected', (30, 30),
+                            cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+
                         
                 buf1 = cv2.flip(image, 0)
                 buf = buf1.tostring()
@@ -151,3 +160,81 @@ class DetectionScreen(Screen):
 
     def set_screen(self, screen_name):
         self.manager.current = screen_name
+
+    def blink_detection(self, avg_EAR: float):
+        """Calculates the blink behavior based on the EAR value. 
+        If the threshold (how far the eyes are closed)
+        is not reached , blinking is detected.
+
+        Args:
+            avg_EAR (float): Transfer of the EAR value 
+            over both eyes for a recorded frame
+
+        Returns:
+            blink (Bool): Indicates whether a blink was just detected
+            eye_closed (Bool): Indicates whether in the inputframe
+            the eye is cloed or not
+        """
+        blink = False
+        # Counting the frames when there is a blink
+        if avg_EAR < self.blink_thresh:
+           self.count_frame +=1
+           eye_closed = True
+        else:
+            eye_closed = False
+            # The blink is done, if the counting stops 
+            # and the EAR is bigger than the blink threshold
+            if self.count_frame >= self.succ_frame:
+                # Blink is detected, so counting set to zero 
+                # to start again when there is a new blink
+                self.count_frame = 0
+                blink = True
+            else:
+            # When there is no blink 
+                self.count_frame = 0  
+            
+        return blink, eye_closed
+
+    def calculate_perclos(self, closed_eye: bool, length_of_frames: int):
+        """Calculates the PERCLOS (percentage of eye closure) value 
+        based on the number of frames the eye is closed
+
+        Args:
+            blink (bool): indicates whether the read frame 
+            is closed (True) or open (False)
+            length_of_frames (int): Defines the time span over which 
+            the Perclos value is calculated
+
+        Returns:
+            perclos (float): Output of the PERCLOS value
+        """
+        #initialization
+        perclos = 0
+        number_of_frames = len(self.list_of_frames)
+
+        # Calculation when time span has been reached
+        if number_of_frames == length_of_frames:
+            
+            # The oldest frame is removed and the new frame is added to the list
+            self.list_of_frames.append(closed_eye)
+            self.list_of_frames.pop(0)
+            
+            # Calculation of the Perclos value based on the values 
+            # where eye is closed from the list
+            frame_is_blink = self.list_of_frames.count(True)
+            perclos = frame_is_blink/number_of_frames
+
+        # Collect frames until time span (in frames) has been reached
+        elif number_of_frames < length_of_frames:
+
+            self.list_of_frames.append(closed_eye)
+
+            # First of all, Perclos is a kind of loading value 
+            # until a period of time has been reached
+            perclos = (number_of_frames/length_of_frames)*100
+
+        # Error message when list gets longer for some reason
+        else:
+            print("Fehler, Liste zu lang")
+
+        return perclos       
