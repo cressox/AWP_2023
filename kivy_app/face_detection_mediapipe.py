@@ -9,7 +9,7 @@ from kivy.uix.image import Image
 from kivy.logger import Logger
 import mediapipe as mp
 import numpy as np
-import features as feat
+from scipy.spatial import distance as dist
 
 class DetectionScreen(Screen):
     def __init__(self, **kwargs):
@@ -123,16 +123,16 @@ class DetectionScreen(Screen):
                                 cv2.circle(image, pred_cord,3,(255, 255, 255), -1)
 
                         # Getting the coordinate points for left and right eye
-                        coord_points_left = feat.get_coord_points(
+                        coord_points_left = self.get_coord_points(
                             face_landmarks.landmark, left_eye_idxs, imgW, imgH)
                         
-                        coord_points_right = feat.get_coord_points(
+                        coord_points_right = self.get_coord_points(
                             face_landmarks.landmark, right_eye_idxs, imgW, imgH)
                         
                         #Calculating the Eye Aspect ratio for the left and right eye
-                        EAR_left = feat.calculate_EAR(coord_points_left)
+                        EAR_left = self.calculate_EAR(coord_points_left)
                         
-                        EAR_right = feat.calculate_EAR(coord_points_right)
+                        EAR_right = self.calculate_EAR(coord_points_right)
 
                         # Calculating the Average EAR for both eyes
                         avg_EAR = (EAR_right+EAR_left)/2
@@ -142,7 +142,6 @@ class DetectionScreen(Screen):
 
                         #PERCLOS Calculation based on frames
                         perclos = self.calculate_perclos(closed_eye, 1000)
-
                         perclos = round(perclos, 2)
 
                         #Putting Text, first loading percentage, then Perclos value
@@ -265,3 +264,59 @@ class DetectionScreen(Screen):
             print("Fehler, Liste zu lang")
 
         return perclos
+    
+    def get_coord_points(landmark_list: list, eye_idxs: list, imgW: int, imgH: int):
+
+        """Function for getting all six coordinate points of one eye
+
+        Parameters:
+            landmark_list (list): a list of all landmarks from the mediapipe face mesh
+            Must be a list of 478 Landmarks
+
+            eye_idxs (list): 6-entry large array of the corresponding landmarks 
+            of the eye in the order: 
+            [middle left, top right, top left, middle right, bottom right, bottom left]
+
+        Returns:
+            list: A List of the coordinate points
+        """
+        denormalize_coordinates = mp.solutions.drawing_utils._normalized_to_pixel_coordinates
+
+        coords_points = []
+
+        #Getting the (x,y) Coordinates of every Input-Landmark
+        for i in eye_idxs:
+            lm = landmark_list[i]
+            coord = denormalize_coordinates(lm.x, lm.y, imgW, imgH)
+            coords_points.append(coord)
+
+        return coords_points
+
+    def calculate_EAR(eye: list):
+        """Function for calculating the EAR (Eye Aspect Ratio)
+
+        Parameters:
+            eye (list): 6-entry large array of the coordinate points (x, y)
+            of the eye in the order: 
+            [middle left, top right, top left, middle right, bottom right, bottom left]
+
+            More informations about the EAR and the order of the coordinate points:
+            https://www.mdpi.com/1866552 ; Dewi, C.; Chen, R.-C.; Chang, C.-W.; Wu, S.-H.; 
+            Jiang, X.; Yu, H. Eye Aspect Ratio for Real-Time Drowsiness Detection 
+            to Improve Driver Safety. Electronics 2022, 11, 3183.
+
+        Returns:
+            float: The calculated EAR value
+        """
+            
+        # calculate the vertical distances
+        vertical1 = dist.euclidean(eye[1], eye[5])
+        vertical2 = dist.euclidean(eye[2], eye[4])
+                
+        # calculate the horizontal distance
+        horizontal = dist.euclidean(eye[0], eye[3])
+                
+        # calculate the EAR
+        EAR = (vertical1+vertical2)/(2*horizontal)
+                    
+        return EAR
