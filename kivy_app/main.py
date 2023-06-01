@@ -45,7 +45,8 @@ class SettingsScreen(Screen):
         super(SettingsScreen, self).__init__(**kwargs)
         layout = BoxLayout(orientation='vertical')
 
-        button_to_main = Button(text='Go to Main', size_hint=(None, None), size=(100, 50), pos_hint={'x': 0, 'y': 1})
+        button_to_main = Button(text='Go to Main', size_hint=(None, None), 
+                                size=(100, 50), pos_hint={'x': 0, 'y': 1})
         button_to_main.bind(on_press=lambda x: self.set_screen('main'))
         layout.add_widget(button_to_main)
 
@@ -73,7 +74,8 @@ class HelpScreen(Screen):
         super(HelpScreen, self).__init__(**kwargs)
         layout = BoxLayout(orientation='vertical')
 
-        button_to_main = Button(text='Go to Main', size_hint=(None, None), size=(100, 50), pos_hint={'x': 0, 'y': 1})
+        button_to_main = Button(text='Go to Main', size_hint=(None, None), 
+                                size=(100, 50), pos_hint={'x': 0, 'y': 1})
         button_to_main.bind(on_press=lambda x: self.set_screen('main'))
         layout.add_widget(button_to_main)
 

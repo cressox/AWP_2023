@@ -7,6 +7,7 @@ from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.uix.image import Image
 from kivy.logger import Logger
+from matplotlib import pyplot as plt
 import mediapipe as mp
 import numpy as np
 from scipy.spatial import distance as dist
@@ -26,11 +27,9 @@ class DetectionScreen(Screen):
 
         self.add_widget(layout)
 
-        framerate = 30
+        Clock.schedule_interval(self.update, 0.02)
 
-        Clock.schedule_interval(self.update, 1/framerate)
-
-        Logger.info("Base: Framerate is %s", framerate)
+        self.fps = 0
 
         self.capture = None
         self.update_event = None
@@ -55,11 +54,14 @@ class DetectionScreen(Screen):
         
         #Initialisierung der Werte für die Blinzeldetektion
         self.count_frame = 0
-        self.blink_thresh = 0.2
-        self.succ_frame = 2
+        self.blink_thresh = 0.18
+        self.succ_frame = 1
 
         #Initialisierung der Liste der Frames für die PERCLOS Berechnung
-        self.list_of_frames = []
+        self.list_of_eye_closure = []
+
+        #Initialisierung der Liste der Frames für die blink-Threshold Berechnung
+        self.list_of_EAR = []
 
         Logger.info("Mediapipe: 478 Landmarks are detected")
 
@@ -71,7 +73,9 @@ class DetectionScreen(Screen):
 
     def start_camera(self):
         self.capture = cv2.VideoCapture(0)
-        self.update_event = Clock.schedule_interval(self.update, 0.05)
+        self.fps = self.capture.get(cv2.CAP_PROP_FPS)
+        self.update_event = Clock.schedule_interval(self.update, 1/self.fps)
+        print(self.fps)
 
     def stop_camera(self):
         if self.capture is not None:
@@ -97,14 +101,6 @@ class DetectionScreen(Screen):
                 # Processing of the landmarks
                 if results.multi_face_landmarks:
                     for face_landmarks in results.multi_face_landmarks:
-                        # Landmarks of the eye and contours are drawn
-                        self.mp_drawing.draw_landmarks(
-                            image=image,
-                            landmark_list=face_landmarks,
-                            connections=self.mp_face_mesh.FACEMESH_CONTOURS,
-                            landmark_drawing_spec=None,
-                            connection_drawing_spec=self.mp_drawing_styles.get_default_face_mesh_contours_style()
-                            )
                         
                         # Select the 6 landmarks per eye 
                         # for the calculation of the eye aspect ratio
@@ -163,6 +159,7 @@ class DetectionScreen(Screen):
                             # Putting a text, that driver might be sleeping
                             cv2.putText(image, 'ALARM: Wake up!', (30, 30),
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+                            self.play_warning_sound()
 
                         
                 buf1 = cv2.flip(image, 0)
@@ -201,11 +198,6 @@ class DetectionScreen(Screen):
         if avg_EAR < self.blink_thresh:
            self.count_frame +=1
            eye_closed = True
-        # If the period of time of closed eyes is too long, the driver might be sleeping
-        elif self.count_frame > 10:
-            blink = 2
-            self.count_frame = 0
-            eye_closed = False
         else:
             eye_closed = False
             # The blink is done, if the counting stops 
@@ -217,7 +209,11 @@ class DetectionScreen(Screen):
                 blink = 1
             else:
             # When there is no blink 
-                self.count_frame = 0  
+                self.count_frame = 0
+        
+        # If the period of time of closed eyes is too long, the driver might be sleeping
+        if self.count_frame > self.fps/2:
+            blink = 2
             
         return blink, eye_closed
 
@@ -236,24 +232,24 @@ class DetectionScreen(Screen):
         """
         #initialization
         perclos = 0
-        number_of_frames = len(self.list_of_frames)
+        number_of_frames = len(self.list_of_eye_closure)
 
         # Calculation when time span has been reached
         if number_of_frames == length_of_frames:
             
             # The oldest frame is removed and the new frame is added to the list
-            self.list_of_frames.append(closed_eye)
-            self.list_of_frames.pop(0)
+            self.list_of_eye_closure.append(closed_eye)
+            self.list_of_eye_closure.pop(0)
             
             # Calculation of the Perclos value based on the values 
             # where eye is closed from the list
-            frame_is_blink = self.list_of_frames.count(True)
+            frame_is_blink = self.list_of_eye_closure.count(True)
             perclos = frame_is_blink/number_of_frames
 
         # Collect frames until time span (in frames) has been reached
         elif number_of_frames < length_of_frames:
 
-            self.list_of_frames.append(closed_eye)
+            self.list_of_eye_closure.append(closed_eye)
 
             # First of all, Perclos is a kind of loading value 
             # until a period of time has been reached
@@ -265,7 +261,7 @@ class DetectionScreen(Screen):
 
         return perclos
     
-    def get_coord_points(landmark_list: list, eye_idxs: list, imgW: int, imgH: int):
+    def get_coord_points(self, landmark_list: list, eye_idxs: list, imgW: int, imgH: int):
 
         """Function for getting all six coordinate points of one eye
 
@@ -292,7 +288,7 @@ class DetectionScreen(Screen):
 
         return coords_points
 
-    def calculate_EAR(eye: list):
+    def calculate_EAR(self, eye: list):
         """Function for calculating the EAR (Eye Aspect Ratio)
 
         Parameters:
@@ -320,3 +316,25 @@ class DetectionScreen(Screen):
         EAR = (vertical1+vertical2)/(2*horizontal)
                     
         return EAR
+    
+    def get_list_of_ear(self, avg_ear: float, length: int):
+        #initialization
+        number_of_frames = len(self.list_of_EAR)
+        blink_thresh = self.blink_thresh
+
+        # Calculation when time span has been reached
+        if number_of_frames == length:
+            print("Fertig")
+            self.list_of_EAR.append(avg_ear)
+            pass
+            
+        # Collect EAR until time span (in frames) has been reached
+        elif number_of_frames < length:
+
+            self.list_of_EAR.append(avg_ear)
+
+        # Pass when list gets longer for some reason
+        else:
+            pass
+
+        return blink_thresh
