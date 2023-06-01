@@ -2,7 +2,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
 import cv2
-import threading
+from kivy.core.audio import SoundLoader
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.uix.image import Image
@@ -11,13 +11,13 @@ import mediapipe as mp
 import numpy as np
 import features as feat
 
-# Class DetectionScreen is working in Kivy with Mediapipe Version 0.9.0
-
 class DetectionScreen(Screen):
-    def initialize(self):
+    def __init__(self, **kwargs):
+        super(DetectionScreen, self).__init__(**kwargs)
         layout = BoxLayout(orientation='vertical')
 
-        button_to_main = Button(text='Go to Main')
+        button_to_main = Button(text='Go to Main', size_hint=(None, None), 
+                                size=(100, 50), pos_hint={'x': 0, 'y': 1})
         button_to_main.bind(on_press=lambda x: self.set_screen('main'))
         layout.add_widget(button_to_main)
 
@@ -26,19 +26,15 @@ class DetectionScreen(Screen):
 
         self.add_widget(layout)
 
-        # Strating the video in a new Thread
-        threading.Thread(target=self.initialize_resources).start()
-
-        framerate = 50
+        framerate = 30
 
         Clock.schedule_interval(self.update, 1/framerate)
 
         Logger.info("Base: Framerate is %s", framerate)
 
-
-    def initialize_resources(self):
-
-        self.capture = cv2.VideoCapture(0)
+        self.capture = None
+        self.update_event = None
+        self.draw_landmarks = True
 
         # Loading the important packages from Mediapipe
 
@@ -66,11 +62,27 @@ class DetectionScreen(Screen):
         self.list_of_frames = []
 
         Logger.info("Mediapipe: 478 Landmarks are detected")
-        
+
+    def on_enter(self):
+        self.start_camera()
+
+    def on_leave(self):
+        self.stop_camera()
+
+    def start_camera(self):
+        self.capture = cv2.VideoCapture(0)
+        self.update_event = Clock.schedule_interval(self.update, 0.05)
+
+    def stop_camera(self):
+        if self.capture is not None:
+            self.capture.release()
+            self.capture = None
+        if self.update_event is not None:
+            Clock.unschedule(self.update_event)
+            self.update_event = None
 
     def update(self, dt):
-        
-        if hasattr(self, 'capture'):
+        if self.capture is not None:
             ret, frame = self.capture.read()
             if ret:
                 # Changing to RGB so that mediapipe can process the frame
@@ -143,10 +155,14 @@ class DetectionScreen(Screen):
                             cv2.putText(image, string_perclos, (30, 120),
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                         
-
-                        if blink:
+                        if blink == 1:
                             # Putting a text, that a blink is detected
                             cv2.putText(image, 'Blink Detected', (30, 30),
+                            cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+                        
+                        if blink == 2:
+                            # Putting a text, that driver might be sleeping
+                            cv2.putText(image, 'ALARM: Wake up!', (30, 30),
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
 
                         
@@ -158,8 +174,13 @@ class DetectionScreen(Screen):
 
                 self.image.texture = image_texture
 
+    def play_warning_sound(self):
+        sound = SoundLoader.load('warning.ogg')
+        if sound:
+            sound.play()
+
     def set_screen(self, screen_name):
-        self.manager.current = screen_name
+        self.manager.current = screen_name 
 
     def blink_detection(self, avg_EAR: float):
         """Calculates the blink behavior based on the EAR value. 
@@ -171,15 +192,21 @@ class DetectionScreen(Screen):
             over both eyes for a recorded frame
 
         Returns:
-            blink (Bool): Indicates whether a blink was just detected
+            blink (Int): Indicates whether a blink was just detected, 
+            0 = No Blink, 1 = Blink, 2 = Sleep, too long period of time closed eyes
             eye_closed (Bool): Indicates whether in the inputframe
             the eye is cloed or not
         """
-        blink = False
+        blink = 0
         # Counting the frames when there is a blink
         if avg_EAR < self.blink_thresh:
            self.count_frame +=1
            eye_closed = True
+        # If the period of time of closed eyes is too long, the driver might be sleeping
+        elif self.count_frame > 10:
+            blink = 2
+            self.count_frame = 0
+            eye_closed = False
         else:
             eye_closed = False
             # The blink is done, if the counting stops 
@@ -188,7 +215,7 @@ class DetectionScreen(Screen):
                 # Blink is detected, so counting set to zero 
                 # to start again when there is a new blink
                 self.count_frame = 0
-                blink = True
+                blink = 1
             else:
             # When there is no blink 
                 self.count_frame = 0  
@@ -237,4 +264,4 @@ class DetectionScreen(Screen):
         else:
             print("Fehler, Liste zu lang")
 
-        return perclos       
+        return perclos
