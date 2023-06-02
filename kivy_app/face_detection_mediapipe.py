@@ -134,11 +134,17 @@ class DetectionScreen(Screen):
                         avg_EAR = (EAR_right+EAR_left)/2
 
                         # Blink Detection Algorithm
-                        blink, closed_eye = self.blink_detection(avg_EAR)
+                        blink, closed_eye = self.blink_detection(EAR_left)
 
                         #PERCLOS Calculation based on frames
-                        perclos = self.calculate_perclos(closed_eye, 1000)
+                        perclos = self.calculate_perclos(closed_eye, 500)
                         perclos = round(perclos, 2)
+
+                        #AVG EAR for eyes open
+                        self.get_list_of_ear(EAR_left, 500)
+                        if len(self.list_of_eye_closure) == 500:
+                            avg_ear_eyes_open = self.avg_ear_eyes_open()
+                            print(avg_ear_eyes_open)
 
                         #Putting Text, first loading percentage, then Perclos value
                         if perclos > 1:
@@ -261,8 +267,7 @@ class DetectionScreen(Screen):
 
         return perclos
     
-    def get_coord_points(self, landmark_list: list, eye_idxs: list, imgW: int, imgH: int):
-
+    def get_coord_points(self, landmark_list: list, eye_idxs: list, imgW: int, imgH: int):  # noqa: E501
         """Function for getting all six coordinate points of one eye
 
         Parameters:
@@ -324,9 +329,8 @@ class DetectionScreen(Screen):
 
         # Calculation when time span has been reached
         if number_of_frames == length:
-            print("Fertig")
             self.list_of_EAR.append(avg_ear)
-            pass
+            self.list_of_EAR.pop(0)
             
         # Collect EAR until time span (in frames) has been reached
         elif number_of_frames < length:
@@ -338,3 +342,28 @@ class DetectionScreen(Screen):
             pass
 
         return blink_thresh
+    
+    def avg_ear_eyes_open(self):
+        """Returns us over the length of the specified lists 
+        at values where the eye is open is the mean
+
+        Returns
+            avg_ear_eyes_open(float): Mean of the EAR value 
+            over a specified time when the eyes are open
+        """
+        # Initialise
+        list_of_eyes_open = []
+        avg_ear_eyes_open = -1
+        # If the lengths of the two lists EAR and Augen zu yes/no are not the same, 
+        # it cannot be guaranteed that the entries belong together
+        if len(self.list_of_eye_closure) != len(self.list_of_EAR):
+            print("Längen stimmen nicht überein")
+        else:
+            # Iterate over the entire length of the lists, 
+            # entry in list_of_eyes_open if eye is open
+            list_of_eyes_open = [self.list_of_EAR[i] for i in 
+                                range(len(self.list_of_eye_closure)) 
+                                if not self.list_of_eye_closure[i]]
+            # Calculating the average
+            avg_ear_eyes_open = sum(list_of_eyes_open) / len(list_of_eyes_open)
+        return avg_ear_eyes_open
