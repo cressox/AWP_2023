@@ -51,17 +51,17 @@ class DetectionScreen(Screen):
                     min_detection_confidence=0.5,   # Default=0.5
                     min_tracking_confidence= 0.5,)
         
-        #Initialisierung der Werte für die Blinzeldetektion
+        # Initialisation of values for blink detection
         self.count_frame = 0
         self.blink_thresh = 0.16
         self.succ_frame = 1
 
         self.count_warning_frame = 20
 
-        #Initialisierung der Liste der Frames für die PERCLOS Berechnung
+        # Initialisation of list of frames for calculation of PERCLOS
         self.list_of_eye_closure = []
 
-        #Initialisierung der Liste der Frames für die blink-Threshold Berechnung
+        # Initialisation of list of frames for calculation of blink threshold
         self.list_of_EAR = []
 
         self.awake_ear_eyes_open = 0
@@ -154,11 +154,11 @@ class DetectionScreen(Screen):
                         frame_length_perclos = 1000
                         frame_length_ear_list = 1000
 
-                        #PERCLOS Calculation based on frames
+                        # PERCLOS Calculation based on frames
                         perclos = self.calculate_perclos(closed_eye, 
                                                          frame_length_perclos)
                         
-                        #AVG EAR for eyes open
+                        # AVG EAR for eyes open
                         self.get_list_of_ear(avg_EAR, frame_length_ear_list)
                         avg_ear_eyes_open_at_test = self.avg_ear_eyes_open()
                         
@@ -187,7 +187,8 @@ class DetectionScreen(Screen):
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                             self.blinks +=1
                             print(self.blinks)
-                        
+                            print(blink_duration)
+
                         if blink == 2:
                             if self.count_warning_frame == 20:
                                 # Putting a text, that driver might be sleeping
