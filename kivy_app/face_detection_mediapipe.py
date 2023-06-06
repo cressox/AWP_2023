@@ -149,7 +149,7 @@ class DetectionScreen(Screen):
                         avg_EAR = (EAR_right+EAR_left)/2
 
                         # Blink Detection Algorithm
-                        blink, closed_eye = self.blink_detection(avg_EAR)
+                        blink, closed_eye, blink_duration = self.blink_detection(avg_EAR)
 
                         frame_length_perclos = 1000
                         frame_length_ear_list = 1000
@@ -187,7 +187,7 @@ class DetectionScreen(Screen):
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                             self.blinks +=1
                             print(self.blinks)
-                            print(blink_duration)
+                            #print(blink_duration) referenced before assignment
 
                         if blink == 2:
                             if self.count_warning_frame == 20:
@@ -242,6 +242,8 @@ class DetectionScreen(Screen):
             if self.count_frame >= self.succ_frame:
                 # Blink is detected, so counting set to zero 
                 # to start again when there is a new blink
+                # save number of frames for blink duration
+                blink_duration = self.count_frame
                 self.count_frame = 0
                 blink = 1
             else:
@@ -252,7 +254,7 @@ class DetectionScreen(Screen):
         if self.count_frame > self.fps/2:
             blink = 2
             
-        return blink, eye_closed
+        return blink, eye_closed, blink_duration
 
     def calculate_perclos(self, closed_eye: bool, length_of_frames: int):
         """Calculates the PERCLOS (percentage of eye closure) value 
