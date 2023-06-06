@@ -53,8 +53,10 @@ class DetectionScreen(Screen):
         
         #Initialisierung der Werte für die Blinzeldetektion
         self.count_frame = 0
-        self.blink_thresh = 0.18
+        self.blink_thresh = 0.16
         self.succ_frame = 1
+
+        self.count_warning_frame = 20
 
         #Initialisierung der Liste der Frames für die PERCLOS Berechnung
         self.list_of_eye_closure = []
@@ -63,10 +65,20 @@ class DetectionScreen(Screen):
         self.list_of_EAR = []
 
         self.awake_ear_eyes_open = 0
-        self.awake_perclos = 0
+        self.awake_perclos = 0.01
 
         self.count_last = -1
         self.cal_done = False
+
+        self.blinks = 0
+
+        # Select the 6 landmarks per eye 
+        # for the calculation of the eye aspect ratio
+        # The chosen 12 points:   P1,  P2,  P3,  P4,  P5,  P6
+        self.left_eye_idxs  =    [362, 385, 387, 263, 373, 380]
+        self.right_eye_idxs =    [33,  160, 158, 133, 153, 144]
+
+        self.eye_idxs = self.left_eye_idxs + self.right_eye_idxs
 
         Logger.info("Mediapipe: 478 Landmarks are detected")
 
@@ -89,6 +101,10 @@ class DetectionScreen(Screen):
         if self.update_event is not None:
             Clock.unschedule(self.update_event)
             self.update_event = None
+        print(self.blinks)
+        self.blinks = 0
+        print(self.awake_ear_eyes_open)
+        print(self.awake_perclos)
 
     def update(self, dt):
         if self.capture is not None:
@@ -108,29 +124,21 @@ class DetectionScreen(Screen):
                 # Processing of the landmarks
                 if results.multi_face_landmarks:
                     for face_landmarks in results.multi_face_landmarks:
-                        
-                        # Select the 6 landmarks per eye 
-                        # for the calculation of the eye aspect ratio
-                        # The chosen 12 points:   P1,  P2,  P3,  P4,  P5,  P6
-                        left_eye_idxs  =        [362, 385, 387, 263, 373, 380]
-                        right_eye_idxs =        [33,  160, 158, 133, 153, 144]
-
-                        eye_idxs = left_eye_idxs + right_eye_idxs
 
                         # Drawing the 6 landmarks per eye
                         for landmark_idx, landmark in enumerate(
                             face_landmarks.landmark):
-                            if landmark_idx in eye_idxs:
+                            if landmark_idx in self.eye_idxs:
                                 pred_cord = self.denormalize_coordinates(
                                     landmark.x, landmark.y, imgW, imgH)
                                 cv2.circle(image, pred_cord,3,(255, 255, 255), -1)
 
                         # Getting the coordinate points for left and right eye
                         coord_points_left = self.get_coord_points(
-                            face_landmarks.landmark, left_eye_idxs, imgW, imgH)
+                            face_landmarks.landmark, self.left_eye_idxs, imgW, imgH)
                         
                         coord_points_right = self.get_coord_points(
-                            face_landmarks.landmark, right_eye_idxs, imgW, imgH)
+                            face_landmarks.landmark, self.right_eye_idxs, imgW, imgH)
                         
                         #Calculating the Eye Aspect ratio for the left and right eye
                         EAR_left = self.calculate_EAR(coord_points_left)
@@ -149,7 +157,7 @@ class DetectionScreen(Screen):
                         #PERCLOS Calculation based on frames
                         perclos = self.calculate_perclos(closed_eye, 
                                                          frame_length_perclos)
-
+                        
                         #AVG EAR for eyes open
                         self.get_list_of_ear(avg_EAR, frame_length_ear_list)
                         avg_ear_eyes_open_at_test = self.avg_ear_eyes_open()
@@ -173,18 +181,22 @@ class DetectionScreen(Screen):
                             cv2.putText(image, string_cal, (30, 120),
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
 
-
                         if blink == 1:
                             # Putting a text, that a blink is detected
                             cv2.putText(image, 'Blink Detected', (30, 30),
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+                            self.blinks +=1
+                            print(self.blinks)
                         
                         if blink == 2:
-                            # Putting a text, that driver might be sleeping
-                            cv2.putText(image, 'ALARM: Wake up!', (30, 30),
-                            cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-                            self.play_warning_sound()
-
+                            if self.count_warning_frame == 20:
+                                # Putting a text, that driver might be sleeping
+                                cv2.putText(image, 'ALARM: Wake up!', (30, 30),
+                                cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+                                self.play_warning_sound()
+                                self.count_warning_frame = 0
+                            else:
+                                self.count_warning_frame +=1
                         
                 buf1 = cv2.flip(image, 0)
                 buf = buf1.tostring()
@@ -418,8 +430,14 @@ class DetectionScreen(Screen):
         
         # elaborated features: difference awake status to current status + perclos value
         # Once ratio mean EAR value where eyes open and once ratio Perclos
-        diff_ear_eyes_open = self.awake_ear_eyes_open-frame_ear_eyes_open
-        diff_perclos = self.awake_perclos-frame_perclos
-        perclos = frame_perclos
+        diff_ear_eyes_open = frame_ear_eyes_open/self.awake_ear_eyes_open
+        diff_perclos = frame_perclos/self.awake_perclos
 
-        return [diff_ear_eyes_open, diff_perclos, perclos]
+        return [diff_ear_eyes_open, diff_perclos]
+    
+    #TODO
+    def movement():
+        return 0
+    
+    def yawning():
+        return 0
