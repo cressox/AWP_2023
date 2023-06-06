@@ -1,0 +1,23 @@
+blink threshold		bibliothek	detektiert/reale Anzahl		detektiert/reale Anzahl
+								Blinzelschläge Mattis		Blinzelschläge Jannic
+
+0.16				MediaPipe	45/45				54/54
+
+0.18				MediaPipe	60/60				61/50
+								60/53				42/41
+
+					Dlib		38/48				49/47
+								57/52
+								33/52
+
+0.20				MediaPipe	64/64				60/37
+								57/57				70/45
+
+					Dlib		50/52				65/44
+								47/53
+
+Awake EAR			MediaPipe	0.295				0.252
+					Dlib		0.320				0.259
+
+Awake PERCLOS		MediaPipe	0.063				0.107
+					Dlib		0.08				0.109
