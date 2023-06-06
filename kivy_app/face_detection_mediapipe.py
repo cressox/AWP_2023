@@ -187,7 +187,7 @@ class DetectionScreen(Screen):
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                             self.blinks +=1
                             print(self.blinks)
-                            #print(blink_duration) referenced before assignment
+                            print(blink_duration) # prints nothing, why is it skipped? 
 
                         if blink == 2:
                             if self.count_warning_frame == 20:
@@ -228,9 +228,11 @@ class DetectionScreen(Screen):
             blink (Int): Indicates whether a blink was just detected, 
             0 = No Blink, 1 = Blink, 2 = Sleep, too long period of time closed eyes
             eye_closed (Bool): Indicates whether in the inputframe
-            the eye is cloed or not
+            the eye is closed or not
+            blink_duration: duration of the blink in frames
         """
         blink = 0
+        blink_duration = 0
         # Counting the frames when there is a blink
         if avg_EAR < self.blink_thresh:
            self.count_frame +=1

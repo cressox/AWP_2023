@@ -67,7 +67,7 @@ class SettingsScreen(Screen):
     def on_buffer_size_changed(self, instance, value):
         BUFFER_SIZE = int(value)
         self.buffer_label.text = f'BUFFER_SIZE: {BUFFER_SIZE}'
-        # Hier kannst du die BUFFER_SIZE verwenden, wie du möchtest
+        # here you can change BUFFER_SIZE at will
 
 class HelpScreen(Screen):
     def __init__(self, **kwargs):
