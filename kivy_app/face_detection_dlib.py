@@ -11,29 +11,15 @@ from imutils import face_utils
 from scipy.spatial import distance as dist
 
 class DetectionScreen(Screen):
-    def __init__(self, **kwargs):
-        super(DetectionScreen, self).__init__(**kwargs)
-        layout = BoxLayout(orientation='vertical')
+    def initialize(self):
+        threading.Thread(target=self.initialize_resources).start()
+        Clock.schedule_interval(self.update, 0.05)
 
-        button_to_main = Button(text='Go to Main', size_hint=(None, None), 
-                                size=(100, 50), pos_hint={'x': 0, 'y': 1})
-        button_to_main.bind(on_press=lambda x: self.set_screen('main'))
-        layout.add_widget(button_to_main)
+    def initialize_resources(self):
+        self.capture = cv2.VideoCapture(0)
 
-        self.image = Image()
-        layout.add_widget(self.image)
-
-        self.add_widget(layout)
-
-        Clock.schedule_interval(self.update, 0.02)
-
-        self.fps = 0
-
-        # loading the dlib face detector
         self.detector = dlib.get_frontal_face_detector()
-        # Path to the shape predictor model
-        self.predictor = dlib.shape_predictor(
-            "Predictors/shape_predictor_68_face_landmarks.dat")
+        self.predictor = dlib.shape_predictor("Predictors/shape_predictor_68_face_landmarks.dat")
 
         self.capture = None
         self.update_event = None
@@ -178,7 +164,7 @@ class DetectionScreen(Screen):
                                                colorfmt='bgr')
                 image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
 
-                self.image.texture = image_texture
+                self.ids.image_view.texture = image_texture
 
     def play_warning_sound(self):
         sound = SoundLoader.load('warning.ogg')
