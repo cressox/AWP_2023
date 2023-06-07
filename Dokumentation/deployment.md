@@ -1,37 +1,37 @@
-# Dokumentation - Arbeitsfortschritt und Erkenntnisse
+# Dokumentation - Fortschrittsbericht und Wissenschaftliche Erkenntnisse
 
-### Verwendung von Flask und React Native für das Deployment
+### Untersuchung der Verwendung von Flask und React Native für die Bereitstellung von Anwendungen
 
-Eine der ursprünglichen Ideen für das Deployment war die Verwendung von Flask als Backend-Server und React Native als Frontend-Framework für die Entwicklung einer Hybrid-App. Hierbei sollte eine REST-API verwendet werden, um die Kommunikation zwischen der App und dem Backend zu ermöglichen. 
+In der anfänglichen Phase des Projektes wurde die Kombination von Flask und React Native für die Implementierung einer Hybrid-App in Betracht gezogen. Flask diente hierbei als Backend-Server, während React Native das Frontend-Framework bildete. Zur Unterstützung der Kommunikation zwischen der App und dem Backend war der Einsatz einer REST-API geplant. 
 
-Flask wurde als Backend-Server gewählt, da es eine einfache und flexible Möglichkeit bietet, eine REST-API zu implementieren und mit der App zu kommunizieren. React Native wurde als Frontend-Framework gewählt, da es eine breite Unterstützung für mobile Plattformen bietet und eine große Entwicklercommunity hat.
+Flask wurde aufgrund seiner einfachen und flexiblen Implementierung einer REST-API ausgewählt, die eine effektive Interaktion mit der App ermöglicht. React Native hingegen wurde aufgrund seiner breiten Unterstützung für mobile Plattformen und seiner umfangreichen Entwicklergemeinschaft als Frontend-Framework gewählt.
 
-Allerdings haben sich die Anforderungen im Laufe der Entwicklung geändert und es ist sehr wahrscheinlich, dass wir kein Machine Learning-Modell mehr verwenden. Dadurch ergeben sich auch andere Anforderungen an das Deployment. Die ursprüngliche Idee mit Flask und React Native wird den neuen Anforderungen nicht mehr gerecht.
+Im Verlauf des Projekts änderten sich jedoch die Anforderungen, sodass der Einsatz eines Machine-Learning-Modells unwahrscheinlich wurde. Dies hatte auch Auswirkungen auf die Anforderungen an die Bereitstellung. Die initiale Kombination von Flask und React Native erfüllt diese neuen Anforderungen nicht mehr adäquat.
 
-Ich werde daher alternative Ansätze und Technologien in Betracht ziehen, die besser zu den aktuellen Anforderungen passen. Im Folgenden werde ich den aktuellen Arbeitsfortschritt und die Erkenntnisse dokumentieren, um eine fundierte Entscheidung zu treffen.
+Folglich wurden alternative Technologien und Ansätze in Betracht gezogen, die besser zu den aktuellen Anforderungen passen. Im Folgenden werden der aktuelle Fortschrittsbericht und die wissenschaftlichen Erkenntnisse dargestellt, um eine fundierte Entscheidungsfindung zu ermöglichen.
 
 
-## Arbeitsfortschritt
+## Fortschrittsbericht
 
-Im Laufe meiner Recherche zum Thema habe ich verschiedene Möglichkeiten und Optionen in Betracht gezogen. Hier ist ein Überblick über meinen bisherigen Arbeitsfortschritt:
+Verschiedene Möglichkeiten und Optionen wurden im Rahmen der Untersuchungen betrachtet. Der folgende Abschnitt bietet einen Überblick über den aktuellen Fortschrittsbericht:
 
-1. **React als Framework**: Ich habe in Betracht gezogen, React als Framework zu nutzen, um meine Anwendung zu entwickeln. Dabei habe ich die WebcamCapture-Komponente innerhalb von React entwickelt, um auf die Kamera des Geräts zuzugreifen und Videoaufnahmen zu machen. React bietet eine gute Unterstützung für die Erstellung interaktiver Benutzeroberflächen und ermöglicht es mir, den Code in Komponenten zu strukturieren.
+1. **Verwendung von React als Framework**: Die Nutzung von React als Framework für die Entwicklung der Anwendung wurde in Erwägung gezogen. In diesem Zusammenhang wurde die WebcamCapture-Komponente innerhalb von React erstellt, um Zugriff auf die Kamera des Geräts zu erhalten und Videoaufnahmen zu machen. React unterstützt effektiv die Erstellung interaktiver Benutzeroberflächen und ermöglicht eine strukturierte Komponenten-Codebildung.
 
-2. **Flask-API**: Ursprünglich hatte ich die Idee, eine Flask-API zu erstellen, um die WebcamCapture-Komponente zu unterstützen und die Datenverarbeitung auf einem Server durchzuführen. Allerdings habe ich mich aufgrund der Geschwindigkeitsprobleme gegen diese Lösung entschieden.
+2. **Erstellung einer Flask-API**: Ursprünglich wurde eine Flask-API vorgesehen, um die WebcamCapture-Komponente zu unterstützen und die Datenverarbeitung serverseitig durchzuführen. Allerdings wurde aufgrund von Geschwindigkeitsproblemen von dieser Lösung abgesehen.
 
-3. **Kivy als Framework**: Ich habe auch das Kivy-Framework in Betracht gezogen, um meine Anwendung zu entwickeln. Kivy ist ein Open-Source-Python-Bibliothek zur Entwicklung von Multitouch-Anwendungen und unterstützt sowohl Android als auch iOS. Die Entscheidung für Kivy würde es ermöglichen, den gesamten Code in Python zu schreiben, was den Entwicklungsprozess vereinfachen und die Notwendigkeit eliminieren könnte, eine separate API für die Kommunikation zwischen Frontend und Backend zu schreiben. Zusätzlich könnte die Offline-Fähigkeit von Kivy besonders nützlich für das vorgeschlagene Szenario sein, in dem die Anwendung die Fähigkeit haben sollte, ohne ständige Internetverbindung zu funktionieren.
+3. **Kivy als Framework**: Das Kivy-Framework wurde ebenfalls zur Entwicklung der Anwendung in Betracht gezogen. Kivy, eine Open-Source Python-Bibliothek für die Entwicklung von Multitouch-Anwendungen, bietet Unterstützung für sowohl Android als auch iOS. Die Wahl von Kivy könnte den Entwicklungsprozess vereinfachen und die Notwendigkeit, eine separate API zur Kommunikation zwischen Frontend und Backend zu schreiben, eliminieren. Darüber hinaus könnte die Offline-Fähigkeit von Kivy in vorgeschlagenen Szenarien, in denen die Anwendung ohne kontinuierliche Internetverbindung funktionieren sollte, von besonderem Nutzen sein.
 
 4. **Vergleich: Kivy vs. React Native mit Flask REST API**
-Hier ein ausführlicher Vergleich[hier](./kivy_vs_react.md)
+Ein detaillierter Vergleich ist [hier](./kivy_vs_react.md) zu finden.
 
-## Erkenntnisse
+## Wissenschaftliche Erkenntnisse
 
-Im Verlauf meiner Recherche habe ich einige wichtige Erkenntnisse gewonnen:
+Die Untersuchung lieferte mehrere wichtige Erkenntnisse:
 
-1. **Leistungsoptimierung**: Der Verzicht auf eine API und die Ausführung des Codes clientseitig mit Pyscript bieten Potenzial zur Verbesserung der Leistung und Geschwindigkeit meiner Anwendung. Die direkte Datenverarbeitung auf dem Endgerät ermöglicht eine schnellere Ausführung und reduziert Latenzzeiten.
+1. **Leistungsoptimierung**: Der Verzicht auf eine API und die Ausführung des Codes clientseitig mit Pyscript könnte Potenzial zur Verbesserung der Leistung und Geschwindigkeit der Anwendung bieten. Eine direkte Datenverarbeitung auf dem Gerät ermöglicht eine schnellere Ausführung und reduziert Lat enzzeiten.
 
-2. **Flexibilität**: Die Verwendung von React als Framework bietet mir die Flexibilität, interaktive Benutzeroberflächen zu entwickeln und den Code in Komponenten zu strukturieren. Dadurch wird die Skalierbarkeit und Wartbarkeit meiner Anwendung verbessert.
+2. **Flexibilität**: Die Verwendung von React als Framework bietet Flexibilität bei der Entwicklung interaktiver Benutzeroberflächen und ermöglicht eine strukturierte Komponenten-Codebildung. Dies verbessert die Skalierbarkeit und Wartbarkeit der Anwendung.
 
-3. **Harmonie von Pyscript und React**: Die Kompatibilität und Harmonie von Pyscript und React ist eine wichtige Fragestellung, die noch geklärt werden muss. Es ist unklar, wie gut Pyscript und React zusammenarbeiten und ob möglicherweise Herausforderungen bei der Integration auftreten.
+3. **Harmonie von Pyscript und React**: Die Kompatibilität und Harmonie von Pyscript und React ist eine wichtige Fragestellung, die noch geklärt werden muss. Es bleibt ungewiss, wie effektiv Pyscript und React zusammenarbeiten und ob bei der Integration möglicherweise Herausforderungen auftreten könnten.
 
-Basierend auf meinen Erkenntnissen stehe ich nun vor der Herausforderung, zu entscheiden, ob ich Pyscript nutzen kann und wie ich es am besten in eine App (egal ob webbasiert oder appbasiert) einbetten kann. Ich werde weiterhin meine Forschung und Tests durchführen, um die Machbarkeit dieser Kombination zu ermitteln und eine fundierte Entscheidung zu treffen.
+Auf der Grundlage dieser Erkenntnisse steht nun die Entscheidungsfindung, ob Pyscript eingesetzt werden kann und wie es optimal in eine App (egal ob webbasiert oder appbasiert) integriert werden kann, im Vordergrund. Die Untersuchungen und Tests werden fortgesetzt, um die Machbarkeit dieser Kombination zu ermitteln und eine fundierte Entscheidung zu treffen.
