@@ -9,6 +9,7 @@ from kivy.graphics.texture import Texture
 from kivy.uix.image import Image
 from imutils import face_utils
 from scipy.spatial import distance as dist
+import threading
 
 class DetectionScreen(Screen):
     def initialize(self):
@@ -21,19 +22,18 @@ class DetectionScreen(Screen):
         self.detector = dlib.get_frontal_face_detector()
         self.predictor = dlib.shape_predictor("Predictors/shape_predictor_68_face_landmarks.dat")
 
-        self.capture = None
         self.update_event = None
         self.draw_landmarks = True
         
-        #Initialisierung der Werte für die Blinzeldetektion
+        # Initialisierung der Werte für die Blinzeldetektion
         self.count_frame = 0
         self.blink_thresh = 0.18
         self.succ_frame = 1
 
-        #Initialisierung der Liste der Frames für die PERCLOS Berechnung
+        # Initialisierung der Liste der Frames für die PERCLOS Berechnung
         self.list_of_eye_closure = []
 
-        #Initialisierung der Liste der Frames für die blink-Threshold Berechnung
+        # Initialisierung der Liste der Frames für die blink-Threshold Berechnung
         self.list_of_EAR = []
 
         self.awake_ear_eyes_open = 0
@@ -57,10 +57,10 @@ class DetectionScreen(Screen):
         print(self.fps)
 
     def stop_camera(self):
-        if self.capture is not None:
+        if hasattr(self, 'capture'):
             self.capture.release()
             self.capture = None
-        if self.update_event is not None:
+        if hasattr(self, 'update_event'):
             Clock.unschedule(self.update_event)
             self.update_event = None
         print(self.blinks)
@@ -68,12 +68,11 @@ class DetectionScreen(Screen):
         print(self.awake_perclos)
 
     def update(self, dt):
-        
         # Eye landmarks
         (L_start, L_end) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
         (R_start, R_end) = face_utils.FACIAL_LANDMARKS_IDXS['right_eye']
 
-        if self.capture is not None:
+        if hasattr(self, 'capture') and hasattr(self, 'fps') and self.manager.current == 'detection':
             ret, frame = self.capture.read()
             if ret:
                 # Changing to Gray so that Dlib can process the frame
@@ -103,7 +102,7 @@ class DetectionScreen(Screen):
                     lefteye = shape[L_start: L_end]
                     righteye = shape[R_start:R_end]
                         
-                    #Calculating the Eye Aspect ratio for the left and right eye
+                    # Calculating the Eye Aspect ratio for the left and right eye
                     EAR_left = self.calculate_EAR(lefteye)
                         
                     EAR_right = self.calculate_EAR(righteye)
@@ -117,11 +116,10 @@ class DetectionScreen(Screen):
                     frame_length_perclos = 1000
                     frame_length_ear_list = 1000
 
-                    #PERCLOS Calculation based on frames
-                    perclos = self.calculate_perclos(closed_eye, 
-                                                    frame_length_perclos)
+                    # PERCLOS Calculation based on frames
+                    perclos = self.calculate_perclos(closed_eye, frame_length_perclos)
                         
-                    #AVG EAR for eyes open
+                    # AVG EAR for eyes open
                     self.get_list_of_ear(avg_EAR, frame_length_ear_list)
                     avg_ear_eyes_open_at_test = self.avg_ear_eyes_open()
                         
@@ -171,172 +169,82 @@ class DetectionScreen(Screen):
         if sound:
             sound.play()
 
-    def set_screen(self, screen_name):
-        self.manager.current = screen_name 
-
-    def blink_detection(self, avg_EAR: float):
-        """Calculates the blink behavior based on the EAR value. 
-        If the threshold (how far the eyes are closed)
-        is not reached , blinking is detected.
-
-        Args:
-            avg_EAR (float): Transfer of the EAR value 
-            over both eyes for a recorded frame
-
-        Returns:
-            blink (Int): Indicates whether a blink was just detected, 
-            0 = No Blink, 1 = Blink, 2 = Sleep, too long period of time closed eyes
-            eye_closed (Bool): Indicates whether in the inputframe
-            the eye is cloed or not
-        """
+    def blink_detection(self, avg_EAR):
         blink = 0
-        # Counting the frames when there is a blink
         if avg_EAR < self.blink_thresh:
-           self.count_frame +=1
-           eye_closed = True
+            self.count_frame +=1
+            eye_closed = True
         else:
             eye_closed = False
-            # The blink is done, if the counting stops 
-            # and the EAR is bigger than the blink threshold
             if self.count_frame >= self.succ_frame:
-                # Blink is detected, so counting set to zero 
-                # to start again when there is a new blink
                 self.count_frame = 0
                 blink = 1
             else:
-            # When there is no blink 
                 self.count_frame = 0
         
-        # If the period of time of closed eyes is too long, the driver might be sleeping
         if self.count_frame > self.fps/2:
             blink = 2
             
         return blink, eye_closed
 
-    def calculate_perclos(self, closed_eye: bool, length_of_frames: int):
-        """Calculates the PERCLOS (percentage of eye closure) value 
-        based on the number of frames the eye is closed
-
-        Args:
-            blink (bool): indicates whether the read frame 
-            is closed (True) or open (False)
-            length_of_frames (int): Defines the time span over which 
-            the Perclos value is calculated
-
-        Returns:
-            perclos (float): Output of the PERCLOS value
-        """
-        #initialization
+    def calculate_perclos(self, closed_eye, length_of_frames):
         perclos = 0
         number_of_frames = len(self.list_of_eye_closure)
 
-        # Calculation when time span has been reached
         if number_of_frames == length_of_frames:
-            
-            # The oldest frame is removed and the new frame is added to the list
             self.list_of_eye_closure.append(closed_eye)
             self.list_of_eye_closure.pop(0)
             
-            # Calculation of the Perclos value based on the values 
-            # where eye is closed from the list
             frame_is_blink = self.list_of_eye_closure.count(True)
             perclos = frame_is_blink/number_of_frames
 
-        # Collect frames until time span (in frames) has been reached
         elif number_of_frames < length_of_frames:
-
             self.list_of_eye_closure.append(closed_eye)
 
-        # Error message when list gets longer for some reason
         else:
             print("Fehler, Liste zu lang")
 
         return perclos
 
-    def calculate_EAR(self, eye: list):
-        """Function for calculating the EAR (Eye Aspect Ratio)
-
-        Parameters:
-            eye (list): 6-entry large array of the coordinate points (x, y)
-            of the eye in the order: 
-            [middle left, top right, top left, middle right, bottom right, bottom left]
-
-            More informations about the EAR and the order of the coordinate points:
-            https://www.mdpi.com/1866552 ; 
-            Dewi, C.; Chen, R.-C.; Chang, C.-W.; Wu, S.-H.; 
-            Jiang, X.; Yu, H. Eye Aspect Ratio for Real-Time Drowsiness Detection 
-            to Improve Driver Safety. Electronics 2022, 11, 3183.
-
-        Returns:
-            float: The calculated EAR value
-        """
-            
-        # calculate the vertical distances
+    def calculate_EAR(self, eye):
         vertical1 = dist.euclidean(eye[1], eye[5])
         vertical2 = dist.euclidean(eye[2], eye[4])
                 
-        # calculate the horizontal distance
         horizontal = dist.euclidean(eye[0], eye[3])
                 
-        # calculate the EAR
         EAR = (vertical1+vertical2)/(2*horizontal)
                     
         return EAR
     
-    def get_list_of_ear(self, avg_ear: float, length: int):
-        """For a given length of frames a list ist build 
-        with the EAR for the last frames
-
-        Args:
-            avg_ear (float): EAR Value for a given Frame
-            length (int): The length of the list eg. of the collected frames
-        """
-        # Initialization
+    def get_list_of_ear(self, avg_ear, length):
         number_of_frames = len(self.list_of_EAR)
 
-        # Calculation when time span has been reached
         if number_of_frames == length:
             self.list_of_EAR.append(avg_ear)
             self.list_of_EAR.pop(0)
             
-        # Collect EAR until time span (in frames) has been reached
         elif number_of_frames < length:
-
             self.list_of_EAR.append(avg_ear)
 
-        # Pass when list gets longer for some reason
         else:
             pass
     
     def avg_ear_eyes_open(self):
-        """Returns us over the length of the specified lists 
-        at values where the eye is open is the mean
-
-        Returns
-            avg_ear_eyes_open(float): Mean of the EAR value 
-            over a specified time when the eyes are open
-        """
-        # Initialise
         list_of_eyes_open = []
         avg_ear_eyes_open = -1
-        # If the lengths of the two lists EAR and Augen zu yes/no are not the same, 
-        # it cannot be guaranteed that the entries belong together
+
         if len(self.list_of_eye_closure) != len(self.list_of_EAR):
             print("Längen stimmen nicht überein")
         else:
-            # Iterate over the entire length of the lists, 
-            # entry in list_of_eyes_open if eye is open
             list_of_eyes_open = [self.list_of_EAR[i] for i in 
                                 range(len(self.list_of_eye_closure)) 
                                 if not self.list_of_eye_closure[i]]
-            # Calculating the average
+
             avg_ear_eyes_open = sum(list_of_eyes_open) / len(list_of_eyes_open)
         
         return avg_ear_eyes_open
     
-    def calibrate(self, frame_length_perclos, frame_length_ear_list, perclos, ear_eyes_open):  # noqa: E501
-        
-        # Storage of the first data of the awake status
+    def calibrate(self, frame_length_perclos, frame_length_ear_list, perclos, ear_eyes_open):
         cal_perclos = False
         cal_ear = False
         calibrate_status = 0
@@ -357,13 +265,9 @@ class DetectionScreen(Screen):
         if cal_ear and cal_perclos:
             self.cal_done = True
 
-
         return calibrate_status
     
     def feature_vector(self, frame_ear_eyes_open, frame_perclos):
-        
-        # Elaborated features: difference awake status to current status + perclos value
-        # Once ratio mean EAR value where eyes open and once ratio Perclos
         diff_ear_eyes_open = self.awake_ear_eyes_open-frame_ear_eyes_open
         diff_perclos = self.awake_perclos-frame_perclos
         perclos = frame_perclos
