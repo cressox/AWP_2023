@@ -186,8 +186,8 @@ class DetectionScreen(Screen):
                             cv2.putText(image, 'Blink Detected', (30, 30),
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                             self.blinks +=1
-                            print(self.blinks)
-                            print(blink_duration) # prints nothing, why is it skipped? 
+                            print("Blink Counter" + self.blinks)
+                            print("Blink Duration: " + blink_duration) # prints nothing, why is it skipped? 
 
                         if blink == 2:
                             if self.count_warning_frame == 20:
