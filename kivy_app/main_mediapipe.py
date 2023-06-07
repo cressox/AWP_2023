@@ -17,15 +17,11 @@ Config.set('input', 'wm_pen', '0')
 
 os.environ['KIVY_CAMERA'] = 'opencv'
 
-mp_drawing = mp.solutions.drawing_utils
-mp_face_mesh = mp.solutions.face_mesh
-
-face_mesh = mp_face_mesh.FaceMesh(
-    min_detection_confidence=0.5, min_tracking_confidence=0.5)
-
 SCREENS = {}
 
+
 class MainScreen(Screen):
+    """Hauptbildschirm der App."""
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         layout = BoxLayout(orientation='vertical')
@@ -45,14 +41,25 @@ class MainScreen(Screen):
         self.add_widget(layout)
 
     def load_detection_screen(self, instance):
+        """Wechselt zum Bildschirm für die Gesichtserkennung."""
         self.manager.current = 'detection'
-        
+
     def set_screen(self, screen_name):
+        """Wechselt zum angegebenen Bildschirm."""
         self.manager.current = screen_name
 
+
 class DetectionScreen(Screen):
+    """Bildschirm für die Gesichtserkennung."""
     def __init__(self, **kwargs):
         super(DetectionScreen, self).__init__(**kwargs)
+
+        self.mp_drawing = mp.solutions.drawing_utils
+        self.mp_face_mesh = mp.solutions.face_mesh
+
+        self.face_mesh = self.mp_face_mesh.FaceMesh(
+            min_detection_confidence=0.5, min_tracking_confidence=0.5)
+
         layout = BoxLayout(orientation='vertical')
 
         button_to_main = Button(text='Go to Main', size_hint=(None, None), size=(100, 50), pos_hint={'x': 0, 'y': 1})
@@ -69,16 +76,20 @@ class DetectionScreen(Screen):
         self.draw_landmarks = True
 
     def on_enter(self):
+        """Wird aufgerufen, wenn der Bildschirm betreten wird."""
         self.start_camera()
 
     def on_leave(self):
+        """Wird aufgerufen, wenn der Bildschirm verlassen wird."""
         self.stop_camera()
 
     def start_camera(self):
+        """Startet die Kameraaufnahme."""
         self.capture = cv2.VideoCapture(0)
         self.update_event = Clock.schedule_interval(self.update, 0.05)
 
     def stop_camera(self):
+        """Stoppt die Kameraaufnahme."""
         if self.capture is not None:
             self.capture.release()
             self.capture = None
@@ -87,19 +98,20 @@ class DetectionScreen(Screen):
             self.update_event = None
 
     def update(self, dt):
+        """Aktualisiert das Kamerabild und führt die Gesichtserkennung durch."""
         if self.capture is not None:
             ret, frame = self.capture.read()
             if ret:
                 image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 image.flags.writeable = False
-                results = face_mesh.process(image)
+                results = self.face_mesh.process(image)
 
                 image.flags.writeable = True
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
                 if self.draw_landmarks and results.multi_face_landmarks:
                     for face_landmarks in results.multi_face_landmarks:
-                        mp_drawing.draw_landmarks(
-                            image, face_landmarks, connections=mp_face_mesh.FACEMESH_TESSELATION)
+                        self.mp_drawing.draw_landmarks(
+                            image, face_landmarks, connections=self.mp_face_mesh.FACEMESH_TESSELATION)
 
                 buf1 = cv2.flip(image, 0)
                 buf = buf1.tobytes()
@@ -110,20 +122,26 @@ class DetectionScreen(Screen):
                 self.image.texture = image_texture
 
     def play_warning_sound(self):
+        """Spielt einen Warnklang ab."""
         sound = SoundLoader.load('warning.ogg')
         if sound:
             sound.play()
 
     def set_screen(self, screen_name):
+        """Wechselt zum angegebenen Bildschirm."""
         self.manager.current = screen_name
 
 
 class SettingsScreen(Screen):
+    """Bildschirm für die Einstellungen."""
     def __init__(self, **kwargs):
         super(SettingsScreen, self).__init__(**kwargs)
         layout = BoxLayout(orientation='vertical')
 
-        button_to_main = Button(text='Go to Main', size_hint=(None, None), size=(100, 50), pos_hint={'x': 0, 'y': 1})
+        button_to_main = Button(text='Go to Main',
+                                size_hint=(None, None),
+                                size=(100, 50),
+                                pos_hint={'x': 0, 'y': 1})
         button_to_main.bind(on_press=lambda x: self.set_screen('main'))
         layout.add_widget(button_to_main)
 
@@ -139,31 +157,43 @@ class SettingsScreen(Screen):
         self.detection_screen = None
 
     def set_screen(self, screen_name):
+        """Wechselt zum angegebenen Bildschirm."""
         self.manager.current = screen_name
 
     def on_buffer_size_changed(self, instance, value):
+        """Wird aufgerufen, wenn sich der Buffergröße-Slider ändert."""
         BUFFER_SIZE = int(value)
         self.buffer_label.text = f'BUFFER_SIZE: {BUFFER_SIZE}'
         # Hier kannst du die BUFFER_SIZE verwenden, wie du möchtest
 
+
 class HelpScreen(Screen):
+    """Bildschirm für die Hilfe."""
     def __init__(self, **kwargs):
         super(HelpScreen, self).__init__(**kwargs)
         layout = BoxLayout(orientation='vertical')
 
-        button_to_main = Button(text='Go to Main', size_hint=(None, None), size=(100, 50), pos_hint={'x': 0, 'y': 1})
+        button_to_main = Button(text='Go to Main',
+                                size_hint=(None, None),
+                                size=(100, 50),
+                                pos_hint={'x': 0, 'y': 1})
+
         button_to_main.bind(on_press=lambda x: self.set_screen('main'))
         layout.add_widget(button_to_main)
 
         self.add_widget(layout)
 
     def on_enter(self):
+        """Wird aufgerufen, wenn der Bildschirm betreten wird."""
         DetectionScreen().play_warning_sound()
 
     def set_screen(self, screen_name):
+        """Wechselt zum angegebenen Bildschirm."""
         self.manager.current = screen_name
 
+
 class MyScreenManager(ScreenManager):
+    """Screen Manager für die App."""
     def __init__(self, **kwargs):
         super(MyScreenManager, self).__init__(**kwargs)
         SCREENS['main'] = MainScreen(name='main')
@@ -176,9 +206,13 @@ class MyScreenManager(ScreenManager):
         self.add_widget(SCREENS['settings'])
         self.add_widget(SCREENS['help'])
 
+
 class MyApp(App):
+    """Hauptklasse der App."""
     def build(self):
+        """Erstellt das App-Layout."""
         return MyScreenManager()
+
 
 if __name__ == '__main__':
     MyApp().run()
