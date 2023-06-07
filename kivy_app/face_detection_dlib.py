@@ -12,30 +12,14 @@ import features as feat
 
 class DetectionScreen(Screen):
     def initialize(self):
-        layout = BoxLayout(orientation='vertical')
-
-        button_to_main = Button(text='Go to Main')
-        button_to_main.bind(on_press=lambda x: self.set_screen('main'))
-        layout.add_widget(button_to_main)
-
-        self.image = Image()
-        layout.add_widget(self.image)
-
-        self.add_widget(layout)
-
-        #Starting the video in a new Thread
         threading.Thread(target=self.initialize_resources).start()
-
         Clock.schedule_interval(self.update, 0.05)
 
     def initialize_resources(self):
         self.capture = cv2.VideoCapture(0)
-  
-        # loading the dlib face detector
+
         self.detector = dlib.get_frontal_face_detector()
-        # Path to the shape predictor model
-        self.predictor = dlib.shape_predictor(
-            "Predictors/shape_predictor_68_face_landmarks.dat")
+        self.predictor = dlib.shape_predictor("Predictors/shape_predictor_68_face_landmarks.dat")
 
     def update(self, dt):            
         
@@ -107,7 +91,7 @@ class DetectionScreen(Screen):
                                                colorfmt='bgr')
                 image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
 
-                self.image.texture = image_texture
+                self.ids.image_view.texture = image_texture
 
     def set_screen(self, screen_name):
         self.manager.current = screen_name

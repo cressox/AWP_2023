@@ -2,6 +2,8 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 
+from face_detection_dlib import DetectionScreen
+
 import cv2
 import threading
 import os
@@ -35,7 +37,7 @@ class LoadingScreen(Screen):
             self.ids.progress_bar.value += 1
 
 
-
+'''
 class DetectionScreen(Screen):
     def initialize(self):
         threading.Thread(target=self.initialize_resources).start()
@@ -68,7 +70,7 @@ class DetectionScreen(Screen):
                 image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
 
                 self.ids.image_view.texture = image_texture
-
+'''
 
 class SettingsScreen(Screen):
     mode = 'fast'  # Hinzugefügtes mode-Attribut
