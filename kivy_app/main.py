@@ -1,19 +1,13 @@
 import os
-import time
-import threading
-import cv2
-import dlib
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.button import Button
-from kivy.uix.camera import Camera
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.progressbar import ProgressBar
 from kivy.uix.label import Label
 from kivy.uix.switch import Switch
 from kivy.clock import Clock
-from kivy.graphics.texture import Texture
-from kivy.uix.image import Image
+from face_detection_dlib import DetectionScreen
 
 os.environ["KIVY_CAMERA"] = "opencv"
 
@@ -72,7 +66,7 @@ class LoadingScreen(Screen):
 
         self.progress_value = 0
         self.progress_update_event = Clock.schedule_interval(
-            self.update_progress_bar, 0.05
+            self.update_progress_bar, 0.02
         )
 
         self.add_widget(layout)
@@ -90,77 +84,6 @@ class LoadingScreen(Screen):
         else:
             self.progress_value = 0
             self.progress_bar.value = self.progress_value
-
-
-class DetectionScreen(Screen):
-    """
-    This is the detection screen of the app, it uses OpenCV to capture video 
-    and detect faces and landmarks.
-    """
-
-    def initialize(self):
-        layout = BoxLayout(orientation="vertical")
-
-        button_to_main = Button(text="Go to Main")
-        button_to_main.bind(on_press=lambda x: self.set_screen("main"))
-        layout.add_widget(button_to_main)
-
-        self.image = Image()
-        layout.add_widget(self.image)
-
-        self.add_widget(layout)
-
-        # Start loading the models and starting the video capture in a separate thread
-        threading.Thread(target=self.initialize_resources).start()
-
-        Clock.schedule_interval(self.update, 0.05)
-
-    def initialize_resources(self):
-        """
-        Initializes the camera and the face and landmarks detection models.
-        """
-        self.capture = cv2.VideoCapture(0)
-
-        # Load the dlib detector and the shape predictor
-        self.detector = dlib.get_frontal_face_detector()
-        self.predictor = dlib.shape_predictor(
-            "shape_predictor_68_face_landmarks.dat"
-        )  # Path to the shape predictor model
-
-    def update(self, dt):
-        """
-        Update the image from the camera, detect faces and landmarks and draw on the image.
-        """
-        if hasattr(self, "capture"):
-            ret, frame = self.capture.read()
-            if ret:
-                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                faces = self.detector(gray)
-                for rect in faces:
-                    # Draw a rectangle around the detected face
-                    x1, y1, x2, y2 = rect.left(), rect.top(), rect.right(), rect.bottom()
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
-
-                    # Get the landmarks for the face and draw them
-                    shape = self.predictor(gray, rect)
-                    for i in range(shape.num_parts):
-                        p = shape.part(i)
-                        cv2.circle(frame, (p.x, p.y), 2, (0, 255, 0), -1)
-
-                # Convert the image to a format that can be used by Kivy
-                buf1 = cv2.flip(frame, 0)
-                buf = buf1.tostring()
-                image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt="bgr")
-                image_texture.blit_buffer(buf, colorfmt="bgr", bufferfmt="ubyte")
-
-                self.image.texture = image_texture
-
-    def set_screen(self, screen_name):
-        """
-        Switches the current screen to the given screen name.
-        """
-        self.manager.current = screen_name
-
 
 class SettingsScreen(Screen):
     """
@@ -192,7 +115,8 @@ class SettingsScreen(Screen):
 
 class HelpScreen(Screen):
     """
-    This is the help screen of the app, it provides information about how to use the app.
+    This is the help screen of the app, it provides information about 
+    how to use the app.
     """
 
     def __init__(self, **kwargs):
