@@ -1,6 +1,4 @@
 from kivy.uix.screenmanager import Screen
-from kivy.uix.button import Button
-from kivy.uix.boxlayout import BoxLayout
 import cv2
 from kivy.core.audio import SoundLoader
 from kivy.clock import Clock
@@ -10,7 +8,6 @@ from kivy.logger import Logger
 import mediapipe as mp
 import numpy as np
 from scipy.spatial import distance as dist
-import threading
 
 class DetectionScreen(Screen):
     def initialize(self):
@@ -177,8 +174,8 @@ class DetectionScreen(Screen):
                             cv2.putText(image, 'Blink Detected', (30, 30),
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                             self.blinks +=1
-                            print("Blink Counter" + self.blinks)
-                            print("Blink Duration: " + blink_duration) # prints nothing, why is it skipped? 
+                            #print("Blink Counter" + self.blinks)
+                            #print("Blink Duration: " + blink_duration) # prints nothing, why is it skipped? 
 
                         if blink == 2:
                             if self.count_warning_frame == 20:
@@ -427,9 +424,8 @@ class DetectionScreen(Screen):
         # elaborated features: difference awake status to current status + perclos value
         # Once ratio mean EAR value where eyes open and once ratio Perclos
         diff_ear_eyes_open = frame_ear_eyes_open/self.awake_ear_eyes_open
-        diff_perclos = frame_perclos/self.awake_perclos
-
-        return [diff_ear_eyes_open, diff_perclos]
+        
+        return [diff_ear_eyes_open, frame_perclos]
     
     #TODO
     def movement():
