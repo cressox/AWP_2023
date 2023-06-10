@@ -1,17 +1,19 @@
 from kivy.config import Config
+from kivy.core.audio import SoundLoader
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.slider import Slider
+from kivy.clock import Clock
+from kivy.graphics.texture import Texture
+from kivy.uix.image import Image
+import cv2
 import os
-#Can be either face_detection_mediapipe or face_detection_dlib
-from face_detection_mediapipe import DetectionScreen
+import mediapipe as mp
 
 Config.set('input', 'wm_pen', '0')
-
-os.environ['KIVY_CAMERA'] = 'opencv'
 
 SCREENS = {}
 
@@ -40,13 +42,87 @@ class MainScreen(Screen):
     def set_screen(self, screen_name):
         self.manager.current = screen_name
 
+class DetectionScreen(Screen):
+    def __init__(self, **kwargs):
+        super(DetectionScreen, self).__init__(**kwargs)
+
+        self.mp_drawing = mp.solutions.drawing_utils
+        self.mp_face_mesh = mp.solutions.face_mesh
+
+        self.face_mesh = self.mp_face_mesh.FaceMesh(
+            min_detection_confidence=0.5, min_tracking_confidence=0.5)
+
+        layout = BoxLayout(orientation='vertical')
+
+        button_to_main = Button(text='Go to Main', size_hint=(None, None), size=(100, 50), pos_hint={'x': 0, 'y': 1})
+        button_to_main.bind(on_press=lambda x: self.set_screen('main'))
+        layout.add_widget(button_to_main)
+
+        self.image = Image()
+        layout.add_widget(self.image)
+
+        self.add_widget(layout)
+
+        self.capture = None
+        self.update_event = None
+        self.draw_landmarks = True
+
+    def on_enter(self):
+        self.start_camera()
+
+    def on_leave(self):
+        self.stop_camera()
+
+    def start_camera(self):
+        self.capture = cv2.VideoCapture(0)
+        self.update_event = Clock.schedule_interval(self.update, 0.05)
+
+    def stop_camera(self):
+        if self.capture is not None:
+            self.capture.release()
+            self.capture = None
+        if self.update_event is not None:
+            Clock.unschedule(self.update_event)
+            self.update_event = None
+
+    def update(self, dt):
+        if self.capture is not None:
+            ret, frame = self.capture.read()
+            if ret:
+                image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                image.flags.writeable = False
+                results = self.face_mesh.process(image)
+
+                image.flags.writeable = True
+                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+                if self.draw_landmarks and results.multi_face_landmarks:
+                    for face_landmarks in results.multi_face_landmarks:
+                        self.mp_drawing.draw_landmarks(
+                            image, face_landmarks, connections=self.mp_face_mesh.FACEMESH_TESSELATION)
+
+                buf1 = cv2.flip(image, 0)
+                buf = buf1.tobytes()
+                image_texture = Texture.create(
+                    size=(image.shape[1], image.shape[0]), colorfmt='bgr')
+                image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+
+                self.image.texture = image_texture
+
+    def play_warning_sound(self):
+        sound = SoundLoader.load('warning.ogg')
+        if sound:
+            sound.play()
+
+    def set_screen(self, screen_name):
+        self.manager.current = screen_name
+
+
 class SettingsScreen(Screen):
     def __init__(self, **kwargs):
         super(SettingsScreen, self).__init__(**kwargs)
         layout = BoxLayout(orientation='vertical')
 
-        button_to_main = Button(text='Go to Main', size_hint=(None, None), 
-                                size=(100, 50), pos_hint={'x': 0, 'y': 1})
+        button_to_main = Button(text='Go to Main', size_hint=(None, None), size=(100, 50), pos_hint={'x': 0, 'y': 1})
         button_to_main.bind(on_press=lambda x: self.set_screen('main'))
         layout.add_widget(button_to_main)
 
@@ -67,15 +143,14 @@ class SettingsScreen(Screen):
     def on_buffer_size_changed(self, instance, value):
         BUFFER_SIZE = int(value)
         self.buffer_label.text = f'BUFFER_SIZE: {BUFFER_SIZE}'
-        # here you can change BUFFER_SIZE at will
+        # Hier kannst du die BUFFER_SIZE verwenden, wie du möchtest
 
 class HelpScreen(Screen):
     def __init__(self, **kwargs):
         super(HelpScreen, self).__init__(**kwargs)
         layout = BoxLayout(orientation='vertical')
 
-        button_to_main = Button(text='Go to Main', size_hint=(None, None), 
-                                size=(100, 50), pos_hint={'x': 0, 'y': 1})
+        button_to_main = Button(text='Go to Main', size_hint=(None, None), size=(100, 50), pos_hint={'x': 0, 'y': 1})
         button_to_main.bind(on_press=lambda x: self.set_screen('main'))
         layout.add_widget(button_to_main)
 
@@ -105,4 +180,5 @@ class MyApp(App):
         return MyScreenManager()
 
 if __name__ == '__main__':
+    os.environ.pop('KIVY_CAMERA', None)  # Remove the environment variable
     MyApp().run()

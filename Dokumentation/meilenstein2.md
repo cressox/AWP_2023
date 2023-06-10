@@ -29,5 +29,3 @@ Die nächsten Schritte sind wie folgt geplant:
 3. **Weiterentwicklung und Optimierung**: Sobald die Integration von Mediapipe und OpenCV in Kivy erfolgreich abgeschlossen ist, wird die weitere Entwicklung der App vorangetrieben.
 
 4. **Bereitstellung als apk-Datei**: Das langfristige Ziel besteht darin, die App erfolgreich als apk-Datei bereitzustellen, um sie auf Android-Geräten nutzen zu können.
-
-zuzu

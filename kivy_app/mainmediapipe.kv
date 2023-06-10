@@ -1,0 +1,183 @@
+# Definition des ScreenManagers, der zwischen verschiedenen Bildschirmen wechselt
+<MyScreenManager>:
+    MainScreen:
+        name: 'main'
+    DetectionScreen:
+        name: 'detection'
+    LoadingScreen:
+        name: 'loading'
+    SettingsScreen:
+        name: 'settings'
+    HelpScreen:
+        name: 'help'
+
+# Hauptbildschirm
+<MainScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '20dp'
+        canvas:
+            Color:
+                rgb: 0.2, 0.3, 0.4
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        # Platzierung des Logos in der Mitte des Bildschirms
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '200dp'
+            pos_hint: {'center_x': 0.5}
+            Image:
+                source: 'assets/logo2_edit.png'  # Pfad zur Logo-Bilddatei (anpassen)
+                size_hint: None, None
+                pos_hint: {'center_x': 0.5}
+                size: '310dp', '310dp'
+
+        # Schaltflächen zum Wechseln zu anderen Bildschirmen
+        Button:
+            text: 'Go to Detection'
+            on_press: app.root.load_detection_screen()
+            size_hint_y: None
+            height: '48dp'
+            background_color: 0.1, 0.2, 0.3, 1
+
+        Button:
+            text: 'Go to Settings'
+            on_press: app.root.set_screen('settings')
+            size_hint_y: None
+            height: '48dp'
+            background_color: 0.1, 0.2, 0.3, 1
+
+        Button:
+            text: 'Go to Help'
+            on_press: app.root.set_screen('help')
+            size_hint_y: None
+            height: '48dp'
+            background_color: 0.1, 0.2, 0.3, 1
+
+# Bildschirm für die Erkennung
+<DetectionScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '20dp'
+        canvas:
+            Color:
+                rgb: 0.2, 0.3, 0.4
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        # Anzeige des Kamerabildes
+        Image:
+            id: image_view
+
+        # Schaltfläche zum Zurückkehren zum Hauptbildschirm
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '48dp'
+
+            Button:
+                text: 'Back to Main'
+                on_press: app.root.set_screen('main')
+                size_hint_x: None
+                width: '120dp'
+                background_color: 0.1, 0.2, 0.3, 1
+
+# Bildschirm zum Laden
+<LoadingScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '20dp'
+        canvas:
+            Color:
+                rgba: 0.2, 0.3, 0.4, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        # Fortschrittsbalken zum Anzeigen des Ladevorgangs
+        ProgressBar:
+            id: progress_bar
+            max: 100
+            value: 0
+            background_color: 0.2, 0.2, 0.2, 1
+            foreground_color: 0, 1, 0, 1  # Farbe: grün
+
+# Einstellungsbildschirm
+<SettingsScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '20dp'
+        canvas:
+            Color:
+                rgba: 0.2, 0.3, 0.4, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        # Umschalttasten für den Schnell- und Detailmodus
+        ToggleButton:
+            id: fast_mode_button
+            text: 'Schneller Modus'
+            on_state: root.toggle_mode('fast')
+            size_hint_y: None
+            height: '222dp'
+            background_color: (0.2, 0.3, 0.4, 1) if root.mode == 'fast' else (0.1, 0.2, 0.3, 1)
+            background_normal: ''
+            background_down: ''
+
+        ToggleButton:
+            id: detailed_mode_button
+            text: 'Detailierter Modus'
+            on_state: root.toggle_mode('detailed')
+            size_hint_y: None
+            height: '222dp'
+            background_color: (0.2, 0.3, 0.4, 1) if root.mode == 'detailed' else (0.1, 0.2, 0.3, 1)
+            background_normal: ''
+            background_down: ''
+
+        # Schaltfläche zum Zurückkehren zum Hauptbildschirm
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '48dp'
+
+            Button:
+                text: 'Back to Main'
+                on_press: app.root.set_screen('main')
+                size_hint_x: None
+                width: '120dp'
+                background_color: 0.1, 0.2, 0.3, 1
+
+# Hilfebildschirm
+<HelpScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '20dp'
+        canvas:
+            Color:
+                rgb: 0.2, 0.3, 0.4
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        # Schaltfläche zum Zurückkehren zum Hauptbildschirm
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '48dp'
+
+            Button:
+                text: 'Back to Main'
+                on_press: app.root.set_screen('main')
+                size_hint_x: None
+                width: '120dp'
+                background_color: 0.1, 0.2, 0.3, 1
