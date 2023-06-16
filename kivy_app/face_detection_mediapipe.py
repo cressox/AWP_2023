@@ -1,3 +1,4 @@
+import joblib
 from kivy.uix.screenmanager import Screen
 import cv2
 from kivy.core.audio import SoundLoader
@@ -172,14 +173,6 @@ class DetectionScreen(Screen):
                             string_cal = "Calibration: " + str(calibration) + "%"
                             cv2.putText(image, string_cal, (30, 120),
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-
-                        if blink == 1:
-                            # Putting a text, that a blink is detected
-                            cv2.putText(image, 'Blink Detected', (30, 30),
-                            cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-                            self.blinks +=1
-                            #print("Blink Counter" + self.blinks)
-                            #print("Blink Duration: " + blink_duration) # prints nothing, why is it skipped? 
 
                         if blink == 2:
                             if self.count_warning_frame == 20:
@@ -431,6 +424,11 @@ class DetectionScreen(Screen):
         print(diff_perclos)
         
         return [diff_perclos]
+    
+    def new_input(feature_vector):
+        loaded_classifier = joblib.load("best_classifier.pkl")
+        prediction = loaded_classifier.predict([feature_vector])
+        return prediction
     
     #TODO
     def movement():
