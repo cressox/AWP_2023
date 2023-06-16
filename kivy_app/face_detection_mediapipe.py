@@ -8,6 +8,7 @@ from kivy.logger import Logger
 import mediapipe as mp
 import numpy as np
 from scipy.spatial import distance as dist
+import Classifier
 
 class DetectionScreen(Screen):
     def initialize(self):
@@ -154,6 +155,7 @@ class DetectionScreen(Screen):
                             frame_length_perclos, frame_length_ear_list, 
                             perclos, avg_ear_eyes_open_at_test)
 
+                        # Calibrate
                         if self.cal_done:
                             perclos = round(perclos, 2)
                             string_perclos = "PERCLOS: " + str(perclos)
@@ -162,6 +164,8 @@ class DetectionScreen(Screen):
 
                             feature_vector = self.feature_vector(
                             avg_ear_eyes_open_at_test, perclos)
+                            prediction = Classifier.new_input(feature_vector)
+                            print(prediction)
 
                         else:
                             calibration = round(calibration, 2)*100
@@ -419,13 +423,14 @@ class DetectionScreen(Screen):
 
         return calibrate_status
     
-    def feature_vector(self, frame_ear_eyes_open, frame_perclos):
+    def feature_vector(self, frame_perclos):
         
         # elaborated features: difference awake status to current status + perclos value
         # Once ratio mean EAR value where eyes open and once ratio Perclos
-        diff_ear_eyes_open = frame_ear_eyes_open/self.awake_ear_eyes_open
+        diff_perclos = frame_perclos/self.awake_perclos
+        print(diff_perclos)
         
-        return [diff_ear_eyes_open, frame_perclos]
+        return [diff_perclos]
     
     #TODO
     def movement():
