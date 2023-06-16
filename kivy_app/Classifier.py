@@ -1,8 +1,10 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.metrics import r2_score
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import Lasso, LinearRegression, LogisticRegression, Ridge
+from sklearn.preprocessing import PolynomialFeatures
 from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -115,11 +117,54 @@ def classification(list_features, list_class):
 
     joblib.dump(best_classifier, "best_classifier.pkl")
 
-def new_input(feature_vector):
-    loaded_classifier = joblib.load("best_classifier.pkl")
-    prediction = loaded_classifier.predict([feature_vector])
-    return prediction
+def regression(list_features, list_class):
+    X_train, X_test, y_train, y_test = train_test_split(list_features, list_class, 
+                                                        test_size=0.2, random_state=42)
+    regressors = []
 
+    # Linear Regression
+    print("\nLinear Regression")
+    linreg = LinearRegression()
+    linreg.fit(X_train, y_train)
+    y_pred_linreg = linreg.predict(X_test)
+    accuracy_linreg = r2_score(y_test, y_pred_linreg)
+    print("R2 Score Linear Regression:", accuracy_linreg)
+    regressors.append(("Linear Regression", linreg, accuracy_linreg))
+
+    # Polynomial Regression
+    print("\nPolynomial Regression")
+    polyreg = PolynomialFeatures(degree=2)
+    X_poly = polyreg.fit_transform(X_train)
+    linreg_poly = LinearRegression()
+    linreg_poly.fit(X_poly, y_train)
+    y_pred_poly = linreg_poly.predict(polyreg.transform(X_test))
+    accuracy_polyreg = r2_score(y_test, y_pred_poly)
+    print("R2 Score Polynomial Regression:", accuracy_polyreg)
+    regressors.append(("Polynomial Regression", linreg_poly, accuracy_polyreg))
+
+    # Ridge Regression
+    print("\nRidge Regression")
+    ridge = Ridge(alpha=1.0)
+    ridge.fit(X_train, y_train)
+    y_pred_ridge = ridge.predict(X_test)
+    accuracy_ridge = r2_score(y_test, y_pred_ridge)
+    print("R2 Score Ridge Regression:", accuracy_ridge)
+    regressors.append(("Ridge Regression", ridge, accuracy_ridge))
+
+    # Lasso Regression
+    print("\nLasso Regression")
+    lasso = Lasso(alpha=0.1)
+    lasso.fit(X_train, y_train)
+    y_pred_lasso = lasso.predict(X_test)
+    accuracy_lasso = r2_score(y_test, y_pred_lasso)
+    print("R2 Score Lasso Regression:", accuracy_lasso)
+    regressors.append(("Lasso Regression", lasso, accuracy_lasso))
+
+    regressors.sort(key=lambda x: x[2], reverse=True)
+    best_regressor_name, best_regressor, best_accuracy = regressors[2]
+
+    joblib.dump(best_regressor, "best_regressor.pkl")
+    
 data_path_feat = "Datasets/Perclos_EARopen/ear_perclos.npy"
 data_path_class = "Datasets/Perclos_EARopen/ear_perclos_class.npy"
 
@@ -131,4 +176,24 @@ EAR_Eyes_open_list = np.array(list_feat_diff[0]).reshape(-1, 1)
 
 EAR_and_PERCLOS = list(map(list, zip(*list_feat_diff)))
 
-classification(Perclos_list, list_class)
+regression(Perclos_list, list_class)
+
+# Lade den besten Regressor aus der Datei
+best_regressor = joblib.load("best_regressor.pkl")
+
+# Erstelle eine Reihe von Eingabewerten (Features)
+min_feature = np.min(Perclos_list)
+max_feature = np.max(Perclos_list)
+new_features = np.linspace(min_feature, max_feature, num=100).reshape(-1, 1)
+
+# Mache Vorhersagen für die erstellten Eingabewerte
+predicted_scores = best_regressor.predict(new_features)
+
+# Plot der ursprünglichen Merkmalsdaten und der Vorhersagen
+plt.scatter(Perclos_list, list_class, color='blue', label='Original')
+plt.plot(new_features, predicted_scores, color='red', label='Predicted')
+plt.xlabel('Feature')
+plt.ylabel('Score')
+plt.title('Regression')
+plt.legend()
+plt.show()
