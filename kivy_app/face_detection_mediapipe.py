@@ -155,17 +155,16 @@ class DetectionScreen(Screen):
                         calibration = self.calibrate(
                             frame_length_perclos, frame_length_ear_list, 
                             perclos, avg_ear_eyes_open_at_test)
-
+                        
                         # Calibrate
                         if self.cal_done:
-                            perclos = round(perclos, 2)
-                            string_perclos = "PERCLOS: " + str(perclos)
+                            perclos_text = round(perclos, 2)
+                            string_perclos = "PERCLOS: " + str(perclos_text)
                             cv2.putText(image, string_perclos, (30, 120),
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
 
-                            feature_vector = self.feature_vector(
-                            avg_ear_eyes_open_at_test, perclos)
-                            prediction = Classifier.new_input(feature_vector)
+                            feature_vector = self.feature_vector(perclos)
+                            prediction = self.new_input(feature_vector)
                             print(prediction)
 
                         else:
@@ -173,6 +172,9 @@ class DetectionScreen(Screen):
                             string_cal = "Calibration: " + str(calibration) + "%"
                             cv2.putText(image, string_cal, (30, 120),
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+                        
+                        if blink == 1:
+                            self.blinks += 1
 
                         if blink == 2:
                             if self.count_warning_frame == 20:
@@ -390,7 +392,7 @@ class DetectionScreen(Screen):
         
         return avg_ear_eyes_open
     
-    def calibrate(self, frame_length_perclos, frame_length_ear_list, perclos, ear_eyes_open):  # noqa: E501
+    def calibrate(self, frame_length_perclos, frame_length_ear_list, perclos, ear_eyes_open):
         
         # Storage of the first data of the awake status
         cal_perclos = False
@@ -418,14 +420,12 @@ class DetectionScreen(Screen):
     
     def feature_vector(self, frame_perclos):
         
-        # elaborated features: difference awake status to current status + perclos value
-        # Once ratio mean EAR value where eyes open and once ratio Perclos
         diff_perclos = frame_perclos/self.awake_perclos
         print(diff_perclos)
         
         return [diff_perclos]
     
-    def new_input(feature_vector):
+    def new_input(self, feature_vector):
         loaded_classifier = joblib.load("best_classifier.pkl")
         prediction = loaded_classifier.predict([feature_vector])
         return prediction
