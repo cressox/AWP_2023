@@ -1,3 +1,4 @@
+# Definition des ScreenManagers, der zwischen verschiedenen Bildschirmen wechselt
 <MyScreenManager>:
     MainScreen:
         name: 'main'
@@ -10,6 +11,7 @@
     HelpScreen:
         name: 'help'
 
+# Hauptbildschirm
 <MainScreen>:
     BoxLayout:
         orientation: 'vertical'
@@ -22,6 +24,19 @@
                 pos: self.pos
                 size: self.size
 
+        # Platzierung des Logos in der Mitte des Bildschirms
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '200dp'
+            pos_hint: {'center_x': 0.5}
+            Image:
+                source: 'assets/logo2_edit.png'  # Pfad zur Logo-Bilddatei (anpassen)
+                size_hint: None, None
+                pos_hint: {'center_x': 0.5}
+                size: '310dp', '310dp'
+
+        # Schaltflächen zum Wechseln zu anderen Bildschirmen
         Button:
             text: 'Go to Detection'
             on_press: app.root.load_detection_screen()
@@ -43,6 +58,7 @@
             height: '48dp'
             background_color: 0.1, 0.2, 0.3, 1
 
+# Bildschirm für die Erkennung
 <DetectionScreen>:
     BoxLayout:
         orientation: 'vertical'
@@ -55,9 +71,11 @@
                 pos: self.pos
                 size: self.size
 
+        # Anzeige des Kamerabildes
         Image:
             id: image_view
 
+        # Schaltfläche zum Zurückkehren zum Hauptbildschirm
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
@@ -70,6 +88,7 @@
                 width: '120dp'
                 background_color: 0.1, 0.2, 0.3, 1
 
+# Bildschirm zum Laden
 <LoadingScreen>:
     BoxLayout:
         orientation: 'vertical'
@@ -82,14 +101,15 @@
                 pos: self.pos
                 size: self.size
 
+        # Fortschrittsbalken zum Anzeigen des Ladevorgangs
         ProgressBar:
             id: progress_bar
             max: 100
             value: 0
             background_color: 0.2, 0.2, 0.2, 1
-            foreground_color: 0, 1, 0, 1  # Initial color: green
+            foreground_color: 0, 1, 0, 1  # Farbe: grün
 
-
+# Einstellungsbildschirm
 <SettingsScreen>:
     BoxLayout:
         orientation: 'vertical'
@@ -102,6 +122,7 @@
                 pos: self.pos
                 size: self.size
 
+        # Umschalttasten für den Schnell- und Detailmodus
         ToggleButton:
             id: fast_mode_button
             text: 'Schneller Modus'
@@ -122,6 +143,7 @@
             background_normal: ''
             background_down: ''
 
+        # Schaltfläche zum Zurückkehren zum Hauptbildschirm
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
@@ -134,9 +156,7 @@
                 width: '120dp'
                 background_color: 0.1, 0.2, 0.3, 1
 
-
-
-
+# Hilfebildschirm
 <HelpScreen>:
     BoxLayout:
         orientation: 'vertical'
@@ -149,6 +169,7 @@
                 pos: self.pos
                 size: self.size
 
+        # Schaltfläche zum Zurückkehren zum Hauptbildschirm
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None

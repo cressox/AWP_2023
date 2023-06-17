@@ -161,4 +161,4 @@ cython_debug/
 .vscode/settings.json
 
 #venv
-enviroment/
+kivy_app/kivy_venv
