@@ -74,6 +74,7 @@ class DetectionScreen(Screen):
         Logger.info("Mediapipe: 478 Landmarks are detected")
 
     def on_enter(self):
+        self.initialize()
         self.start_camera()
 
     def on_leave(self):
@@ -96,9 +97,10 @@ class DetectionScreen(Screen):
         self.blinks = 0
         print(self.awake_ear_eyes_open)
         print(self.awake_perclos)
+        self.ids.image_view.source = './assets/logo2_edit.png'
 
     def update(self, dt):
-        if hasattr(self, 'capture') and hasattr(self, 'fps') and hasattr(self, 'face_mesh') and self.manager.current == 'detection':
+        if hasattr(self, 'capture') and self.capture and hasattr(self, 'fps') and hasattr(self, 'face_mesh') and self.manager.current == 'detection':
             ret, frame = self.capture.read()
             if ret:
                 # Changing to RGB so that mediapipe can process the frame
@@ -199,9 +201,11 @@ class DetectionScreen(Screen):
                 self.ids.image_view.texture = image_texture
 
     def play_warning_sound(self):
-        sound = SoundLoader.load('warning.ogg')
-        if sound:
+        tmp = True
+        sound = SoundLoader.load('assets/mixkit-siren-tone-1649.wav')
+        if sound and tmp:
             sound.play()
+            tmp = False
 
     def set_screen(self, screen_name):
         self.manager.current = screen_name 
