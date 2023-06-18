@@ -45,7 +45,9 @@ class DetectionScreen(Screen):
         self.blink_thresh = 0.16
         self.succ_frame = 1
 
-        self.count_warning_frame = 20
+        self.count_warning_frame_eyes_closed = 20
+
+        self.count_warning_frame_classifier = 100
 
         # Initialisation of list of frames for calculation of PERCLOS
         self.list_of_eye_closure = []
@@ -133,7 +135,7 @@ class DetectionScreen(Screen):
                         if not any(item is None for item in coord_points):
                             
                             self.count_last +=1
-                            
+
                             #Calculating the Eye Aspect ratio for the left and right eye
                             EAR_left = self.calculate_EAR(coord_points_left)
                             
@@ -170,7 +172,19 @@ class DetectionScreen(Screen):
                                 # Prediction of the feature vector whether 
                                 # tired/half-tired/awake
                                 prediction = self.new_input(feature_vector)
-                                print(prediction)
+
+                                if prediction == 0:
+                                    pass
+                                    #TODO Visual apperance
+                                elif prediction == 1:
+                                    pass
+                                    #TODO Visual apperance
+                                else:
+                                    if self.count_warning_frame_classifier == 100:
+                                        self.count_warning_frame_classifier = 0
+                                    self.play_warning_sound()
+                                    #TODO Visual apperance
+
 
                             # If the Calibration is not done, continue the calibration
                             else:
@@ -190,15 +204,15 @@ class DetectionScreen(Screen):
 
                             # Processing when the eye has been closed for too long
                             if blink == 2:
-                                if self.count_warning_frame == 20:
+                                if self.count_warning_frame_eyes_closed == 20:
                                     # Putting a text, that driver might be 
                                     # sleeping every 20 Frames
                                     cv2.putText(image, 'ALARM: Wake up!', (30, 30),
                                     cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                                     self.play_warning_sound()
-                                    self.count_warning_frame = 0
+                                    self.count_warning_frame_eyes_closed = 0
                                 else:
-                                    self.count_warning_frame +=1
+                                    self.count_warning_frame_eyes_closed +=1
 
                 # Flip the image vertically for processing in kivy
                 buf1 = cv2.flip(image, 0)
