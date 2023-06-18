@@ -9,7 +9,6 @@ from kivy.logger import Logger
 import mediapipe as mp
 import numpy as np
 from scipy.spatial import distance as dist
-import Classifier
 
 class DetectionScreen(Screen):
     def initialize(self):
@@ -98,6 +97,7 @@ class DetectionScreen(Screen):
 
     def update(self, dt):
         if hasattr(self, 'capture') and hasattr(self, 'fps') and hasattr(self, 'face_mesh') and self.manager.current == 'detection':
+            # Read a frame from the video capture
             ret, frame = self.capture.read()
             if ret:
                 # Changing to RGB so that mediapipe can process the frame
@@ -152,49 +152,64 @@ class DetectionScreen(Screen):
                         self.get_list_of_ear(avg_EAR, frame_length_ear_list)
                         avg_ear_eyes_open_at_test = self.avg_ear_eyes_open()
                         
-                        calibration = self.calibrate(
-                            frame_length_perclos, frame_length_ear_list, 
-                            perclos, avg_ear_eyes_open_at_test)
-                        
-                        # Calibrate
+                        # When the calibration is done
                         if self.cal_done:
+                            # Putting the PERCLOS value on Screen
                             perclos_text = round(perclos, 2)
                             string_perclos = "PERCLOS: " + str(perclos_text)
                             cv2.putText(image, string_perclos, (30, 120),
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
 
+                            # Generation of the feature vector
                             feature_vector = self.feature_vector(perclos)
+
+                            # Prediction of the feature vector whether 
+                            # tired/half-tired/awake
                             prediction = self.new_input(feature_vector)
                             print(prediction)
 
+                        # If the Calibration is not done, continue the calibration
                         else:
+                            calibration = self.calibrate(
+                            frame_length_perclos, frame_length_ear_list, 
+                            perclos, avg_ear_eyes_open_at_test)
+                            
+                            # Putting a text for the calibration status
                             calibration = round(calibration, 2)*100
                             string_cal = "Calibration: " + str(calibration) + "%"
                             cv2.putText(image, string_cal, (30, 120),
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                         
+                        # Counting the blinks
                         if blink == 1:
                             self.blinks += 1
 
+                        # Processing when the eye has been closed for too long
                         if blink == 2:
                             if self.count_warning_frame == 20:
-                                # Putting a text, that driver might be sleeping
+                                # Putting a text, that driver might be 
+                                # sleeping every 20 Frames
                                 cv2.putText(image, 'ALARM: Wake up!', (30, 30),
                                 cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                                 self.play_warning_sound()
                                 self.count_warning_frame = 0
                             else:
                                 self.count_warning_frame +=1
-                        
+
+                # Flip the image vertically for processing in kivy
                 buf1 = cv2.flip(image, 0)
                 buf = buf1.tostring()
                 image_texture = Texture.create(size=(image.shape[1], image.shape[0]), 
                 colorfmt='rgb')
                 image_texture.blit_buffer(buf, colorfmt='rgb', bufferfmt='ubyte')
-
                 self.ids.image_view.texture = image_texture
 
     def play_warning_sound(self):
+        """
+        Plays a warning sound.
+
+        This method loads and plays a warning sound from the 'warning.ogg' file. 
+        """
         sound = SoundLoader.load('warning.ogg')
         if sound:
             sound.play()
@@ -285,7 +300,7 @@ class DetectionScreen(Screen):
 
         return perclos
     
-    def get_coord_points(self, landmark_list: list, eye_idxs: list, imgW: int, imgH: int):  # noqa: E501
+    def get_coord_points(self, landmark_list: list, eye_idxs: list, imgW: int, imgH: int):
         """Function for getting all six coordinate points of one eye
 
         Parameters:
@@ -371,7 +386,7 @@ class DetectionScreen(Screen):
         at values where the eye is open is the mean
 
         Returns
-            avg_ear_eyes_open(float): Mean of the EAR value 
+            avg_ear_eyes_open (float): Mean of the EAR value 
             over a specified time when the eyes are open
         """
         # Initialise
@@ -393,41 +408,86 @@ class DetectionScreen(Screen):
         return avg_ear_eyes_open
     
     def calibrate(self, frame_length_perclos, frame_length_ear_list, perclos, ear_eyes_open):
-        
-        # Storage of the first data of the awake status
-        cal_perclos = False
-        cal_ear = False
+        """
+        Calibrates the system based on the provided parameters.
+
+        This method performs the calibration process for the system based on the frame 
+        lengths for PERCLOS calculation and the list of average EAR values for eyes open. 
+
+        Args:
+            frame_length_perclos (int): The desired frame length for PERCLOS calculation.
+            frame_length_ear_list (int): The desired frame length for the list of 
+            average EAR values for eyes open.
+            perclos (float): The current PERCLOS value.
+
+            ear_eyes_open (float): The current average EAR value for eyes open.
+        Returns:
+            float: The calibration status as a decimal value indicating the 
+            progress towards reaching the desired frame lengths.
+
+        """      
+        cal_perclos = False # Flag indicating if PERCLOS calibration is done
+        cal_ear = False # Flag indicating if average EAR calibration is done
         calibrate_status = 0
 
+        # Checking the length of the frame lists
         if frame_length_ear_list >= frame_length_perclos:
             calibrate_status = self.count_last/frame_length_ear_list
         else:
             calibrate_status = self.count_last/frame_length_perclos
 
-        if self.count_last == frame_length_perclos:
+        # Checking for the length of the PERCLOS List
+        if self.count_last == frame_length_perclos and not cal_perclos:
             self.awake_perclos = perclos
             cal_perclos = True
 
-        if self.count_last == frame_length_ear_list:
+        # Checking for the length of the EAR List
+        if self.count_last == frame_length_ear_list and not cal_ear:
             self.awake_ear_eyes_open = ear_eyes_open
             cal_ear = True
         
+        # Checking if the frame length of PERCLOS and EAR is done
         if cal_ear and cal_perclos:
             self.cal_done = True
-
 
         return calibrate_status
     
     def feature_vector(self, frame_perclos):
-        
+        """
+        Calculate the feature vector based on the difference between 
+        the frame PERCLOS and the awake PERCLOS.
+
+        Args:
+            frame_perclos (float): PERCLOS value for the current frame.
+
+        Returns:
+            list: Feature vector containing the difference 
+            between frame PERCLOS and awake PERCLOS.
+
+        """        
         diff_perclos = frame_perclos/self.awake_perclos
         print(diff_perclos)
         
         return [diff_perclos]
     
     def new_input(self, feature_vector):
+        """
+        Perform prediction using a loaded classifier based on the given feature vector.
+
+        Args:
+            feature_vector (list): Feature vector for the input.
+
+        Returns:
+            str: Prediction result.
+
+        """
+
+        # Load the Classifier
         loaded_classifier = joblib.load("best_classifier.pkl")
+
+        # Predict the Class of the Feature Vector
         prediction = loaded_classifier.predict([feature_vector])
+
         return prediction
     
     #TODO
