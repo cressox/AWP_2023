@@ -1,3 +1,4 @@
+import joblib
 from kivy.uix.screenmanager import Screen
 import cv2
 from kivy.core.audio import SoundLoader
@@ -162,8 +163,8 @@ class DetectionScreen(Screen):
                             # Blink Detection Algorithm
                             blink, closed_eye, blink_duration = self.blink_detection(avg_EAR)
 
-                            frame_length_perclos = 200
-                            frame_length_ear_list = 200
+                            frame_length_perclos = 5000
+                            frame_length_ear_list = 5000
 
                             # PERCLOS Calculation based on frames
                             perclos = self.calculate_perclos(closed_eye, 
@@ -177,8 +178,8 @@ class DetectionScreen(Screen):
                                 perclos)
 
                             if self.cal_done:
-                                perclos = round(perclos, 2)
-                                string_perclos = "PERCLOS: " + str(perclos)
+                                perclos_text = round(perclos, 2)
+                                string_perclos = "PERCLOS: " + str(perclos_text)
                                 cv2.putText(image, string_perclos, (30, 120),
                                 cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                                 self.first +=1
@@ -195,7 +196,7 @@ class DetectionScreen(Screen):
 
                                 data_path_feat = "Datasets/Perclos_EARopen/ear_perclos.npy"
 
-                                if os.path.exists(data_path_feat) and os.path.exists(data_path_feat):
+                                if os.path.exists(data_path_feat):
                                     list_feat = np.load(data_path_feat)
                                     list_feat = np.hstack((list_feat, feature_vector))
                                     print(list_feat)
@@ -473,3 +474,4 @@ class DetectionScreen(Screen):
         feature_vector = np.array([frame_ear_eyes_open, frame_perclos])
         feature_vector = feature_vector.reshape((2,1))
         return feature_vector
+    
