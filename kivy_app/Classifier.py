@@ -12,10 +12,31 @@ from sklearn.model_selection import cross_val_score
 import joblib
 
 def get_data(data_path_feat, data_path_class):
+    """
+    Load data from feature and class files and calculate the difference values for PERCLOS and EAR Eyes Open.
+
+    Args:
+        data_path_feat (str): Path to the feature data file.
+        data_path_class (str): Path to the class data file.
+
+    Returns:
+        tuple: A tuple containing the feature data with difference values and the class data.
+
+    Raises:
+        Exception: If the length of the feature list does not match the length of the class list.
+        Exception: If the data paths were not found.
+
+    """
+
+    # Checking if the data paths exists
     if os.path.exists(data_path_feat) and os.path.exists(data_path_class):
+        
+        # Loading the data
         list_feat = np.load(data_path_feat)
         list_class = np.load(data_path_class)
+        
         if len(list_feat[0]) == len(list_class):
+            # Calculating the difference of the awake status to the tired and the half tired status
             list_feat_diff = np.zeros(np.shape(list_feat))
             x, y = np.shape(list_feat)
             for i in range(0, y, 3):
@@ -31,10 +52,12 @@ def get_data(data_path_feat, data_path_class):
             print(list_feat_diff)
             return list_feat_diff, list_class
         else:
+            # Exception if the length of the lists are not the same
             try:
                 raise Exception("Länge der Liste der Features stimmt nicht mit der Länge der Liste der Klassen zusammen")
             except Exception as e:
                 print(str(e))
+    # Exception if the Data Paths dont exist
     else:
         try:
             raise Exception("Datenpfade wurden nicht gefunden")
@@ -56,6 +79,19 @@ def visualization_feature(list_features, list_class):
     plt.show()
 
 def classification(list_features, list_class):
+    """
+    Perform classification using different classifiers and select the best performing classifier based on accuracy.
+
+    Args_
+        list_features (numpy.ndarray): Array containing the feature data
+        list_class (numpy.ndarray): Array containing the class labels
+
+    Returns:
+        str: Name of the best performing classifier
+        object: Best performing classifier object
+        float: Accuracy of the best performing classifier
+
+    """    
     X_train, X_test, y_train, y_test = train_test_split(list_features, list_class, 
                                                         test_size=0.2, random_state=42)
     classifiers = []
@@ -112,12 +148,26 @@ def classification(list_features, list_class):
     print("Durchschnittliche Genauigkeit Support Vector Machine:", svm_scores.mean())
     classifiers.append(("Support Vector Machine", svm, accuracy_svm))
 
+    # Sorting the classifiers by performance
     classifiers.sort(key=lambda x: x[2], reverse=True)
     best_classifier_name, best_classifier, best_accuracy = classifiers[0]
 
     joblib.dump(best_classifier, "best_classifier.pkl")
 
 def regression(list_features, list_class):
+    """
+    Perform regression using different regressors and select the best performing regressor based on R2 score.
+
+    Args:
+        list_features (numpy.ndarray): Array containing the feature data.
+        list_class (numpy.ndarray): Array containing the target values.
+
+    Returns:
+        str: Name of the best performing regressor.
+        object: Best performing regressor object.
+        float: R2 score of the best performing regressor.
+
+    """
     X_train, X_test, y_train, y_test = train_test_split(list_features, list_class, 
                                                         test_size=0.2, random_state=42)
     regressors = []
@@ -170,6 +220,7 @@ data_path_class = "Datasets/Perclos_EARopen/ear_perclos_class.npy"
 
 list_feat_diff, list_class = get_data(data_path_feat, data_path_class)
 
+# Defining the Feature Vectors for processing
 Perclos_list = np.array(list_feat_diff[1]).reshape(-1, 1)
 
 EAR_Eyes_open_list = np.array(list_feat_diff[0]).reshape(-1, 1)
@@ -178,22 +229,4 @@ EAR_and_PERCLOS = list(map(list, zip(*list_feat_diff)))
 
 regression(Perclos_list, list_class)
 
-# Lade den besten Regressor aus der Datei
-best_regressor = joblib.load("best_regressor.pkl")
-
-# Erstelle eine Reihe von Eingabewerten (Features)
-min_feature = np.min(Perclos_list)
-max_feature = np.max(Perclos_list)
-new_features = np.linspace(min_feature, max_feature, num=100).reshape(-1, 1)
-
-# Mache Vorhersagen für die erstellten Eingabewerte
-predicted_scores = best_regressor.predict(new_features)
-
-# Plot der ursprünglichen Merkmalsdaten und der Vorhersagen
-plt.scatter(Perclos_list, list_class, color='blue', label='Original')
-plt.plot(new_features, predicted_scores, color='red', label='Predicted')
-plt.xlabel('Feature')
-plt.ylabel('Score')
-plt.title('Regression')
-plt.legend()
-plt.show()
+classification(Perclos_list, list_class)
