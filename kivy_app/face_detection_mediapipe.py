@@ -431,8 +431,9 @@ class DetectionScreen(Screen):
             list_of_eyes_open = [self.list_of_EAR[i] for i in 
                                 range(len(self.list_of_eye_closure)) 
                                 if not self.list_of_eye_closure[i]]
-            # Calculating the average
-            avg_ear_eyes_open = sum(list_of_eyes_open) / len(list_of_eyes_open)
+             # Calculating the average
+            if len(list_of_eyes_open) > 0:
+                avg_ear_eyes_open = sum(list_of_eyes_open) / len(list_of_eyes_open)
         
         return avg_ear_eyes_open
     
