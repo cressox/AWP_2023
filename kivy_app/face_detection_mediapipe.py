@@ -229,10 +229,10 @@ class DetectionScreen(Screen):
                                 cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
 
                 else:
-                    # if unable to detect landmarks for movement_counter frames,
-                    # then do the following
+                    # if unable to detect landmarks for 100 frames,
+                    # then give warning signs
                     self.movement_counter += 1
-                    if self.movement_counter == 20:
+                    if self.movement_counter == 100:
                         self.play_warning_sound()
                         print("Landmarks nicht gefunden")
                         self.movement_counter = 0
@@ -251,7 +251,7 @@ class DetectionScreen(Screen):
 
         This method loads and plays a warning sound from the 'warning.ogg' file. 
         """
-        sound = SoundLoader.load('warning.ogg')
+        sound = SoundLoader.load('assets\warning.ogg')
         if sound:
             sound.play()
 
