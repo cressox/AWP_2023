@@ -58,6 +58,8 @@ class DetectionScreen(Screen):
         # Initialisation of list of frames for calculation of blink threshold
         self.list_of_EAR = []
 
+        self.list_of_blink_durations = []
+
         self.awake_ear_eyes_open = 0
         self.awake_perclos = 0.01
 
@@ -101,6 +103,7 @@ class DetectionScreen(Screen):
         print(self.awake_perclos)
 
     def update(self, dt):
+        
         if hasattr(self, 'capture') and hasattr(self, 'fps') and hasattr(self, 'face_mesh') and self.manager.current == 'detection':
             # Read a frame from the video capture
             ret, frame = self.capture.read()
@@ -152,6 +155,9 @@ class DetectionScreen(Screen):
 
                             frame_length_perclos = 1000
                             frame_length_ear_list = 1000
+                            num_of_blinks = 20
+
+
 
                             # PERCLOS Calculation based on frames
                             perclos = self.calculate_perclos(closed_eye, 
@@ -160,7 +166,25 @@ class DetectionScreen(Screen):
                             # AVG EAR for eyes open
                             self.get_list_of_ear(avg_EAR, frame_length_ear_list)
                             avg_ear_eyes_open_at_test = self.avg_ear_eyes_open()
-                            
+                            avg_ear_at_test = self.avg_ear()
+
+                            # Counting the blinks
+                            if blink == 1:
+                                self.blinks += 1
+                                avg_blink_duration = self.avg_blink_duration(blink_duration, num_of_blinks)
+
+                            # Processing when the eye has been closed for too long
+                            if blink == 2:
+                                if self.count_warning_frame_eyes_closed == 20:
+                                    # Putting a text, that driver might be 
+                                    # sleeping every 20 Frames
+                                    cv2.putText(image, 'ALARM: Wake up!', (30, 30),
+                                    cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+                                    self.play_warning_sound()
+                                    self.count_warning_frame_eyes_closed = 0
+                                else:
+                                    self.count_warning_frame_eyes_closed +=1
+
                             # When the calibration is done
                             if self.cal_done:
                                 # Putting the PERCLOS value on Screen
@@ -170,7 +194,10 @@ class DetectionScreen(Screen):
                                 cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
 
                                 # Generation of the feature vector
-                                feature_vector = self.feature_vector(perclos)
+                                feature_vector = self.feature_vector(perclos, 
+                                                                     avg_blink_duration, 
+                                                                     avg_ear_eyes_open_at_test, 
+                                                                     avg_ear_at_test)
 
                                 # Prediction of the feature vector whether 
                                 # tired/half-tired/awake
@@ -185,45 +212,30 @@ class DetectionScreen(Screen):
                                 else:
                                     if self.count_warning_frame_classifier == 100:
                                         self.count_warning_frame_classifier = 0
-                                    self.play_warning_sound()
+                                        self.play_warning_sound()
+                                    self.count_warning_frame_classifier += 1
                                     #TODO Visual apperance
-
 
                             # If the Calibration is not done, continue the calibration
                             else:
                                 calibration = self.calibrate(
                                 frame_length_perclos, frame_length_ear_list, 
-                                perclos, avg_ear_eyes_open_at_test)
+                                perclos, avg_ear_eyes_open_at_test, num_of_blinks, avg_blink_duration)
                                 
                                 # Putting a text for the calibration status
                                 calibration = round(calibration, 2)*100
                                 string_cal = "Calibration: " + str(calibration) + "%"
                                 cv2.putText(image, string_cal, (30, 120),
                                 cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-                            
-                            # Counting the blinks
-                            if blink == 1:
-                                self.blinks += 1
 
-                            # Processing when the eye has been closed for too long
-                            if blink == 2:
-                                if self.count_warning_frame_eyes_closed == 20:
-                                    # Putting a text, that driver might be 
-                                    # sleeping every 20 Frames
-                                    cv2.putText(image, 'ALARM: Wake up!', (30, 30),
-                                    cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-                                    self.play_warning_sound()
-                                    self.count_warning_frame_eyes_closed = 0
-                                else:
-                                    self.count_warning_frame_eyes_closed +=1
                 else:
                     # if unable to detect landmarks for movement_counter frames,
                     # then do the following
                     self.movement_counter += 1
                     if self.movement_counter == 20:
+                        self.play_warning_sound()
                         print("Landmarks nicht gefunden")
                         self.movement_counter = 0
-
                 
                 # Flip the image vertically for processing in kivy
                 buf1 = cv2.flip(image, 0)
@@ -436,8 +448,29 @@ class DetectionScreen(Screen):
                 avg_ear_eyes_open = sum(list_of_eyes_open) / len(list_of_eyes_open)
         
         return avg_ear_eyes_open
+     
+    def avg_ear(self):
+        return np.mean(self.list_of_EAR)
     
-    def calibrate(self, frame_length_perclos, frame_length_ear_list, perclos, ear_eyes_open):
+    def avg_blink_duration(self, frame_blink_duration, length):
+
+        number_of_frames = len(self.list_of_blink_durations)
+
+        # Calculation when time span has been reached
+        if number_of_frames == length:
+            self.list_of_blink_durations.append(frame_blink_duration)
+            self.list_of_blink_durations.pop(0)
+
+            avg_blink_duration = np.mean(self.list_of_blink_durations)
+            
+        # Collect EAR until time span (in frames) has been reached
+        elif number_of_frames < length:
+
+            self.list_of_blink_durations.append(frame_blink_duration)
+        
+        return avg_blink_duration
+    
+    def calibrate(self, frame_length_perclos, frame_length_ear_list, perclos, ear_eyes_open, num_of_blinks, avg_blink_duration):
         """
         Calibrates the system based on the provided parameters.
 
@@ -458,6 +491,7 @@ class DetectionScreen(Screen):
         """      
         cal_perclos = False # Flag indicating if PERCLOS calibration is done
         cal_ear = False # Flag indicating if average EAR calibration is done
+        cal_blinks = False
         calibrate_status = 0
 
         # Checking the length of the frame lists
@@ -475,6 +509,10 @@ class DetectionScreen(Screen):
         if self.count_last == frame_length_ear_list and not cal_ear:
             self.awake_ear_eyes_open = ear_eyes_open
             cal_ear = True
+
+        # Checking for the length of the Blink list
+        if self.blinks == num_of_blinks and not cal_blinks:
+            self.awake_blink_duration = avg_blink_duration
         
         # Checking if the frame length of PERCLOS and EAR is done
         if cal_ear and cal_perclos:
@@ -482,7 +520,7 @@ class DetectionScreen(Screen):
 
         return calibrate_status
     
-    def feature_vector(self, frame_perclos):
+    def feature_vector(self, frame_perclos, frame_blink_duration, frame_avg_ear_eyes_open, frame_avg_ear):
         """
         Calculate the feature vector based on the difference between 
         the frame PERCLOS and the awake PERCLOS.
@@ -520,6 +558,6 @@ class DetectionScreen(Screen):
 
         return prediction
     
-    
+
     def yawning():
         return 0
