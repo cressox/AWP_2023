@@ -49,6 +49,9 @@ class DetectionScreen(Screen):
 
         self.count_warning_frame_classifier = 100
 
+        # counter for capturing movement
+        self.movement_counter = 0
+
         # Initialisation of list of frames for calculation of PERCLOS
         self.list_of_eye_closure = []
 
@@ -213,7 +216,15 @@ class DetectionScreen(Screen):
                                     self.count_warning_frame_eyes_closed = 0
                                 else:
                                     self.count_warning_frame_eyes_closed +=1
+                else:
+                    # if unable to detect landmarks for movement_counter frames,
+                    # then do the following
+                    self.movement_counter += 1
+                    if self.movement_counter == 20:
+                        print("Landmarks nicht gefunden")
+                        self.movement_counter = 0
 
+                
                 # Flip the image vertically for processing in kivy
                 buf1 = cv2.flip(image, 0)
                 buf = buf1.tostring()
@@ -509,9 +520,6 @@ class DetectionScreen(Screen):
 
         return prediction
     
-    #TODO
-    def movement():
-        return 0
     
     def yawning():
         return 0
