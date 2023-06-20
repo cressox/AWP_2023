@@ -24,19 +24,25 @@ class SettingsScreen(Screen):
     def __init__(self, **kwargs):
         super(SettingsScreen, self).__init__(**kwargs)
         self.app = App.get_running_app()
-
+    global mode 
     mode = 'fast'  # Hinzugefügtes mode-Attribut
 
     def change_mode(self, mode):
         """
         Ändert den Modus basierend auf dem ausgewählten Modus.
         """
-        if mode != 'fast':
+        if mode == 'detailed':
+            # Detailierter Modus
             self.ids.detailed_mode_button.background_color = (0.5, 1, 0.5, 0.5)  # Light Green
             self.ids.fast_mode_button.background_color = self.app.color_scheme['button']  # Default button color
+
+
         else:
+            # Schneller Modus
             self.ids.fast_mode_button.background_color = (0.5, 1, 0.5, 0.5)  # Light Green
             self.ids.detailed_mode_button.background_color = self.app.color_scheme['button']  # Default button color
+
+
 
 class HelpScreen(Screen):
     """Hilfebildschirm"""
@@ -89,10 +95,10 @@ class MyApp(App):
             #'font_name': 'assets/fonts/Lato/Lato-Bold.ttf',
             #'font_name': 'assets/fonts/Open_Sans/OpenSans-VariableFont_wdth,wght.ttf',
             'font_name': 'assets/fonts/Roboto/Roboto-Medium.ttf',
-            'font_size_back': 25,
-            'font_size_settings': 40,
-            'font_size_main': 40,
-            'font_size_help': 25
+            'font_size_back': 15,
+            'font_size_settings': 30,
+            'font_size_main': 30,
+            'font_size_help': 13
         }
 
     def get_color_scheme(self):
@@ -103,6 +109,7 @@ class MyApp(App):
                 'layout_element': [0.3, 0.3, 0.3, 0.3],
                 'button_text': [1, 1, 1, 1],
                 'button_hover': [0.1, 0.1, 0.1, 0.1],
+                'img':'assets/logo3_edit.png'
             }
         else:
             return {
@@ -111,8 +118,9 @@ class MyApp(App):
                 'layout_element': [0.5, 0.5, 0.5, 0.3],
                 'button_text': [0, 0, 0, 1],
                 'button_hover': [0.1, 0.1, 0.1, 0.1],
+                'img':'assets/logo2_edit.png'
             }
-        
+
     def toggle_dark_mode(self):
         self.dark_mode = not self.dark_mode
         self.color_scheme = self.get_color_scheme()
