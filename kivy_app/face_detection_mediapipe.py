@@ -225,7 +225,8 @@ class DetectionScreen(Screen):
                             else:
                                 calibration = self.calibrate(
                                 frame_length_perclos, frame_length_ear_list, 
-                                perclos, avg_ear_eyes_open_at_test, num_of_blinks, avg_blink_duration)
+                                perclos, avg_ear_eyes_open_at_test, num_of_blinks, 
+                                avg_blink_duration, avg_ear_at_test)
                                 
                                 # Putting a text for the calibration status
                                 calibration = round(calibration, 2)*100
