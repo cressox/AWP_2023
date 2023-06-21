@@ -9,7 +9,6 @@ from kivy.logger import Logger
 import mediapipe as mp
 import numpy as np
 from scipy.spatial import distance as dist
-import threading
 
 class DetectionScreen(Screen):
     def initialize(self):
@@ -109,7 +108,9 @@ class DetectionScreen(Screen):
         self.ids.image_view.source = './assets/logo2_edit.png'
 
     def update(self, dt):
-        if hasattr(self, 'capture') and self.capture and hasattr(self, 'fps') and hasattr(self, 'face_mesh') and self.manager.current == 'detection':
+        
+        if hasattr(self, 'capture') and hasattr(self, 'fps') and hasattr(self, 'face_mesh') and self.manager.current == 'detection':
+            # Read a frame from the video capture
             ret, frame = self.capture.read()
             if ret:
                 # Changing to RGB so that mediapipe can process the frame
