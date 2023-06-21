@@ -9,11 +9,7 @@ from kivy.logger import Logger
 import mediapipe as mp
 import numpy as np
 from scipy.spatial import distance as dist
-<<<<<<< HEAD
 import threading
-from mainMediapipe import mode
-=======
->>>>>>> Implementierung_Müdigkeitsdetektor
 
 class DetectionScreen(Screen):
     def initialize(self):
@@ -113,14 +109,7 @@ class DetectionScreen(Screen):
         self.ids.image_view.source = './assets/logo2_edit.png'
 
     def update(self, dt):
-<<<<<<< HEAD
-        tmpMode = mode
         if hasattr(self, 'capture') and self.capture and hasattr(self, 'fps') and hasattr(self, 'face_mesh') and self.manager.current == 'detection':
-=======
-        
-        if hasattr(self, 'capture') and hasattr(self, 'fps') and hasattr(self, 'face_mesh') and self.manager.current == 'detection':
-            # Read a frame from the video capture
->>>>>>> Implementierung_Müdigkeitsdetektor
             ret, frame = self.capture.read()
             if ret:
                 # Changing to RGB so that mediapipe can process the frame
@@ -264,19 +253,9 @@ class DetectionScreen(Screen):
                 self.ids.image_view.texture = image_texture
 
     def play_warning_sound(self):
-<<<<<<< HEAD
         tmp = True
         sound = SoundLoader.load('assets/mixkit-siren-tone-1649.wav')
         if sound and tmp:
-=======
-        """
-        Plays a warning sound.
-
-        This method loads and plays a warning sound from the 'warning.ogg' file. 
-        """
-        sound = SoundLoader.load('assets\warning.ogg')
-        if sound:
->>>>>>> Implementierung_Müdigkeitsdetektor
             sound.play()
             tmp = False
 
