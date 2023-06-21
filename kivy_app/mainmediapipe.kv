@@ -32,7 +32,7 @@
             height: '200dp'
             pos_hint: {'center_x': 0.5}
             Image:
-                source: 'assets/logo2_edit.png'  # Pfad zur Logo-Bilddatei (anpassen)
+                source: app.color_scheme['img']
                 size_hint: None, None
                 pos_hint: {'center_x': 0.5}
                 size: '310dp', '310dp'
@@ -99,7 +99,7 @@
             font_size: app.font_scheme['font_size_settings']
 
         Button:
-            text: 'Toggle dark mode'
+            text: 'Dark mode'
             color: app.color_scheme['button_text']
             on_release: app.toggle_dark_mode()
             background_color: app.color_scheme['button']
@@ -148,7 +148,7 @@
         # Anzeige des Kamerabildes
         Image:
             id: image_view
-            source: 'assets/logo2_edit.png'
+            source: app.color_scheme['img']
             keep_ratio: True
             allow_stretch: False
 

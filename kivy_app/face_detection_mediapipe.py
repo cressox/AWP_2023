@@ -11,6 +11,7 @@ import mediapipe as mp
 import numpy as np
 from scipy.spatial import distance as dist
 import threading
+from mainMediapipe import mode
 
 class DetectionScreen(Screen):
     def initialize(self):
@@ -100,6 +101,7 @@ class DetectionScreen(Screen):
         self.ids.image_view.source = './assets/logo2_edit.png'
 
     def update(self, dt):
+        tmpMode = mode
         if hasattr(self, 'capture') and self.capture and hasattr(self, 'fps') and hasattr(self, 'face_mesh') and self.manager.current == 'detection':
             ret, frame = self.capture.read()
             if ret:
