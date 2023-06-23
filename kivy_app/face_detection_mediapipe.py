@@ -678,7 +678,8 @@ class DetectionScreen(Screen):
         ratio_blink_duration = frame_blink_duration/self.awake_blink_duration
         ratio_perclos = frame_perclos/self.awake_perclos
 
-        return [ratio_perclos, ratio_blink_duration, ratio_avg_ear_eyes_open, ratio_avg_ear]
+        # Feature only PERCLOS, addition when training done
+        return [ratio_perclos]
     
     def new_input(self, feature_vector):
         """
