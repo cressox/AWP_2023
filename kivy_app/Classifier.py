@@ -5,6 +5,7 @@ from sklearn.metrics import r2_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import Lasso, LinearRegression, LogisticRegression, Ridge
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -45,7 +46,6 @@ def get_data(data_path_feat, data_path_class):
                 list_feat_diff[1, i+1] = list_feat[1, i+1]/list_feat[1, i]
                 list_feat_diff[1, i+2] = list_feat[1, i+2]/list_feat[1, i]
                 # EAR Eyes Open Difference
-                # PERCLOS Difference
                 list_feat_diff[0, i] = 1.0
                 list_feat_diff[0, i+1] = list_feat[0, i+1]/list_feat[0, i]
                 list_feat_diff[0, i+2] = list_feat[0, i+2]/list_feat[0, i]
@@ -63,6 +63,69 @@ def get_data(data_path_feat, data_path_class):
             raise Exception("Datenpfade wurden nicht gefunden")
         except Exception as e:
             print(str(e))
+
+def get_data_two_sets(data_path_feat, data_path_class):
+    """
+    Load data from feature and class files and calculate the difference values for PERCLOS and EAR Eyes Open.
+
+    Args:
+        data_path_feat (str): Path to the feature data file.
+        data_path_class (str): Path to the class data file.
+
+    Returns:
+        tuple: A tuple containing the feature data with difference values and the class data.
+
+    Raises:
+        Exception: If the length of the feature list does not match the length of the class list.
+        Exception: If the data paths were not found.
+
+    """
+
+    # Checking if the data paths exists
+    if os.path.exists(data_path_feat) and os.path.exists(data_path_class):
+        
+        # Loading the data
+        list_feat = np.load(data_path_feat)
+        list_class = np.load(data_path_class)
+        
+        if len(list_feat[0]) == len(list_class):
+            # Calculating the difference of the awake status to the tired and the half tired status
+            x, y = np.shape(list_feat)
+            list_feat_0_1 = np.zeros((x, y-int(y/3)))
+            list_feat_1_2 = np.zeros((x, y-int(y/3)))
+            for i in range(0, y-int(y/3), 2):
+                j = int(i*1.5)
+                per_0_1 = list_feat[1, j+1]/list_feat[1, j]
+                ear_0_1 = list_feat[0, j+1]/list_feat[0, j]
+                per_1_2 = list_feat[1, j+2]/list_feat[1, j]
+                ear_1_2 = list_feat[0, j+2]/list_feat[0, j]
+                # PERCLOS Difference
+                list_feat_0_1[1, i] = 1.0
+                list_feat_0_1[1, i+1] = per_0_1
+                # EAR Eyes Open Difference
+                list_feat_0_1[0, i] = 1.0
+                list_feat_0_1[0, i+1] = ear_0_1
+                # PERCLOS Difference
+                list_feat_1_2[1, i] = list_feat[1, j+1]/list_feat[1, j]
+                list_feat_1_2[1, i+1] = per_1_2
+                # EAR Eyes Open Difference
+                list_feat_1_2[0, i] = list_feat[0, j+1]/list_feat[0, j]
+                list_feat_1_2[0, i+1] = ear_1_2
+            print(list_feat_0_1)
+            print(list_feat_1_2)
+            return list_feat_0_1, list_feat_1_2, list_class
+        else:
+            # Exception if the length of the lists are not the same
+            try:
+                raise Exception("Länge der Liste der Features stimmt nicht mit der Länge der Liste der Klassen zusammen")
+            except Exception as e:
+                print(str(e))
+    # Exception if the Data Paths dont exist
+    else:
+        try:
+            raise Exception("Datenpfade wurden nicht gefunden")
+        except Exception as e:
+            print(str(e))    
 
 def visualization_feature(list_features, list_class):
     class_color = {0: 'green', 1: 'blue', 2: 'red'}
@@ -98,7 +161,7 @@ def classification(list_features, list_class):
 
     # Logistic Regression
     print("\nLogistic Regression")
-    logreg = LogisticRegression(multi_class='multinomial', solver='lbfgs')
+    logreg = LogisticRegression(multi_class= 'auto', solver='lbfgs')
     logreg.fit(X_train, y_train)
     y_pred_logreg = logreg.predict(X_test)
     accuracy_logreg = accuracy_score(y_test, y_pred_logreg)
@@ -121,19 +184,6 @@ def classification(list_features, list_class):
     print("Kreuzvalidierung KNN Classifier:", knn_scores)
     print("Durchschnittliche Genauigkeit KNN Classifier:", knn_scores.mean())
     classifiers.append(("KNN Classifier with k=3", knn, accuracy_knn))
-
-    # KNN Classificator with k=1, NN
-    print("\nKNN Classifier with k=1")
-    nn = KNeighborsClassifier(n_neighbors=1)
-    nn.fit(X_train, y_train)
-    y_pred_nn = nn.predict(X_test)
-    accuracy_nn = accuracy_score(y_test, y_pred_nn)
-    print("Genauigkeit NN Classifier:", accuracy_nn)
-    # Cross Validation KNN Classifier
-    nn_scores = cross_val_score(nn, list_features, list_class, cv=5)
-    print("Kreuzvalidierung NN Classifier:", nn_scores)
-    print("Durchschnittliche Genauigkeit NN Classifier:", nn_scores.mean())
-    classifiers.append(("KNN Classifier with k=1", nn, accuracy_nn))
 
     # Support Vector Machine
     print("\nSupport Vector Machine")
@@ -226,7 +276,5 @@ Perclos_list = np.array(list_feat_diff[1]).reshape(-1, 1)
 EAR_Eyes_open_list = np.array(list_feat_diff[0]).reshape(-1, 1)
 
 EAR_and_PERCLOS = list(map(list, zip(*list_feat_diff)))
-
-regression(Perclos_list, list_class)
 
 classification(Perclos_list, list_class)
