@@ -111,147 +111,148 @@ class DetectionScreen(Screen):
         
         if hasattr(self, 'capture') and hasattr(self, 'fps') and hasattr(self, 'face_mesh') and self.manager.current == 'detection':
             # Read a frame from the video capture
-            ret, frame = self.capture.read()
-            if ret:
-                # Changing to RGB so that mediapipe can process the frame
-                image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            if self.capture:
+                ret, frame = self.capture.read()
+                if ret:
+                    # Changing to RGB so that mediapipe can process the frame
+                    image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-                image = np.ascontiguousarray(image)
-                imgH, imgW, _ = image.shape
-                
-                # Generation of the face mesh
-                results = self.face_mesh.process(image)
+                    image = np.ascontiguousarray(image)
+                    imgH, imgW, _ = image.shape
+                    
+                    # Generation of the face mesh
+                    results = self.face_mesh.process(image)
 
-                # Processing of the landmarks
-                if results.multi_face_landmarks:
-                    for face_landmarks in results.multi_face_landmarks:
+                    # Processing of the landmarks
+                    if results.multi_face_landmarks:
+                        for face_landmarks in results.multi_face_landmarks:
 
-                        # Drawing the 6 landmarks per eye
-                        for landmark_idx, landmark in enumerate(
-                            face_landmarks.landmark):
-                            if landmark_idx in self.eye_idxs:
-                                pred_cord = self.denormalize_coordinates(
-                                    landmark.x, landmark.y, imgW, imgH)
-                                cv2.circle(image, pred_cord,3,(255, 255, 255), -1)
+                            # Drawing the 6 landmarks per eye
+                            for landmark_idx, landmark in enumerate(
+                                face_landmarks.landmark):
+                                if landmark_idx in self.eye_idxs:
+                                    pred_cord = self.denormalize_coordinates(
+                                        landmark.x, landmark.y, imgW, imgH)
+                                    cv2.circle(image, pred_cord,3,(255, 255, 255), -1)
 
-                        # Getting the coordinate points for left and right eye
-                        coord_points_left = self.get_coord_points(
-                            face_landmarks.landmark, self.left_eye_idxs, imgW, imgH)
-                        
-                        coord_points_right = self.get_coord_points(
-                            face_landmarks.landmark, self.right_eye_idxs, imgW, imgH)
-                        
-                        # Testing, if the whole eye is detected
-                        coord_points = coord_points_left + coord_points_right
-                        if not any(item is None for item in coord_points):
+                            # Getting the coordinate points for left and right eye
+                            coord_points_left = self.get_coord_points(
+                                face_landmarks.landmark, self.left_eye_idxs, imgW, imgH)
                             
-                            self.count_last +=1
-
-                            #Calculating the Eye Aspect ratio for the left and right eye
-                            EAR_left = self.calculate_EAR(coord_points_left)
+                            coord_points_right = self.get_coord_points(
+                                face_landmarks.landmark, self.right_eye_idxs, imgW, imgH)
                             
-                            EAR_right = self.calculate_EAR(coord_points_right)
-
-                            # Calculating the Average EAR for both eyes
-                            avg_EAR = (EAR_right+EAR_left)/2
-
-                            # Blink Detection Algorithm
-                            blink, closed_eye, blink_duration = self.blink_detection(avg_EAR)
-
-                            frame_length_perclos = 1000
-                            frame_length_ear_list = 1000
-                            num_of_blinks = 25
-
-
-
-                            # PERCLOS Calculation based on frames
-                            perclos = self.calculate_perclos(closed_eye, 
-                                                            frame_length_perclos)
-                            
-                            # AVG EAR for eyes open
-                            self.get_list_of_ear(avg_EAR, frame_length_ear_list)
-                            avg_ear_eyes_open_at_test = self.avg_ear_eyes_open()
-                            avg_ear_at_test = self.avg_ear()
-
-                            avg_blink_duration = 1
-
-                            # Counting the blinks
-                            if blink == 1:
-                                self.blinks += 1
-                                avg_blink_duration = self.avg_blink_duration(blink_duration, num_of_blinks)
-
-                            # Processing when the eye has been closed for too long
-                            if blink == 2:
-                                if self.count_warning_frame_eyes_closed == 20:
-                                    # Putting a text, that driver might be 
-                                    # sleeping every 20 Frames
-                                    cv2.putText(image, 'ALARM: Wake up!', (30, 30),
-                                    cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-                                    self.play_warning_sound()
-                                    self.count_warning_frame_eyes_closed = 0
-                                else:
-                                    self.count_warning_frame_eyes_closed +=1
-
-                            # When the calibration is done
-                            if self.cal_done:
-                                # Putting the PERCLOS value on Screen
-                                perclos_text = round(perclos, 2)
-                                string_perclos = "PERCLOS: " + str(perclos_text)
-                                cv2.putText(image, string_perclos, (30, 120),
-                                cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-
-                                # Generation of the feature vector
-                                feature_vector = self.feature_vector(perclos, 
-                                                                     avg_blink_duration, 
-                                                                     avg_ear_eyes_open_at_test, 
-                                                                     avg_ear_at_test)
-
-                                # Prediction of the feature vector whether 
-                                # tired/half-tired/awake
-                                prediction = self.new_input(feature_vector)
-
-                                if prediction == 0:
-                                    pass
-                                    #TODO Visual apperance
-                                elif prediction == 1:
-                                    pass
-                                    #TODO Visual apperance
-                                else:
-                                    if self.count_warning_frame_classifier == 100:
-                                        self.count_warning_frame_classifier = 0
-                                        self.play_warning_sound()
-                                    self.count_warning_frame_classifier += 1
-                                    #TODO Visual apperance
-
-                            # If the Calibration is not done, continue the calibration
-                            else:
-                                calibration = self.calibrate(
-                                frame_length_perclos, frame_length_ear_list, 
-                                perclos, avg_ear_eyes_open_at_test, num_of_blinks, 
-                                avg_blink_duration, avg_ear_at_test)
+                            # Testing, if the whole eye is detected
+                            coord_points = coord_points_left + coord_points_right
+                            if not any(item is None for item in coord_points):
                                 
-                                # Putting a text for the calibration status
-                                calibration = round(calibration, 2)*100
-                                string_cal = "Calibration: " + str(calibration) + "%"
-                                cv2.putText(image, string_cal, (30, 120),
-                                cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+                                self.count_last +=1
 
-                else:
-                    # if unable to detect landmarks for 100 frames,
-                    # then give warning signs
-                    self.movement_counter += 1
-                    if self.movement_counter == 100:
-                        self.play_warning_sound()
-                        print("Landmarks nicht gefunden")
-                        self.movement_counter = 0
-                
-                # Flip the image vertically for processing in kivy
-                buf1 = cv2.flip(image, 0)
-                buf = buf1.tostring()
-                image_texture = Texture.create(size=(image.shape[1], image.shape[0]), 
-                colorfmt='rgb')
-                image_texture.blit_buffer(buf, colorfmt='rgb', bufferfmt='ubyte')
-                self.ids.image_view.texture = image_texture
+                                #Calculating the Eye Aspect ratio for the left and right eye
+                                EAR_left = self.calculate_EAR(coord_points_left)
+                                
+                                EAR_right = self.calculate_EAR(coord_points_right)
+
+                                # Calculating the Average EAR for both eyes
+                                avg_EAR = (EAR_right+EAR_left)/2
+
+                                # Blink Detection Algorithm
+                                blink, closed_eye, blink_duration = self.blink_detection(avg_EAR)
+
+                                frame_length_perclos = 1000
+                                frame_length_ear_list = 1000
+                                num_of_blinks = 25
+
+
+
+                                # PERCLOS Calculation based on frames
+                                perclos = self.calculate_perclos(closed_eye, 
+                                                                frame_length_perclos)
+                                
+                                # AVG EAR for eyes open
+                                self.get_list_of_ear(avg_EAR, frame_length_ear_list)
+                                avg_ear_eyes_open_at_test = self.avg_ear_eyes_open()
+                                avg_ear_at_test = self.avg_ear()
+
+                                avg_blink_duration = 1
+
+                                # Counting the blinks
+                                if blink == 1:
+                                    self.blinks += 1
+                                    avg_blink_duration = self.avg_blink_duration(blink_duration, num_of_blinks)
+
+                                # Processing when the eye has been closed for too long
+                                if blink == 2:
+                                    if self.count_warning_frame_eyes_closed == 20:
+                                        # Putting a text, that driver might be 
+                                        # sleeping every 20 Frames
+                                        cv2.putText(image, 'ALARM: Wake up!', (30, 30),
+                                        cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+                                        self.play_warning_sound()
+                                        self.count_warning_frame_eyes_closed = 0
+                                    else:
+                                        self.count_warning_frame_eyes_closed +=1
+
+                                # When the calibration is done
+                                if self.cal_done:
+                                    # Putting the PERCLOS value on Screen
+                                    perclos_text = round(perclos, 2)
+                                    string_perclos = "PERCLOS: " + str(perclos_text)
+                                    cv2.putText(image, string_perclos, (30, 120),
+                                    cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+
+                                    # Generation of the feature vector
+                                    feature_vector = self.feature_vector(perclos, 
+                                                                        avg_blink_duration, 
+                                                                        avg_ear_eyes_open_at_test, 
+                                                                        avg_ear_at_test)
+
+                                    # Prediction of the feature vector whether 
+                                    # tired/half-tired/awake
+                                    prediction = self.new_input(feature_vector)
+
+                                    if prediction == 0:
+                                        pass
+                                        #TODO Visual apperance
+                                    elif prediction == 1:
+                                        pass
+                                        #TODO Visual apperance
+                                    else:
+                                        if self.count_warning_frame_classifier == 100:
+                                            self.count_warning_frame_classifier = 0
+                                            self.play_warning_sound()
+                                        self.count_warning_frame_classifier += 1
+                                        #TODO Visual apperance
+
+                                # If the Calibration is not done, continue the calibration
+                                else:
+                                    calibration = self.calibrate(
+                                    frame_length_perclos, frame_length_ear_list, 
+                                    perclos, avg_ear_eyes_open_at_test, num_of_blinks, 
+                                    avg_blink_duration, avg_ear_at_test)
+                                    
+                                    # Putting a text for the calibration status
+                                    calibration = round(calibration, 2)*100
+                                    string_cal = "Calibration: " + str(calibration) + "%"
+                                    cv2.putText(image, string_cal, (30, 120),
+                                    cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+
+                    else:
+                        # if unable to detect landmarks for 100 frames,
+                        # then give warning signs
+                        self.movement_counter += 1
+                        if self.movement_counter == 100:
+                            self.play_warning_sound()
+                            print("Landmarks nicht gefunden")
+                            self.movement_counter = 0
+                    
+                    # Flip the image vertically for processing in kivy
+                    buf1 = cv2.flip(image, 0)
+                    buf = buf1.tostring()
+                    image_texture = Texture.create(size=(image.shape[1], image.shape[0]), 
+                    colorfmt='rgb')
+                    image_texture.blit_buffer(buf, colorfmt='rgb', bufferfmt='ubyte')
+                    self.ids.image_view.texture = image_texture
 
     def play_warning_sound(self):
         tmp = True

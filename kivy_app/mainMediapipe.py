@@ -92,8 +92,6 @@ class MyApp(App):
 
     def get_font_scheme(self):
         return {
-            #'font_name': 'assets/fonts/Lato/Lato-Bold.ttf',
-            #'font_name': 'assets/fonts/Open_Sans/OpenSans-VariableFont_wdth,wght.ttf',
             'font_name': 'assets/fonts/Roboto/Roboto-Medium.ttf',
             'font_size_back': 25,
             'font_size_settings': 40,

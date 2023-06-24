@@ -1,0 +1,6 @@
+kivy
+mediapipe==0.9.0
+opencv-python
+joblib
+scipy
+numpy
