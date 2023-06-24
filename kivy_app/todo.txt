@@ -1,0 +1,13 @@
+Loading Screen
+
+Kallibrierungsdatei lesen und schreiben
+
+Doku schreiben 
+
+Mattis TODO:
+
+Docstrings
+
+Regression oder Klassifikation?
+
+Verbesserung der Ergebnisse

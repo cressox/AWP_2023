@@ -1,0 +1,65 @@
+PERCLOS
+
+Logistic Regression
+Genauigkeit Logistic Regression: 0.625
+Kreuzvalidierung Logistic Regression: [0.75       0.71428571 0.57142857 0.71428571 1.        ]
+Durchschnittliche Genauigkeit Logistic Regression: 0.75
+
+KNN Classifier with k=3
+Genauigkeit KNN Classifier: 0.75
+Kreuzvalidierung KNN Classifier: [0.75       0.85714286 0.71428571 0.71428571 1.        ]
+Durchschnittliche Genauigkeit KNN Classifier: 0.8071428571428573
+
+KNN Classifier with k=1
+Genauigkeit NN Classifier: 0.75
+Kreuzvalidierung NN Classifier: [0.75       1.         0.71428571 0.57142857 0.85714286]
+Durchschnittliche Genauigkeit NN Classifier: 0.7785714285714286
+
+Support Vector Machine
+Genauigkeit Support Vector Machine: 0.75
+Kreuzvalidierung Support Vector Machine: [0.75       0.71428571 0.71428571 0.71428571 0.85714286]
+Durchschnittliche Genauigkeit Support Vector Machine: 0.7500000000000001
+
+EAR Eyes Open
+
+Logistic Regression
+Genauigkeit Logistic Regression: 0.25
+Kreuzvalidierung Logistic Regression: [0.25       0.14285714 0.57142857 0.28571429 0.57142857]
+Durchschnittliche Genauigkeit Logistic Regression: 0.36428571428571427
+
+KNN Classifier with k=3
+Genauigkeit KNN Classifier: 0.375
+Kreuzvalidierung KNN Classifier: [0.5        0.42857143 0.28571429 0.28571429 0.57142857]
+Durchschnittliche Genauigkeit KNN Classifier: 0.41428571428571426
+
+KNN Classifier with k=1
+Genauigkeit NN Classifier: 0.5
+Kreuzvalidierung NN Classifier: [0.625      0.57142857 0.42857143 0.42857143 0.28571429]
+Durchschnittliche Genauigkeit NN Classifier: 0.4678571428571428
+
+Support Vector Machine
+Genauigkeit Support Vector Machine: 0.5
+Kreuzvalidierung Support Vector Machine: [0.5        0.42857143 0.42857143 0.42857143 0.57142857]
+Durchschnittliche Genauigkeit Support Vector Machine: 0.4714285714285714
+
+PERCLOS + EAR Eyes Open
+
+Logistic Regression
+Genauigkeit Logistic Regression: 0.5
+Kreuzvalidierung Logistic Regression: [0.75       0.71428571 0.28571429 0.57142857 1.        ]
+Durchschnittliche Genauigkeit Logistic Regression: 0.6642857142857143
+
+KNN Classifier with k=3
+Genauigkeit KNN Classifier: 0.625
+Kreuzvalidierung KNN Classifier: [0.75       0.71428571 0.42857143 0.57142857 1.        ]
+Durchschnittliche Genauigkeit KNN Classifier: 0.6928571428571428
+
+KNN Classifier with k=1
+Genauigkeit NN Classifier: 0.75
+Kreuzvalidierung NN Classifier: [0.75       0.85714286 0.71428571 0.57142857 0.85714286]
+Durchschnittliche Genauigkeit NN Classifier: 0.7500000000000001
+
+Support Vector Machine
+Genauigkeit Support Vector Machine: 0.625
+Kreuzvalidierung Support Vector Machine: [0.5        0.57142857 0.42857143 0.57142857 0.71428571]
+Durchschnittliche Genauigkeit Support Vector Machine: 0.5571428571428572
