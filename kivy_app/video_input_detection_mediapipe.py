@@ -164,7 +164,7 @@ class DetectionScreen(Screen):
         Logger.info("Mediapipe: 478 Landmarks are detected")
 
     def on_enter(self):
-        self.start_camera("Datasets/37/0.mov")
+        self.start_camera("Datasets/01/0.mov")
 
     def on_leave(self):
         self.stop_camera()
@@ -307,8 +307,9 @@ class DetectionScreen(Screen):
 
                                 if os.path.exists(data_path_feat):
                                     list_feat = np.load(data_path_feat)
-                                    list_feat = np.hstack((list_feat, [feature_vector]))
-                                    print(list_feat)
+                                    list_feat = np.hstack((list_feat, feature_vector))
+                                    #print(list_feat)
+                                    print(len(list_feat)/4)
                                     np.save(data_path_feat, list_feat)
 
                                 else:
