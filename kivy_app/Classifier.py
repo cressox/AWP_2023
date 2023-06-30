@@ -5,12 +5,13 @@ from sklearn.metrics import r2_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import Lasso, LinearRegression, LogisticRegression, Ridge
 from sklearn.preprocessing import PolynomialFeatures
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_val_score
+from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score
 import joblib
+import pandas as pd
 
 def get_data(data_path_feat, data_path_class):
     """
@@ -141,68 +142,213 @@ def visualization_feature(list_features, list_class):
 
     plt.show()
 
-def classification(list_features, list_class):
+def classification(list_features, list_class, classes):
     """
     Perform classification using different classifiers and select the best performing classifier based on accuracy.
 
-    Args_
+    Args:
         list_features (numpy.ndarray): Array containing the feature data
         list_class (numpy.ndarray): Array containing the class labels
+        classes (int): Number of classes in the data
 
     Returns:
         str: Name of the best performing classifier
         object: Best performing classifier object
         float: Accuracy of the best performing classifier
 
-    """    
-    X_train, X_test, y_train, y_test = train_test_split(list_features, list_class, 
+    """
+    X_train, X_test, y_train, y_test = train_test_split(list_features, list_class,
                                                         test_size=0.2, random_state=42)
     classifiers = []
 
+    if classes == 2:
+        logreg = LogisticRegression(multi_class='ovr', solver='lbfgs')
+    else:
+        logreg = LogisticRegression(multi_class='auto', solver='lbfgs')
+
     # Logistic Regression
     print("\nLogistic Regression")
-    logreg = LogisticRegression(multi_class= 'auto', solver='lbfgs')
     logreg.fit(X_train, y_train)
     y_pred_logreg = logreg.predict(X_test)
     accuracy_logreg = accuracy_score(y_test, y_pred_logreg)
     print("Genauigkeit Logistic Regression:", accuracy_logreg)
+
+    # Confusion Matrix
+    conf_matrix_logreg = confusion_matrix(y_test, y_pred_logreg)
+    print("Confusion Matrix:")
+    print(conf_matrix_logreg)
+
+    # Precision
+    precision_logreg = precision_score(y_test, y_pred_logreg, average='weighted', zero_division=0)
+    print("Precision:", precision_logreg)
+
+    # Recall
+    recall_logreg = recall_score(y_test, y_pred_logreg, average='weighted', zero_division=0)
+    print("Recall:", recall_logreg)
+
+    # F1-Score
+    f1_logreg = f1_score(y_test, y_pred_logreg, average='weighted', zero_division=0)
+    print("F1-Score:", f1_logreg)
+
     # Cross Validation Logistic Regression
     logreg_scores = cross_val_score(logreg, list_features, list_class, cv=5)
     print("Kreuzvalidierung Logistic Regression:", logreg_scores)
     print("Durchschnittliche Genauigkeit Logistic Regression:", logreg_scores.mean())
-    classifiers.append(("Logistic Regression", logreg, accuracy_logreg))
+    classifiers.append(("Logistic Regression", logreg, accuracy_logreg, 
+                        conf_matrix_logreg, precision_logreg, recall_logreg, f1_logreg))
 
-    # KNN Classificator with k=3
+    # KNN Classifier with k=3
     print("\nKNN Classifier with k=3")
     knn = KNeighborsClassifier(n_neighbors=3)
     knn.fit(X_train, y_train)
     y_pred_knn = knn.predict(X_test)
     accuracy_knn = accuracy_score(y_test, y_pred_knn)
     print("Genauigkeit KNN Classifier:", accuracy_knn)
+
+    # Confusion Matrix
+    conf_matrix_knn = confusion_matrix(y_test, y_pred_knn)
+    print("Confusion Matrix:")
+    print(conf_matrix_knn)
+
+    # Precision
+    precision_knn = precision_score(y_test, y_pred_knn, average='weighted', zero_division=0)
+    print("Precision:", precision_knn)
+
+    # Recall
+    recall_knn = recall_score(y_test, y_pred_knn, average='weighted', zero_division=0)
+    print("Recall:", recall_knn)
+
+    # F1-Score
+    f1_knn = f1_score(y_test, y_pred_knn, average='weighted', zero_division=0)
+    print("F1-Score:", f1_knn)
+
     # Cross Validation KNN Classifier
     knn_scores = cross_val_score(knn, list_features, list_class, cv=5)
     print("Kreuzvalidierung KNN Classifier:", knn_scores)
     print("Durchschnittliche Genauigkeit KNN Classifier:", knn_scores.mean())
-    classifiers.append(("KNN Classifier with k=3", knn, accuracy_knn))
+    classifiers.append(("KNN Classifier with k=3", knn, accuracy_knn, 
+                        conf_matrix_knn, precision_knn, recall_knn, f1_knn))
 
     # Support Vector Machine
     print("\nSupport Vector Machine")
-    svm = SVC()
+    svm = SVC(probability=True)
     svm.fit(X_train, y_train)
     y_pred_svm = svm.predict(X_test)
     accuracy_svm = accuracy_score(y_test, y_pred_svm)
     print("Genauigkeit Support Vector Machine:", accuracy_svm)
+
+    # Confusion Matrix
+    conf_matrix_svm = confusion_matrix(y_test, y_pred_svm)
+    print("Confusion Matrix:")
+    print(conf_matrix_svm)
+
+    # Precision
+    precision_svm = precision_score(y_test, y_pred_svm, average='weighted', zero_division=0)
+    print("Precision:", precision_svm)
+
+    # Recall
+    recall_svm = recall_score(y_test, y_pred_svm, average='weighted', zero_division=0)
+    print("Recall:", recall_svm)
+
+    # F1-Score
+    f1_svm = f1_score(y_test, y_pred_svm, average='weighted', zero_division=0)
+    print("F1-Score:", f1_svm)
+
     # Cross Validation Support Vector Machine
     svm_scores = cross_val_score(svm, list_features, list_class, cv=5)
     print("Kreuzvalidierung Support Vector Machine:", svm_scores)
     print("Durchschnittliche Genauigkeit Support Vector Machine:", svm_scores.mean())
-    classifiers.append(("Support Vector Machine", svm, accuracy_svm))
+    classifiers.append(("Support Vector Machine", svm, accuracy_svm, 
+                        conf_matrix_svm, precision_svm, recall_svm, f1_svm))
 
     # Sorting the classifiers by performance
     classifiers.sort(key=lambda x: x[2], reverse=True)
-    best_classifier_name, best_classifier, best_accuracy = classifiers[0]
+    best_classifier = classifiers[0][1]
 
     joblib.dump(best_classifier, "best_classifier.pkl")
+
+    print(classifiers)
+
+    return classifiers
+
+def create_markdown_file(classifiers, name):
+    """
+    Create a Markdown file summarizing the classification results.
+
+    Args:
+        classifiers (list): List of classifiers and their results
+
+    """
+    df = pd.DataFrame(classifiers, columns=["Classifier", "Object", "Accuracy", "Confusion Matrix", "Precision", "Recall", "F1-Score"])
+    
+    # Generate Markdown table for F1-Score, Recall, Precision, and Accuracy
+    table = df[["Classifier", "F1-Score", "Recall", "Precision", "Accuracy"]].to_markdown(index=False)
+    
+    # Create Markdown file and write the table
+    with open(name, "w") as file:
+        file.write("# Classification Results\n\n")
+        file.write("## Performance Metrics\n\n")
+        file.write(table)
+        
+        for index, row in df.iterrows():
+            classifier_name = row["Classifier"]
+            confusion_matrix = row["Confusion Matrix"]
+            classes = confusion_matrix.shape[0]
+
+            # Check if the confusion matrix is 2x2 or 3x3
+            if classes == 2:
+                # Convert confusion matrix to DataFrame
+                df_confusion = pd.DataFrame(confusion_matrix, index=["True 0", "True 1"],
+                                            columns=["Predicted 0", "Predicted 1"])
+
+                file.write(f"\n\n## Confusion Matrix - {classifier_name}\n\n")
+                file.write(df_confusion.to_markdown())
+            elif classes == 3:
+                # Convert confusion matrix to DataFrame
+                df_confusion = pd.DataFrame(confusion_matrix, index=["True 0", "True 1", "True 2"],
+                                            columns=["Predicted 0", "Predicted 1", "Predicted 2"])
+
+                file.write(f"\n\n## Confusion Matrix - {classifier_name}\n\n")
+                file.write(df_confusion.to_markdown())
+    
+    print("Markdown file 'classification_results.md' has been created.")
+
+def three_to_two_classes(list_features, list_class):
+    mask = np.isin(list_class, [0, 2])
+    filtered_features = list_features[mask]
+    filtered_class = list_class[mask]
+
+    filtered_class_0_1 = np.where(filtered_class == 2, 1, filtered_class)
+
+    return filtered_features, filtered_class_0_1
+
+data_path_feat = "Datasets/Perclos_EARopen/ear_perclos.npy"
+data_path_class = "Datasets/Perclos_EARopen/ear_perclos_class.npy"
+
+list_feat_diff, list_class = get_data(data_path_feat, data_path_class)
+
+# Defining the Feature Vectors for processing
+Perclos_list = np.array(list_feat_diff[1]).reshape(-1, 1)
+
+EAR_Eyes_open_list = np.array(list_feat_diff[0]).reshape(-1, 1)
+
+EAR_and_PERCLOS = list(map(list, zip(*list_feat_diff)))
+
+print ("Klassifikation mit den drei Klassen wach (0) , fraglich (1) , müde (2)")
+
+classifiers_three = classification(Perclos_list, list_class, 3)
+
+# After the classification is performed, call the create_markdown_file function
+create_markdown_file(classifiers_three, "classification_results_three_classes.md")
+
+print ("Klassifikation mit den zwei Klassen wach (0), müde (1)")
+
+two_class_features, two_class_class = three_to_two_classes(Perclos_list, list_class)
+
+classifiers_two = classification(two_class_features, two_class_class, 2)
+
+# After the classification is performed, call the create_markdown_file function
+create_markdown_file(classifiers_two, "classification_results_two_classes.md")
 
 def regression(list_features, list_class):
     """
@@ -264,17 +410,3 @@ def regression(list_features, list_class):
     best_regressor_name, best_regressor, best_accuracy = regressors[2]
 
     joblib.dump(best_regressor, "best_regressor.pkl")
-    
-data_path_feat = "Datasets/Perclos_EARopen/ear_perclos.npy"
-data_path_class = "Datasets/Perclos_EARopen/ear_perclos_class.npy"
-
-list_feat_diff, list_class = get_data(data_path_feat, data_path_class)
-
-# Defining the Feature Vectors for processing
-Perclos_list = np.array(list_feat_diff[1]).reshape(-1, 1)
-
-EAR_Eyes_open_list = np.array(list_feat_diff[0]).reshape(-1, 1)
-
-EAR_and_PERCLOS = list(map(list, zip(*list_feat_diff)))
-
-classification(Perclos_list, list_class)
