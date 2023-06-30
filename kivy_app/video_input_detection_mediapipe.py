@@ -11,9 +11,15 @@ import numpy as np
 from scipy.spatial import distance as dist
 import os
 
-data_path_class = "Datasets/PERCLOS_EARopen_EAR_BLINKduration/PERCLOS_EARopen_EAR_BLINKduration_class.npy"
+data_path_class = "Datasets/PERCLOS_EARopen_EAR_BLINKduration_class.npy"
 
 data_class = np.array([0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,
+                       0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,
+                       0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,
+                       0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,
+                       0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,
+                       0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,
+                       0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,
                        0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2])
 
 np.save(data_path_class, data_class)
@@ -33,7 +39,43 @@ class DetectionScreen(Screen):
                         "Datasets/09/0.mp4", "Datasets/09/5.mp4", "Datasets/09/10.mp4",
                         "Datasets/10/0.mov", "Datasets/10/5.mov", "Datasets/10/10.mov",
                         "Datasets/11/0.mp4", "Datasets/11/5.mp4", "Datasets/11/10.mp4",
-                        "Datasets/12/0.mp4", "Datasets/12/5.mp4", "Datasets/12/10.mp4"]
+                        "Datasets/12/0.mp4", "Datasets/12/5.mp4", "Datasets/12/10.mp4",
+                        "Datasets/13/0.mp4", "Datasets/13/5.mp4", "Datasets/13/10.mp4",
+                        "Datasets/14/0.mp4", "Datasets/14/5.mp4", "Datasets/14/10.mp4",
+                        "Datasets/15/0.mp4", "Datasets/15/5.mp4", "Datasets/15/10.mp4",
+                        "Datasets/16/0.mov", "Datasets/16/5.mov", "Datasets/16/10.mov",
+                        "Datasets/17/0.mp4", "Datasets/17/5.mp4", "Datasets/17/10.mp4",
+                        "Datasets/18/0.mov", "Datasets/18/5.mov", "Datasets/18/10.mov",
+                        "Datasets/19/0.mov", "Datasets/19/5.mov", "Datasets/19/10.mov",
+                        "Datasets/20/0.mp4", "Datasets/20/5.mov", "Datasets/20/10.mp4",
+                        "Datasets/21/0.mov", "Datasets/21/5.mov", "Datasets/21/10.mov",
+                        "Datasets/22/0.mov", "Datasets/22/5.mov", "Datasets/22/10.mov",
+                        "Datasets/23/0.mp4", "Datasets/23/5.mp4", "Datasets/23/10.mp4",
+                        "Datasets/24/0.mp4", "Datasets/24/5.mp4", "Datasets/24/10.mp4",
+                        "Datasets/25/0.mp4", "Datasets/25/5.mp4", "Datasets/25/10.mp4",
+                        "Datasets/26/0.mp4", "Datasets/26/5.mp4", "Datasets/26/10.mp4",
+                        "Datasets/27/0.mov", "Datasets/27/5.mov", "Datasets/27/10.mov",
+                        "Datasets/28/0.mov", "Datasets/28/5.mov", "Datasets/28/10.mov",
+                        "Datasets/29/0.mp4", "Datasets/29/5.mp4", "Datasets/29/10.mp4",
+                        "Datasets/30/0.mp4", "Datasets/30/5.mp4", "Datasets/30/10.mp4",
+                        "Datasets/31/0.mp4", "Datasets/31/5.mp4", "Datasets/31/10.mp4",
+                        "Datasets/32/0.mp4", "Datasets/32/5.mp4", "Datasets/32/10.mp4",
+                        "Datasets/33/0.mp4", "Datasets/33/5.mp4", "Datasets/33/10.mp4",
+                        "Datasets/34/0.mov", "Datasets/34/5.mov", "Datasets/34/10.mp4",
+                        "Datasets/35/0.mp4", "Datasets/35/5.mp4", "Datasets/35/10.mp4",
+                        "Datasets/36/0.mp4", "Datasets/36/5.mp4", "Datasets/36/10.mp4",
+                        "Datasets/37/0.mov", "Datasets/37/5.mov", "Datasets/37/10.mov",
+                        "Datasets/38/0.mp4", "Datasets/38/5.mp4", "Datasets/38/10.mp4",
+                        "Datasets/39/0.mp4", "Datasets/39/5.mov", "Datasets/39/10.mov",
+                        "Datasets/40/0.mp4", "Datasets/40/5.mp4", "Datasets/40/10.mp4",
+                        "Datasets/41/0.mp4", "Datasets/41/5.mp4", "Datasets/41/10.mov",
+                        "Datasets/42/0.mp4", "Datasets/42/5.mp4", "Datasets/42/10.mp4",
+                        "Datasets/43/0.mov", "Datasets/43/5.mp4", "Datasets/43/10.mov",
+                        "Datasets/44/0.mov", "Datasets/44/5.mov", "Datasets/44/10.mov",
+                        "Datasets/45/0.mp4", "Datasets/45/5.mp4", "Datasets/45/10.mp4",
+                        "Datasets/46/0.m4v", "Datasets/46/5.m4v", "Datasets/46/10.mov",
+                        "Datasets/47/0.mp4", "Datasets/47/5.mp4", "Datasets/47/10.mp4",
+                        "Datasets/48/0.mov", "Datasets/48/5.mov", "Datasets/48/10.mov"]
 
     def initialize_resources(self, n):
         """
@@ -260,7 +302,7 @@ class DetectionScreen(Screen):
                                                                      avg_ear_eyes_open_at_test, 
                                                                      avg_ear_at_test)
 
-                                data_path_feat = "Datasets/PERCLOS_EARopen_EAR_BLINKduration/PERCLOS_EARopen_EAR_BLINKduration.npy"
+                                data_path_feat = "Datasets/PERCLOS_EARopen_EAR_BLINKduration.npy"
 
                                 if os.path.exists(data_path_feat):
                                     list_feat = np.load(data_path_feat)
