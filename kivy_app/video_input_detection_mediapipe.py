@@ -307,7 +307,7 @@ class DetectionScreen(Screen):
 
                                 if os.path.exists(data_path_feat):
                                     list_feat = np.load(data_path_feat)
-                                    list_feat = np.hstack((list_feat, feature_vector))
+                                    list_feat = np.hstack((list_feat, [feature_vector]))
                                     print(list_feat)
                                     np.save(data_path_feat, list_feat)
 
@@ -676,10 +676,10 @@ class DetectionScreen(Screen):
         """
         
         # Calculate the Ratios
-        ratio_avg_ear = frame_avg_ear/self.awake_avg_ear
-        ratio_avg_ear_eyes_open = frame_avg_ear_eyes_open/self.awake_ear_eyes_open
-        ratio_blink_duration = frame_blink_duration/self.awake_blink_duration
-        ratio_perclos = frame_perclos/self.awake_perclos
+        ratio_avg_ear = self.awake_avg_ear
+        ratio_avg_ear_eyes_open = self.awake_ear_eyes_open
+        ratio_blink_duration = self.awake_blink_duration
+        ratio_perclos = self.awake_perclos
 
         return [ratio_perclos, ratio_blink_duration, ratio_avg_ear_eyes_open, ratio_avg_ear]
     
