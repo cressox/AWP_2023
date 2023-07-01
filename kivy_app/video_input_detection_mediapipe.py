@@ -29,43 +29,7 @@ class DetectionScreen(Screen):
     def initialize(self):
         Clock.schedule_once(self.initialize_resources)
         self.train_iterator = 0
-        self.video_paths = ["Datasets/01/5.mov", "Datasets/01/10.mov", 
-                        "Datasets/02/0.mov", "Datasets/02/5.mov", "Datasets/02/10.mov",
-                        "Datasets/03/0.mov", "Datasets/03/5.mov", "Datasets/03/10.mov",
-                        "Datasets/04/0.mp4", "Datasets/04/5.mp4", "Datasets/04/10.mp4",
-                        "Datasets/05/0.mov", "Datasets/05/5.mov", "Datasets/05/10.mov",
-                        "Datasets/06/0.mp4", "Datasets/06/5.mp4", "Datasets/06/10.mp4",
-                        "Datasets/07/0.mp4", "Datasets/07/5.mp4", "Datasets/07/10.mp4",
-                        "Datasets/08/0.mp4", "Datasets/08/5.mp4", "Datasets/08/10.mp4",
-                        "Datasets/09/0.mp4", "Datasets/09/5.mp4", "Datasets/09/10.mp4",
-                        "Datasets/10/0.mov", "Datasets/10/5.mov", "Datasets/10/10.mov",
-                        "Datasets/11/0.mp4", "Datasets/11/5.mp4", "Datasets/11/10.mp4",
-                        "Datasets/12/0.mp4", "Datasets/12/5.mp4", "Datasets/12/10.mp4",
-                        "Datasets/13/0.mp4", "Datasets/13/5.mp4", "Datasets/13/10.mp4",
-                        "Datasets/14/0.mp4", "Datasets/14/5.mp4", "Datasets/14/10.mp4",
-                        "Datasets/15/0.mp4", "Datasets/15/5.mp4", "Datasets/15/10.mp4",
-                        "Datasets/16/0.mov", "Datasets/16/5.mov", "Datasets/16/10.mov",
-                        "Datasets/17/0.mp4", "Datasets/17/5.mp4", "Datasets/17/10.mp4",
-                        "Datasets/18/0.mov", "Datasets/18/5.mov", "Datasets/18/10.mov",
-                        "Datasets/19/0.mov", "Datasets/19/5.mov", "Datasets/19/10.mov",
-                        "Datasets/20/0.mp4", "Datasets/20/5.mov", "Datasets/20/10.mp4",
-                        "Datasets/21/0.mov", "Datasets/21/5.mov", "Datasets/21/10.mov",
-                        "Datasets/22/0.mov", "Datasets/22/5.mov", "Datasets/22/10.mov",
-                        "Datasets/23/0.mp4", "Datasets/23/5.mp4", "Datasets/23/10.mp4",
-                        "Datasets/24/0.mp4", "Datasets/24/5.mp4", "Datasets/24/10.mp4",
-                        "Datasets/25/0.mp4", "Datasets/25/5.mp4", "Datasets/25/10.mp4",
-                        "Datasets/26/0.mp4", "Datasets/26/5.mp4", "Datasets/26/10.mp4",
-                        "Datasets/27/0.mov", "Datasets/27/5.mov", "Datasets/27/10.mov",
-                        "Datasets/28/0.mov", "Datasets/28/5.mov", "Datasets/28/10.mov",
-                        "Datasets/29/0.mp4", "Datasets/29/5.mp4", "Datasets/29/10.mp4",
-                        "Datasets/30/0.mp4", "Datasets/30/5.mp4", "Datasets/30/10.mp4",
-                        "Datasets/31/0.mp4", "Datasets/31/5.mp4", "Datasets/31/10.mp4",
-                        "Datasets/32/0.mp4", "Datasets/32/5.mp4", "Datasets/32/10.mp4",
-                        "Datasets/33/0.mp4", "Datasets/33/5.mp4", "Datasets/33/10.mp4",
-                        "Datasets/34/0.mov", "Datasets/34/5.mov", "Datasets/34/10.mp4",
-                        "Datasets/35/0.mp4", "Datasets/35/5.mp4", "Datasets/35/10.mp4",
-                        "Datasets/36/0.mp4", "Datasets/36/5.mp4", "Datasets/36/10.mp4",
-                        "Datasets/37/0.mov", "Datasets/37/5.mov", "Datasets/37/10.mov",
+        self.video_paths = ["Datasets/37/5.mov", "Datasets/37/10.mov",
                         "Datasets/38/0.mp4", "Datasets/38/5.mp4", "Datasets/38/10.mp4",
                         "Datasets/39/0.mp4", "Datasets/39/5.mov", "Datasets/39/10.mov",
                         "Datasets/40/0.mp4", "Datasets/40/5.mp4", "Datasets/40/10.mp4",
@@ -89,15 +53,9 @@ class DetectionScreen(Screen):
             None
 
         """
-
         # Initialize the Image object
         self.image = Image()
 
-        # Schedule the update function to be called every 0.02 seconds
-        Clock.schedule_interval(self.update, 0.02)
-
-        # Initialize variables
-        self.fps = 0
         self.update_event = None
         self.draw_landmarks = True
 
@@ -150,7 +108,7 @@ class DetectionScreen(Screen):
         
         # Blink Counter
         self.blinks = 0
-
+        self.fps = 0
         self.first = 0
         # Predicition, Initialize with 0 = Awake
         self.median_prediction = 0
@@ -164,16 +122,15 @@ class DetectionScreen(Screen):
         Logger.info("Mediapipe: 478 Landmarks are detected")
 
     def on_enter(self):
-        self.start_camera("Datasets/01/0.mov")
+        self.start_camera("Datasets/37/0.mov")
 
     def on_leave(self):
         self.stop_camera()
 
     def start_camera(self, video_path):
         self.capture = cv2.VideoCapture(video_path)
-        self.fps = 30
-        self.update_event = Clock.schedule_interval(self.update, 1/self.fps)
-        print(self.fps)
+        # Get the framerate
+        self.fps = self.capture.get(cv2.CAP_PROP_FPS)
 
     def stop_camera(self):
         """
@@ -303,8 +260,7 @@ class DetectionScreen(Screen):
                                                                      avg_ear_eyes_open_at_test, 
                                                                      avg_ear_at_test)
 
-                                data_path_feat = "Datasets/PERCLOS_EARopen_EAR_BLINKduration.npy"
-
+                                data_path_feat = "Datasets/PERCLOS_EARopen_EAR_BLINKduration_37_48.npy"
                                 if os.path.exists(data_path_feat):
                                     list_feat = np.load(data_path_feat)
                                     list_feat = np.hstack((list_feat, feature_vector))
@@ -313,13 +269,14 @@ class DetectionScreen(Screen):
                                     np.save(data_path_feat, list_feat)
 
                                 else:
+                                    print(feature_vector)
                                     np.save(data_path_feat, feature_vector)
                             
                                 if self.train_iterator < len(self.video_paths):
-                                    print(train_iterator)
                                     self.stop_camera()
                                     self.initialize_resources(0)
                                     self.start_camera(self.video_paths[self.train_iterator])
+                                    print(self.train_iterator)
                                     self.train_iterator +=1
                                 else:
                                     print("Traning done")
