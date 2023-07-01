@@ -1,3 +1,4 @@
+import time
 import joblib
 from kivy.uix.screenmanager import Screen
 import cv2
@@ -108,7 +109,11 @@ class DetectionScreen(Screen):
         
         # Blink Counter
         self.blinks = 0
+
         self.fps = 0
+        self.calibration_start_time = time.time()
+        self.elapsed_time = 0.0
+
         self.first = 0
         # Predicition, Initialize with 0 = Awake
         self.median_prediction = 0
@@ -131,7 +136,9 @@ class DetectionScreen(Screen):
         self.capture = cv2.VideoCapture(video_path)
         # Get the framerate
         self.fps = self.capture.get(cv2.CAP_PROP_FPS)
-
+        self.update_event = Clock.schedule_interval(self.update, 1/self.fps)
+        print("fps:")
+        print(self.fps)
     def stop_camera(self):
         """
         Stops the camera capture.
@@ -174,6 +181,7 @@ class DetectionScreen(Screen):
         if hasattr(self, 'capture') and hasattr(self, 'fps') and hasattr(self, 'face_mesh') and self.manager.current == 'detection':
             # Read a frame from the video capture
             ret, frame = self.capture.read()
+            self.elapsed_time = time.time() - self.calibration_start_time
             if ret:
                 # Changing to RGB so that mediapipe can process the frame
                 image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -221,24 +229,21 @@ class DetectionScreen(Screen):
                             blink, closed_eye, blink_duration = self.blink_detection(avg_EAR)
 
                             # Defining the length for the Lists of the features
-                            frame_length_perclos = 10000
-                            frame_length_ear_list = 10000
+                            time_length= 15 # 6 Minute Duration
 
                             # PERCLOS Calculation based on frames
                             perclos = self.calculate_perclos(closed_eye, 
-                                                            frame_length_perclos)
+                                                            time_length)
                             
                             # AVG EAR for eyes open
-                            self.get_list_of_ear(avg_EAR, frame_length_ear_list)
+                            self.get_list_of_ear(avg_EAR, time_length)
                             avg_ear_eyes_open_at_test = self.avg_ear_eyes_open()
                             avg_ear_at_test = self.avg_ear()
-
-                            avg_blink_duration = 1
-
+                            avg_blink_duration = self.avg_blink_duration(blink_duration, time_length, blink)
+                            
                             # Counting the blinks
                             if blink == 1:
                                 self.blinks += 1
-                                avg_blink_duration = self.avg_blink_duration(blink_duration, frame_length_perclos)
 
                             # Processing when the eye has been closed for too long
                             if blink == 2:
@@ -264,7 +269,8 @@ class DetectionScreen(Screen):
                                 if os.path.exists(data_path_feat):
                                     list_feat = np.load(data_path_feat)
                                     list_feat = np.hstack((list_feat, feature_vector))
-                                    #print(list_feat)
+                                    print(list_feat)
+                                    print("Anzahl an Videos verarbeitet:")
                                     print(len(list_feat)/4)
                                     np.save(data_path_feat, list_feat)
 
@@ -285,9 +291,8 @@ class DetectionScreen(Screen):
                             # If the Calibration is not done, continue the calibration
                             else:
                                 calibration = self.calibrate(
-                                frame_length_perclos, frame_length_ear_list, 
-                                perclos, avg_ear_eyes_open_at_test, frame_length_perclos, 
-                                avg_blink_duration, avg_ear_at_test)
+                                perclos, avg_ear_eyes_open_at_test,
+                                avg_blink_duration, avg_ear_at_test, time_length)
                                 
                                 # Putting a text for the calibration status
                                 calibration = round(calibration, 2)*100
@@ -393,7 +398,7 @@ class DetectionScreen(Screen):
         """
         #initialization
         perclos = 0
-        number_of_frames = len(self.list_of_eye_closure)
+        number_of_frames = int(self.elapsed_time)
 
         # Calculation when time span has been reached
         if number_of_frames == length_of_frames:
@@ -486,7 +491,7 @@ class DetectionScreen(Screen):
             length (int): The length of the list eg. of the collected frames
         """
         # Initialization
-        number_of_frames = len(self.list_of_EAR)
+        number_of_frames = self.elapsed_time
 
         # Calculation when time span has been reached
         if number_of_frames == length:
@@ -540,7 +545,7 @@ class DetectionScreen(Screen):
         """
         return np.mean(self.list_of_EAR)
     
-    def avg_blink_duration(self, frame_blink_duration, length):
+    def avg_blink_duration(self, frame_blink_duration, length, blink):
         """
         Calculate and return the average blink duration based on the given frame blink duration.
 
@@ -551,25 +556,30 @@ class DetectionScreen(Screen):
         Returns:
         - The average blink duration as a float.
         """
-        number_of_frames = len(self.list_of_eye_closure)
+        number_of_frames = self.elapsed_time
 
-        avg_blink_duration = 1
-
-        # Calculation when time span has been reached
-        if number_of_frames == length:
-            self.list_of_blink_durations.append(frame_blink_duration)
-            self.list_of_blink_durations.pop(0)
-
+        if np.any(self.list_of_blink_durations):
             avg_blink_duration = np.mean(self.list_of_blink_durations)
-            
-        # Collect EAR until time span (in frames) has been reached
-        elif number_of_frames < length:
+        else:
+            avg_blink_duration = 1.0
 
-            self.list_of_blink_durations.append(frame_blink_duration)
+        if blink == 1:
+            # Calculation when time span has been reached
+            if number_of_frames == length:
+                self.list_of_blink_durations.append((frame_blink_duration/self.fps)*1000)
+                self.list_of_blink_durations.pop(0)
+
+                avg_blink_duration = np.mean(self.list_of_blink_durations)
+                
+            # Collect EAR until time span (in frames) has been reached
+            elif number_of_frames < length:
+
+                self.list_of_blink_durations.append(frame_blink_duration)
+                avg_blink_duration = np.mean(self.list_of_blink_durations)
         
         return avg_blink_duration
     
-    def calibrate(self, frame_length_perclos, frame_length_ear_list, perclos, ear_eyes_open, num_of_blinks, avg_blink_duration, avg_ear):
+    def calibrate(self, perclos, ear_eyes_open, avg_blink_duration, avg_ear, time_length):
         """
         Calibrates the system based on the provided parameters.
 
@@ -591,30 +601,17 @@ class DetectionScreen(Screen):
         calibrate_status = 0
 
         # Checking the length of the frame lists
-        if frame_length_ear_list >= frame_length_perclos:
-            calibrate_status = self.count_last/frame_length_ear_list
-        else:
-            calibrate_status = self.count_last/frame_length_perclos
+        if time_length >= self.elapsed_time:
+            calibrate_status = self.elapsed_time/time_length
 
         # Checking for the length of the PERCLOS List
-        if self.count_last == frame_length_perclos and not self.cal_perclos:
+        if time_length <= self.elapsed_time:
             self.awake_perclos = perclos
-            self.cal_perclos = True
-
-        # Checking for the length of the EAR List
-        if self.count_last == frame_length_ear_list and not self.cal_ear:
             self.awake_ear_eyes_open = ear_eyes_open
             self.awake_avg_ear = avg_ear
-            self.cal_ear = True
-
-        # Checking for the length of the Blink list
-        if self.count_last == num_of_blinks and not self.cal_blinks:
             self.awake_blink_duration = avg_blink_duration
-            self.cal_blinks = True
-
-        # Checking if the frame length of PERCLOS and EAR is done
-        if self.cal_ear and self.cal_perclos and self.cal_blinks:
             self.cal_done = True
+            calibrate_status = 100.0
 
         return calibrate_status
     
