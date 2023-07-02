@@ -312,7 +312,9 @@ class DetectionScreen(Screen):
 
                                     list_fps = np.load("Datasets/fps.npy")
                                     list_fps = np.hstack((list_fps, self.fps))
+                                    print(list_fps)
                                     np.save("Datasets/fps.npy", list_fps)
+                                    
 
                                 else:
                                     print(feature_vector)
