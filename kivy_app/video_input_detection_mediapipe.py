@@ -30,12 +30,54 @@ class DetectionScreen(Screen):
     def initialize(self):
         Clock.schedule_once(self.initialize_resources)
         self.train_iterator = 0
-        self.video_paths = ["Datasets/11/5.mp4", "Datasets/11/10.mp4",
+        self.video_paths = ["Datasets/01/5.mov", "Datasets/01/10.mov", 
+                        "Datasets/02/0.mov", "Datasets/02/5.mov", "Datasets/02/10.mov",
+                        "Datasets/03/0.mov", "Datasets/03/5.mov", "Datasets/03/10.mov",
+                        "Datasets/04/0.mp4", "Datasets/04/5.mp4", "Datasets/04/10.mp4",
+                        "Datasets/05/0.mov", "Datasets/05/5.mov", "Datasets/05/10.mov",
+                        "Datasets/06/0.mp4", "Datasets/06/5.mp4", "Datasets/06/10.mp4",
+                        "Datasets/07/0.mp4", "Datasets/07/5.mp4", "Datasets/07/10.mp4",
+                        "Datasets/08/0.mp4", "Datasets/08/5.mp4", "Datasets/08/10.mp4",
+                        "Datasets/09/0.mp4", "Datasets/09/5.mp4", "Datasets/09/10.mp4",
+                        "Datasets/10/0.mov", "Datasets/10/5.mov", "Datasets/10/10.mov",
+                        "Datasets/11/0.mp4", "Datasets/11/5.mp4", "Datasets/11/10.mp4",
+                        "Datasets/12/0.mp4", "Datasets/12/5.mp4", "Datasets/12/10.mp4",
+                        "Datasets/13/0.mp4", "Datasets/13/5.mp4", "Datasets/13/10.mp4",
+                        "Datasets/14/0.mp4", "Datasets/14/5.mp4", "Datasets/14/10.mp4",
+                        "Datasets/15/0.mp4", "Datasets/15/5.mp4", "Datasets/15/10.mp4",
+                        "Datasets/16/0.mov", "Datasets/16/5.mov", "Datasets/16/10.mov",
+                        "Datasets/17/0.mp4", "Datasets/17/5.mp4", "Datasets/17/10.mp4",
                         "Datasets/18/0.mov", "Datasets/18/5.mov", "Datasets/18/10.mov",
+                        "Datasets/19/0.mov", "Datasets/19/5.mov", "Datasets/19/10.mov",
+                        "Datasets/20/0.mp4", "Datasets/20/5.mov", "Datasets/20/10.mp4",
+                        "Datasets/21/0.mov", "Datasets/21/5.mov", "Datasets/21/10.mov",
+                        "Datasets/22/0.mov", "Datasets/22/5.mov", "Datasets/22/10.mov",
+                        "Datasets/23/0.mp4", "Datasets/23/5.mp4", "Datasets/23/10.mp4",
+                        "Datasets/24/0.mp4", "Datasets/24/5.mp4", "Datasets/24/10.mp4",
+                        #"Datasets/25/0.mp4", "Datasets/25/5.mp4", "Datasets/25/10.mp4",
+                        "Datasets/26/0.mp4", "Datasets/26/5.mp4", "Datasets/26/10.mp4",
+                        "Datasets/27/0.mov", "Datasets/27/5.mov", "Datasets/27/10.mov",
+                        "Datasets/28/0.mov", "Datasets/28/5.mov", "Datasets/28/10.mov",
+                        "Datasets/29/0.mp4", "Datasets/29/5.mp4", "Datasets/29/10.mp4",
+                        "Datasets/30/0.mp4", "Datasets/30/5.mp4", "Datasets/30/10.mp4",
+                        "Datasets/31/0.mp4", "Datasets/31/5.mp4", "Datasets/31/10.mp4",
+                        "Datasets/32/0.mp4", "Datasets/32/5.mp4", "Datasets/32/10.mp4",
                         "Datasets/33/0.mp4", "Datasets/33/5.mp4", "Datasets/33/10.mp4",
                         "Datasets/34/0.mov", "Datasets/34/5.mov", "Datasets/34/10.mp4",
                         "Datasets/35/0.mp4", "Datasets/35/5.mp4", "Datasets/35/10.mp4",
-                        "Datasets/36/0.mp4", "Datasets/36/5.mp4", "Datasets/36/10.mp4"]
+                        "Datasets/36/0.mp4", "Datasets/36/5.mp4", "Datasets/36/10.mp4",
+                        "Datasets/37/0.mov", "Datasets/37/5.mov", "Datasets/37/10.mov",
+                        "Datasets/38/0.mp4", "Datasets/38/5.mp4", "Datasets/38/10.mp4",
+                        "Datasets/39/0.mp4", "Datasets/39/5.mov", "Datasets/39/10.mov",
+                        "Datasets/40/0.mp4", "Datasets/40/5.mp4", "Datasets/40/10.mp4",
+                        "Datasets/41/0.mp4", "Datasets/41/5.mp4", "Datasets/41/10.mov",
+                        "Datasets/42/0.mp4", "Datasets/42/5.mp4", "Datasets/42/10.mp4",
+                        "Datasets/43/0.mov", "Datasets/43/5.mp4", "Datasets/43/10.mov",
+                        "Datasets/44/0.mov", "Datasets/44/5.mov", "Datasets/44/10.mov",
+                        "Datasets/45/0.mp4", "Datasets/45/5.mp4", "Datasets/45/10.mp4",
+                        "Datasets/46/0.m4v", "Datasets/46/5.m4v", "Datasets/46/10.mov",
+                        "Datasets/47/0.mp4", "Datasets/47/5.mp4", "Datasets/47/10.mp4",
+                        "Datasets/48/0.mov", "Datasets/48/5.mov", "Datasets/48/10.mov"]
 
     def initialize_resources(self, n):
         """
@@ -98,10 +140,11 @@ class DetectionScreen(Screen):
         self.cal_ear = False
         self.cal_blinks = False
 
+        self.count_last = -1
         self.cal_done = False
         
         # Blink Counter
-        self.blinks = 0 
+        self.blinks = 0
 
         self.fps = 0
         self.calibration_start_time = time.time()
@@ -120,7 +163,7 @@ class DetectionScreen(Screen):
         Logger.info("Mediapipe: 478 Landmarks are detected")
 
     def on_enter(self):
-        self.start_camera("Datasets/11/0.mp4")
+        self.start_camera("Datasets/01/0.mov")
 
     def on_leave(self):
         self.stop_camera()
@@ -207,6 +250,8 @@ class DetectionScreen(Screen):
                         # Testing, if the whole eye is detected
                         coord_points = coord_points_left + coord_points_right
                         if not any(item is None for item in coord_points):
+                            
+                            self.count_last +=1
 
                             # Calculating the Eye Aspect ratio for the left and right eye
                             EAR_left = self.calculate_EAR(coord_points_left)
@@ -218,10 +263,10 @@ class DetectionScreen(Screen):
 
                             # Blink Detection Algorithm
                             blink, closed_eye, blink_duration = self.blink_detection(avg_EAR)
- 
+
                             # Defining the length for the Lists of the features
-                            time_length = 360 # 6 Minute Duration
-  
+                            time_length= 15 # 6 Minute Duration
+
                             # PERCLOS Calculation based on frames
                             perclos = self.calculate_perclos(closed_eye, 
                                                             time_length)
@@ -265,15 +310,9 @@ class DetectionScreen(Screen):
                                     print(len(list_feat)/4)
                                     np.save(data_path_feat, list_feat)
 
-                                    # Saving the fps for every video
-                                    list_fps = np.load("Datasets/fps.npy")
-                                    list_fps  = np.hstack((list_fps , self.fps))
-                                    np.save("Datasets/fps.npy", list_fps )
-
                                 else:
                                     print(feature_vector)
                                     np.save(data_path_feat, feature_vector)
-                                    np.save("Datasets/fps.npy", self.fps)
                             
                                 if self.train_iterator < len(self.video_paths):
                                     self.stop_camera()
