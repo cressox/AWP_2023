@@ -30,18 +30,12 @@ class DetectionScreen(Screen):
     def initialize(self):
         Clock.schedule_once(self.initialize_resources)
         self.train_iterator = 0
-        self.video_paths = ["Datasets/37/5.mov", "Datasets/37/10.mov",
-                        "Datasets/38/0.mp4", "Datasets/38/5.mp4", "Datasets/38/10.mp4",
-                        "Datasets/39/0.mp4", "Datasets/39/5.mov", "Datasets/39/10.mov",
-                        "Datasets/40/0.mp4", "Datasets/40/5.mp4", "Datasets/40/10.mp4",
-                        "Datasets/41/0.mp4", "Datasets/41/5.mp4", "Datasets/41/10.mov",
-                        "Datasets/42/0.mp4", "Datasets/42/5.mp4", "Datasets/42/10.mp4",
-                        "Datasets/43/0.mov", "Datasets/43/5.mp4", "Datasets/43/10.mov",
-                        "Datasets/44/0.mov", "Datasets/44/5.mov", "Datasets/44/10.mov",
-                        "Datasets/45/0.mp4", "Datasets/45/5.mp4", "Datasets/45/10.mp4",
-                        "Datasets/46/0.m4v", "Datasets/46/5.m4v", "Datasets/46/10.mov",
-                        "Datasets/47/0.mp4", "Datasets/47/5.mp4", "Datasets/47/10.mp4",
-                        "Datasets/48/0.mov", "Datasets/48/5.mov", "Datasets/48/10.mov"]
+        self.video_paths = ["Datasets/11/5.mp4", "Datasets/11/10.mp4",
+                        "Datasets/18/0.mov", "Datasets/18/5.mov", "Datasets/18/10.mov",
+                        "Datasets/33/0.mp4", "Datasets/33/5.mp4", "Datasets/33/10.mp4",
+                        "Datasets/34/0.mov", "Datasets/34/5.mov", "Datasets/34/10.mp4",
+                        "Datasets/35/0.mp4", "Datasets/35/5.mp4", "Datasets/35/10.mp4",
+                        "Datasets/36/0.mp4", "Datasets/36/5.mp4", "Datasets/36/10.mp4"]
 
     def initialize_resources(self, n):
         """
@@ -126,7 +120,7 @@ class DetectionScreen(Screen):
         Logger.info("Mediapipe: 478 Landmarks are detected")
 
     def on_enter(self):
-        self.start_camera("Datasets/37/0.mov")
+        self.start_camera("Datasets/11/0.mp4")
 
     def on_leave(self):
         self.stop_camera()
@@ -226,7 +220,7 @@ class DetectionScreen(Screen):
                             blink, closed_eye, blink_duration = self.blink_detection(avg_EAR)
  
                             # Defining the length for the Lists of the features
-                            time_length= 360 # 6 Minute Duration
+                            time_length = 4 # 6 Minute Duration
   
                             # PERCLOS Calculation based on frames
                             perclos = self.calculate_perclos(closed_eye, 
@@ -272,9 +266,9 @@ class DetectionScreen(Screen):
                                     np.save(data_path_feat, list_feat)
 
                                     # Saving the fps for every video
-                                    list_feat = np.load("Datasets/fps.npy")
-                                    list_feat = np.hstack((list_feat, feature_vector))
-                                    np.save("Datasets/fps.npy", list_feat)
+                                    list_fps = np.load("Datasets/fps.npy")
+                                    list_fps  = np.hstack((list_fps , self.fps))
+                                    np.save("Datasets/fps.npy", list_fps )
 
                                 else:
                                     print(feature_vector)
