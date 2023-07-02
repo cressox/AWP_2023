@@ -265,8 +265,8 @@ class DetectionScreen(Screen):
                             blink, closed_eye, blink_duration = self.blink_detection(avg_EAR)
 
                             # Defining the length for the Lists of the features
-                            time_length= 15 # 6 Minute Duration
-
+                            time_length = 4 # 6 Minute Duration
+  
                             # PERCLOS Calculation based on frames
                             perclos = self.calculate_perclos(closed_eye, 
                                                             time_length)
@@ -310,9 +310,14 @@ class DetectionScreen(Screen):
                                     print(len(list_feat)/4)
                                     np.save(data_path_feat, list_feat)
 
+                                    list_fps = np.load("Datasets/fps.npy")
+                                    list_fps = np.hstack((list_fps, self.fps))
+                                    np.save("Datasets/fps.npy", list_fps)
+
                                 else:
                                     print(feature_vector)
                                     np.save(data_path_feat, feature_vector)
+                                    np.save("Datasets/fps.npy", self.fps)
                             
                                 if self.train_iterator < len(self.video_paths):
                                     self.stop_camera()
