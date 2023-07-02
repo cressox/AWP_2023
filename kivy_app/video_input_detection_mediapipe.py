@@ -107,7 +107,7 @@ class DetectionScreen(Screen):
         self.cal_done = False
         
         # Blink Counter
-        self.blinks = 0
+        self.blinks = 0 
 
         self.fps = 0
         self.calibration_start_time = time.time()
@@ -271,9 +271,15 @@ class DetectionScreen(Screen):
                                     print(len(list_feat)/4)
                                     np.save(data_path_feat, list_feat)
 
+                                    # Saving the fps for every video
+                                    list_feat = np.load("Datasets/fps.npy")
+                                    list_feat = np.hstack((list_feat, feature_vector))
+                                    np.save("Datasets/fps.npy", list_feat)
+
                                 else:
                                     print(feature_vector)
                                     np.save(data_path_feat, feature_vector)
+                                    np.save("Datasets/fps.npy", self.fps)
                             
                                 if self.train_iterator < len(self.video_paths):
                                     self.stop_camera()
