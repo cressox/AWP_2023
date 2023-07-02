@@ -227,10 +227,10 @@ class DetectionScreen(Screen):
 
                             # Blink Detection Algorithm
                             blink, closed_eye, blink_duration = self.blink_detection(avg_EAR)
-
+ 
                             # Defining the length for the Lists of the features
-                            time_length= 15 # 6 Minute Duration
-
+                            time_length= 360 # 6 Minute Duration
+  
                             # PERCLOS Calculation based on frames
                             perclos = self.calculate_perclos(closed_eye, 
                                                             time_length)
