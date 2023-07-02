@@ -57,6 +57,11 @@ def get_data(data_path_feat, data_path_class):
             sublist = [row[i] for row in list_features]
             list_feat.append(sublist)
 
+        list_fps = np.load("Datasets/fps.npy")
+        for i in range(len(list_fps)):
+            list_feat[i][0] = list_feat[i][0]/list_fps[i]
+            list_feat[i][1] = (list_feat[i][1]/list_fps[i])*1000
+
         if len(list_feat) == len(list_class):
             # Calculating the difference of the awake status to the tired and the half tired status
             list_feat_diff = np.zeros(np.shape(list_feat))
