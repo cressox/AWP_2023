@@ -104,7 +104,6 @@ class DetectionScreen(Screen):
         self.cal_ear = False
         self.cal_blinks = False
 
-        self.count_last = -1
         self.cal_done = False
         
         # Blink Counter
@@ -214,8 +213,6 @@ class DetectionScreen(Screen):
                         # Testing, if the whole eye is detected
                         coord_points = coord_points_left + coord_points_right
                         if not any(item is None for item in coord_points):
-                            
-                            self.count_last +=1
 
                             # Calculating the Eye Aspect ratio for the left and right eye
                             EAR_left = self.calculate_EAR(coord_points_left)
