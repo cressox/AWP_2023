@@ -16,7 +16,7 @@ list_feat_11 = np.ones((12,)) # 12
 list_feat_12_17 = list_feat_12_17[0:72] # 72
 list_feat_18 = np.ones((12,)) # 12
 list_feat_19_32 = list_feat_19_32 # 168
-list_feat_33_36 = np.ones((48,)) # 48
+list_feat_33_36 = np.ones((36,)) # 36
 list_feat_37_48 = list_feat_37_48 # 144
 
 list_all = np.concatenate((list_feat_0_10,list_feat_11,list_feat_12_17,list_feat_18,list_feat_19_32,list_feat_33_36,list_feat_37_48))
