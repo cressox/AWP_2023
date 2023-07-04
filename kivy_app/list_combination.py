@@ -5,22 +5,23 @@ list_feat_0_10 = np.load("Datasets/PERCLOS_EARopen_EAR_Blink/010_115/PERCLOS_EAR
 
 list_feat_12_17 = np.load("Datasets/PERCLOS_EARopen_EAR_Blink/120_180/PERCLOS_EARopen_EAR_BLINKduration_01_48.npy")
 
-list_feat_19_32 = np.load("Datasets/PERCLOS_EARopen_EAR_Blink/190_3310/PERCLOS_EARopen_EAR_BLINKduration_01_48.npy")
+list_feat_19_33 = np.load("Datasets/PERCLOS_EARopen_EAR_Blink/190_3310/PERCLOS_EARopen_EAR_BLINKduration_01_48.npy")
 
 list_feat_35_43 = np.load("Datasets/PERCLOS_EARopen_EAR_Blink/350_440/PERCLOS_EARopen_EAR_BLINKduration_01_48.npy")
 
 list_feat_37_48 = np.load("Datasets/PERCLOS_EARopen_EAR_Blink/370_4810/PERCLOS_EARopen_EAR_BLINKduration_37_48.npy")
 
+list_feat_11_18_34_36 = np.load("Datasets/PERCLOS_EARopen_EAR_Blink/11_18_33_36/PERCLOS_EARopen_EAR_BLINKduration_37_48.npy")
+
 list_feat_0_10 = list_feat_0_10[0:120] # 120
-list_feat_11 = np.ones((12,)) # 12
+list_feat_11 = list_feat_11_18_34_36[0:12] # 12
 list_feat_12_17 = list_feat_12_17[0:72] # 72
-list_feat_18 = np.ones((12,)) # 12
-list_feat_19_32 = list_feat_19_32 # 168
-list_feat_33_36 = np.ones((36,)) # 36
+list_feat_18 = list_feat_11_18_34_36[12:24] # 12
+list_feat_19_33 = list_feat_19_33 # 168 ohne 25
+list_feat_34_36 = list_feat_11_18_34_36[24:60] # 36
 list_feat_37_48 = list_feat_37_48 # 144
 
-list_all = np.concatenate((list_feat_0_10,list_feat_11,list_feat_12_17,list_feat_18,list_feat_19_32,list_feat_33_36,list_feat_37_48))
-
+list_all = np.concatenate((list_feat_0_10,list_feat_11,list_feat_12_17,list_feat_18,list_feat_19_33,list_feat_34_36,list_feat_37_48))
 np.save("Datasets/PERCLOS_EARopen_EAR_BLINKduration_list.npy", list_all)
 
 list_lengths = {
@@ -28,8 +29,8 @@ list_lengths = {
     'list_feat_11': len(list_feat_11),
     'list_feat_12_17': len(list_feat_12_17),
     'list_feat_18': len(list_feat_18),
-    'list_feat_19_32': len(list_feat_19_32),
-    'list_feat_33_36': len(list_feat_33_36),
+    'list_feat_19_33': len(list_feat_19_33),
+    'list_feat_34_36': len(list_feat_34_36),
     'list_feat_37_48': len(list_feat_37_48)
 }
 
@@ -62,17 +63,14 @@ for i in range(len(list_features[0])):
     sublist = [row[i] for row in list_features]
     output_list.append(sublist)
 
-print(output_list)
 
 list_fps = [30, 30, 30, 30, 30, 30]
 
 for i in range(len(list_fps)):
     output_list[i][0] = output_list[i][0]/list_fps[i]
     output_list[i][1] = (output_list[i][1]/list_fps[i])*1000
-
-print(output_list)
-
 fps = np.load("Datasets/fps.npy")
 
 print("FPS")
 print(fps)
+print(len(fps))
