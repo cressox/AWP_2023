@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score
+from itertools import combinations
 import joblib
 import pandas as pd
 
@@ -78,11 +79,11 @@ def get_data(data_path_feat, data_path_class):
                 # PERCLOS Difference
                 list_feat_diff[i][2] = 1.0
                 list_feat_diff[i+1][2] = list_feat[i+1][2]/list_feat[i][2]
-                list_feat_diff[i+2][2] = list_feat[i+2][2]/list_feat[i][2]                              
+                list_feat_diff[i+2][2] = list_feat[i+2][2]/list_feat[i][2]
                 # PERCLOS Difference
                 list_feat_diff[i][3] = 1.0
                 list_feat_diff[i+1][3] = list_feat[i+1][3]/list_feat[i][3]
-                list_feat_diff[i+2][3] = list_feat[i+2][3]/list_feat[i][3]                
+                list_feat_diff[i+2][3] = list_feat[i+2][3]/list_feat[i][3]
 
             return list_feat_diff, list_class
         else:
@@ -195,14 +196,18 @@ def classification(list_features, list_class, classes):
     classifiers = []
 
     if classes == 2:
-        logreg = LogisticRegression(multi_class='ovr', solver='lbfgs')
+        logreg = LogisticRegression(multi_class='ovr', solver='lbfgs', max_iter=1000)
     else:
-        logreg = LogisticRegression(multi_class='auto', solver='lbfgs')
+        logreg = LogisticRegression(multi_class='auto', solver='lbfgs', max_iter=1000)
 
     # Logistic Regression
     logreg.fit(X_train, y_train)
     y_pred_logreg = logreg.predict(X_test)
     accuracy_logreg = accuracy_score(y_test, y_pred_logreg)
+
+    if classes == 2:
+        result = logreg.predict_proba(X_test)
+        print(result)
 
     # Confusion Matrix
     conf_matrix_logreg = confusion_matrix(y_test, y_pred_logreg)
@@ -217,7 +222,7 @@ def classification(list_features, list_class, classes):
 
     # Cross Validation Logistic Regression
     logreg_scores = cross_val_score(logreg, list_features, list_class, cv=5)
-    classifiers.append(("Logistic Regression", logreg, logreg_scores, 
+    classifiers.append(("Logistic Regression", logreg, np.mean(logreg_scores), 
                         conf_matrix_logreg, precision_logreg, recall_logreg, f1_logreg))
 
     # KNN Classifier with k=3
@@ -240,11 +245,11 @@ def classification(list_features, list_class, classes):
 
     # Cross Validation KNN Classifier
     knn_scores = cross_val_score(knn, list_features, list_class, cv=5)
-    classifiers.append(("KNN Classifier with k=3", knn, knn_scores, 
+    classifiers.append(("KNN Classifier with k=3", knn, np.mean(knn_scores), 
                         conf_matrix_knn, precision_knn, recall_knn, f1_knn))
 
     # Support Vector Machine
-    svm = SVC(probability=True)
+    svm = SVC()
     svm.fit(X_train, y_train)
     y_pred_svm = svm.predict(X_test)
     accuracy_svm = accuracy_score(y_test, y_pred_svm)
@@ -263,14 +268,19 @@ def classification(list_features, list_class, classes):
 
     # Cross Validation Support Vector Machine
     svm_scores = cross_val_score(svm, list_features, list_class, cv=5)
-    classifiers.append(("Support Vector Machine", svm, svm_scores, 
+    classifiers.append(("Support Vector Machine", svm, np.mean(svm_scores), 
                         conf_matrix_svm, precision_svm, recall_svm, f1_svm))
 
     # Sorting the classifiers by performance
     classifiers.sort(key=lambda x: x[2], reverse=True)
     best_classifier = classifiers[0][1]
-
+    
     joblib.dump(best_classifier, "best_classifier.pkl")
+
+    for classifier in classifiers:
+        classifier_name = classifier[0]
+        classifier_scores = classifier[2]
+        print(f"Classifier: {classifier_name}, Mean Score: {classifier_scores}")
 
     return classifiers
 
@@ -337,12 +347,13 @@ create_markdown_file(classifiers_three, "classification_results_three_classes.md
 
 two_class_features, two_class_class = three_to_two_classes(list_feat_diff, list_class)
 
-classifiers_two = classification(two_class_features, two_class_class, 2)
+#classifiers_two = classification(two_class_features, two_class_class, 2)
 
 # After the classification is performed, call the create_markdown_file function
-create_markdown_file(classifiers_two, "classification_results_two_classes.md")
+#create_markdown_file(classifiers_two, "classification_results_two_classes.md")
 
 def regression(list_features, list_class):
+
     """
     Perform regression using different regressors and select the best performing regressor based on R2 score.
 
@@ -402,3 +413,5 @@ def regression(list_features, list_class):
     best_regressor_name, best_regressor, best_accuracy = regressors[2]
 
     joblib.dump(best_regressor, "best_regressor.pkl")
+
+regression(list_feat_diff, list_class)
