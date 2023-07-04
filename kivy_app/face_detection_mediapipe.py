@@ -1,3 +1,4 @@
+import time
 import joblib
 from kivy.uix.screenmanager import Screen
 import cv2
@@ -38,11 +39,6 @@ class DetectionScreen(Screen):
         # Initialize the Image object
         self.image = Image()
 
-        # Schedule the update function to be called every 0.02 seconds
-        Clock.schedule_interval(self.update, 0.02)
-
-        # Initialize variables
-        self.fps = 0
         self.update_event = None
         self.draw_landmarks = True
 
@@ -67,8 +63,9 @@ class DetectionScreen(Screen):
         self.succ_frame = 1
 
         # Initialize the Counting length for repetition of warning sound
-        self.count_warning_frame_eyes_closed = 20
-        self.count_warning_frame_classifier = 100
+        self.seconds_warning_eyes_closed = 1.0
+        self.seconds_warning_classification = 10.0
+        self.count_warning_frame_classifier = 0
 
         # Counter for capturing movement
         self.movement_counter = 0
@@ -96,6 +93,11 @@ class DetectionScreen(Screen):
         # Blink Counter
         self.blinks = 0
 
+        self.fps = 28.0
+        self.calibration_start_time = time.time()
+        self.elapsed_time = 0.0
+
+        self.first = 0
         # Predicition, Initialize with 0 = Awake
         self.median_prediction = 0
 
@@ -120,6 +122,7 @@ class DetectionScreen(Screen):
             None
         """
         self.start_camera()
+        self.initialize_resources(0)
 
     def on_leave(self):
         """
@@ -152,6 +155,7 @@ class DetectionScreen(Screen):
         self.capture = cv2.VideoCapture(0)
         self.fps = self.capture.get(cv2.CAP_PROP_FPS)
         self.update_event = Clock.schedule_interval(self.update, 1/self.fps)
+        print(self.fps)
 
     def stop_camera(self):
         """
@@ -194,6 +198,7 @@ class DetectionScreen(Screen):
         if hasattr(self, 'capture') and hasattr(self, 'fps') and hasattr(self, 'face_mesh') and self.manager.current == 'detection':
             # Read a frame from the video capture
             ret, frame = self.capture.read()
+            self.elapsed_time = time.time() - self.calibration_start_time
             if ret:
                 # Changing to RGB so that mediapipe can process the frame
                 image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -240,42 +245,31 @@ class DetectionScreen(Screen):
                             # Blink Detection Algorithm
                             blink, closed_eye, blink_duration = self.blink_detection(avg_EAR)
 
-                            # Defining the length for the Lists of the features
-                            frame_length_perclos = 1000
-                            frame_length_ear_list = 1000
-                            num_of_blinks = 25
-
+                            # Defining the length for the calibration
+                            time_length = 10 # 1 Minute Duration
+  
                             # PERCLOS Calculation based on frames
                             perclos = self.calculate_perclos(closed_eye, 
-                                                            frame_length_perclos)
+                                                            time_length)
                             
                             # AVG EAR for eyes open
-                            self.get_list_of_ear(avg_EAR, frame_length_ear_list)
+                            self.get_list_of_ear(avg_EAR, time_length)
                             avg_ear_eyes_open_at_test = self.avg_ear_eyes_open()
                             avg_ear_at_test = self.avg_ear()
-
-                            avg_blink_duration = 1
-
+                            avg_blink_duration = self.avg_blink_duration(blink_duration, time_length, blink)
+                            
                             # Counting the blinks
                             if blink == 1:
                                 self.blinks += 1
-                                avg_blink_duration = self.avg_blink_duration(blink_duration, num_of_blinks)
-
-                            # Processing when the eye has been closed for too long
-                            if blink == 2:
-                                if self.count_warning_frame_eyes_closed == 20:
+                                if blink_duration/self.fps >= self.seconds_warning_eyes_closed:
                                     # Putting a text, that driver might be 
                                     # sleeping every 20 Frames
                                     cv2.putText(image, 'ALARM: Wake up!', (30, 30),
                                     cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                                     self.play_warning_sound()
-                                    self.count_warning_frame_eyes_closed = 0
-                                else:
-                                    self.count_warning_frame_eyes_closed +=1
 
                             # When the calibration is done
                             if self.cal_done:
-
                                 # Generation of the feature vector
                                 feature_vector = self.feature_vector(perclos, 
                                                                      avg_blink_duration, 
@@ -285,15 +279,13 @@ class DetectionScreen(Screen):
                                 # Prediction of the feature vector whether 
                                 # tired/half-tired/awake
                                 single_prediction = self.new_input(feature_vector)
-                                length = 250
+                                length = 50
 
                                 # Median Prediction
                                 pred = self.prediction_median(single_prediction, length)
-                                if isinstance(pred, list):
-                                    pred = pred[0]
                                 
                                 pred = int(pred)
-                                
+
                                 # Visual and auditive apperance depending on prediction
                                 if pred == 0:
                                     # Putting the Prediction value on Screen
@@ -312,7 +304,9 @@ class DetectionScreen(Screen):
                                     string_perclos = "Müde"
                                     cv2.putText(image, string_perclos, (30, 120),
                                     cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-                                    if self.count_warning_frame_classifier == 100:
+
+                                    # Visual Apperance and Sound, if the person is tired
+                                    if self.count_warning_frame_classifier/self.fps == self.seconds_warning_classification:
                                         self.count_warning_frame_classifier = 0
                                         self.play_warning_sound()
                                     self.count_warning_frame_classifier += 1
@@ -321,9 +315,8 @@ class DetectionScreen(Screen):
                             # If the Calibration is not done, continue the calibration
                             else:
                                 calibration = self.calibrate(
-                                frame_length_perclos, frame_length_ear_list, 
-                                perclos, avg_ear_eyes_open_at_test, num_of_blinks, 
-                                avg_blink_duration, avg_ear_at_test)
+                                perclos, avg_ear_eyes_open_at_test,
+                                avg_blink_duration, avg_ear_at_test, time_length)
                                 
                                 # Putting a text for the calibration status
                                 calibration = round(calibration, 2)*100
@@ -335,7 +328,7 @@ class DetectionScreen(Screen):
                     # If unable to detect landmarks for 100 frames,
                     # then give warning signs
                     self.movement_counter += 1
-                    if self.movement_counter == 100:
+                    if self.movement_counter/self.fps == 1.0:
                         self.play_warning_sound()
                         print("Landmarks nicht gefunden")
                         self.movement_counter = 0
@@ -407,10 +400,6 @@ class DetectionScreen(Screen):
             else:
             # When there is no blink 
                 self.count_frame = 0
-        
-        # If the period of time of closed eyes is too long, the driver might be sleeping
-        if self.count_frame > self.fps/2:
-            blink = 2
             
         return blink, eye_closed, blink_duration
 
@@ -428,12 +417,13 @@ class DetectionScreen(Screen):
         Returns:
             perclos (float): Output of the PERCLOS value
         """
-        #initialization
+
+        # Initialization
         perclos = 0
-        number_of_frames = len(self.list_of_eye_closure)
+        seconds_elapsed = int(self.elapsed_time)
 
         # Calculation when time span has been reached
-        if number_of_frames == length_of_frames:
+        if seconds_elapsed >= length_of_frames:
             
             # The oldest frame is removed and the new frame is added to the list
             self.list_of_eye_closure.append(closed_eye)
@@ -442,10 +432,10 @@ class DetectionScreen(Screen):
             # Calculation of the Perclos value based on the values 
             # where eye is closed from the list
             frame_is_blink = self.list_of_eye_closure.count(True)
-            perclos = frame_is_blink/number_of_frames
+            perclos = frame_is_blink/(seconds_elapsed*self.fps)
 
         # Collect frames until time span (in frames) has been reached
-        elif number_of_frames < length_of_frames:
+        elif seconds_elapsed < length_of_frames:
 
             self.list_of_eye_closure.append(closed_eye)
 
@@ -523,15 +513,15 @@ class DetectionScreen(Screen):
             length (int): The length of the list eg. of the collected frames
         """
         # Initialization
-        number_of_frames = len(self.list_of_EAR)
+        seconds_elapsed = self.elapsed_time
 
         # Calculation when time span has been reached
-        if number_of_frames == length:
+        if seconds_elapsed == length:
             self.list_of_EAR.append(avg_ear)
             self.list_of_EAR.pop(0)
             
         # Collect EAR until time span (in frames) has been reached
-        elif number_of_frames < length:
+        elif seconds_elapsed < length:
 
             self.list_of_EAR.append(avg_ear)
 
@@ -577,7 +567,7 @@ class DetectionScreen(Screen):
         """
         return np.mean(self.list_of_EAR)
     
-    def avg_blink_duration(self, frame_blink_duration, length):
+    def avg_blink_duration(self, frame_blink_duration, length, blink):
         """
         Calculate and return the average blink duration based on the given frame blink duration.
 
@@ -588,25 +578,30 @@ class DetectionScreen(Screen):
         Returns:
         - The average blink duration as a float.
         """
-        number_of_frames = len(self.list_of_blink_durations)
+        number_of_frames = self.elapsed_time
 
-        avg_blink_duration = 1
-
-        # Calculation when time span has been reached
-        if number_of_frames == length:
-            self.list_of_blink_durations.append(frame_blink_duration)
-            self.list_of_blink_durations.pop(0)
-
+        if np.any(self.list_of_blink_durations):
             avg_blink_duration = np.mean(self.list_of_blink_durations)
-            
-        # Collect EAR until time span (in frames) has been reached
-        elif number_of_frames < length:
+        else:
+            avg_blink_duration = 1.0
 
-            self.list_of_blink_durations.append(frame_blink_duration)
+        if blink == 1:
+            # Calculation when time span has been reached
+            if number_of_frames == length:
+                self.list_of_blink_durations.append((frame_blink_duration/self.fps)*1000)
+                self.list_of_blink_durations.pop(0)
+
+                avg_blink_duration = np.mean(self.list_of_blink_durations)
+                
+            # Collect EAR until time span (in frames) has been reached
+            elif number_of_frames < length:
+
+                self.list_of_blink_durations.append((frame_blink_duration/self.fps)*1000)
+                avg_blink_duration = np.mean(self.list_of_blink_durations)
         
         return avg_blink_duration
     
-    def calibrate(self, frame_length_perclos, frame_length_ear_list, perclos, ear_eyes_open, num_of_blinks, avg_blink_duration, avg_ear):
+    def calibrate(self, perclos, ear_eyes_open, avg_blink_duration, avg_ear, time_length):
         """
         Calibrates the system based on the provided parameters.
 
@@ -628,32 +623,17 @@ class DetectionScreen(Screen):
         calibrate_status = 0
 
         # Checking the length of the frame lists
-        if frame_length_ear_list >= frame_length_perclos:
-            calibrate_status = self.count_last/frame_length_ear_list
-        else:
-            calibrate_status = self.count_last/frame_length_perclos
+        if time_length >= self.elapsed_time:
+            calibrate_status = self.elapsed_time/time_length
 
         # Checking for the length of the PERCLOS List
-        if self.count_last == frame_length_perclos and not self.cal_perclos:
+        if time_length <= self.elapsed_time:
             self.awake_perclos = perclos
-            self.cal_perclos = True
-
-        # Checking for the length of the EAR List
-        if self.count_last == frame_length_ear_list and not self.cal_ear:
             self.awake_ear_eyes_open = ear_eyes_open
             self.awake_avg_ear = avg_ear
-            self.cal_ear = True
-
-        # Checking for the length of the Blink list
-        if self.blinks == num_of_blinks and not self.cal_blinks:
             self.awake_blink_duration = avg_blink_duration
-            self.cal_blinks = True
-
-        # Checking if the frame length of PERCLOS and EAR is done
-        if self.cal_ear and self.cal_perclos and self.cal_blinks:
             self.cal_done = True
-        elif self.cal_ear and self.cal_perclos and not self.cal_blinks:
-            calibrate_status = self.blinks/num_of_blinks
+            calibrate_status = 100.0
 
         return calibrate_status
     
@@ -678,8 +658,7 @@ class DetectionScreen(Screen):
         ratio_blink_duration = frame_blink_duration/self.awake_blink_duration
         ratio_perclos = frame_perclos/self.awake_perclos
 
-        # Feature only PERCLOS, addition when training done
-        return [ratio_perclos]
+        return [ratio_perclos, ratio_blink_duration, ratio_avg_ear_eyes_open, ratio_avg_ear]
     
     def new_input(self, feature_vector):
         """
@@ -698,8 +677,8 @@ class DetectionScreen(Screen):
             prediction = 0
         else:
             prediction = classifier_all.predict([feature_vector])
-            if isinstance(prediction, list):
-                prediction = prediction[0]
+            prediction = prediction[0]
+            print(prediction)
 
         return prediction
     
@@ -728,6 +707,8 @@ class DetectionScreen(Screen):
         elif number_of_frames < length:
             self.list_of_predictions.append(prediction)
         
+        print(self.list_of_predictions)
+
         return self.median_prediction  
     
 
