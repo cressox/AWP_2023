@@ -710,7 +710,3 @@ class DetectionScreen(Screen):
         print(self.list_of_predictions)
 
         return self.median_prediction  
-    
-
-    def yawning():
-        return 0
