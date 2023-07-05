@@ -1,7 +1,7 @@
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
-from face_detection_mediapipe import DetectionScreen
+from video_input_detection_mediapipe import DetectionScreen
 import os
 from kivy.graphics import Color, Rectangle
 from kivy.clock import Clock
@@ -92,13 +92,11 @@ class MyApp(App):
 
     def get_font_scheme(self):
         return {
-            #'font_name': 'assets/fonts/Lato/Lato-Bold.ttf',
-            #'font_name': 'assets/fonts/Open_Sans/OpenSans-VariableFont_wdth,wght.ttf',
             'font_name': 'assets/fonts/Roboto/Roboto-Medium.ttf',
-            'font_size_back': 15,
-            'font_size_settings': 30,
-            'font_size_main': 30,
-            'font_size_help': 13
+            'font_size_back': 25,
+            'font_size_settings': 40,
+            'font_size_main': 40,
+            'font_size_help': 23
         }
 
     def get_color_scheme(self):

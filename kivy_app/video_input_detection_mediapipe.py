@@ -10,19 +10,74 @@ from kivy.logger import Logger
 import mediapipe as mp
 import numpy as np
 from scipy.spatial import distance as dist
+import os
+
+data_path_class = "Datasets/PERCLOS_EARopen_EAR_BLINKduration_class.npy"
+
+data_class = np.array([0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,
+                       0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,
+                       0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,
+                       0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,
+                       0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,
+                       0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,
+                       0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,
+                       0,1,2,0,1,2,0,1,2,0,1,2,0,1,2])
+
+np.save(data_path_class, data_class)
+train_iterator = 0
 
 class DetectionScreen(Screen):
     def initialize(self):
-        """
-        Initializes the application by scheduling the initialization of resources.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
         Clock.schedule_once(self.initialize_resources)
+        self.train_iterator = 0
+        self.video_paths = ["Datasets/01/5.mov", "Datasets/01/10.mov", 
+                        "Datasets/02/0.mov", "Datasets/02/5.mov", "Datasets/02/10.mov",
+                        "Datasets/03/0.mov", "Datasets/03/5.mov", "Datasets/03/10.mov",
+                        "Datasets/04/0.mp4", "Datasets/04/5.mp4", "Datasets/04/10.mp4",
+                        "Datasets/05/0.mov", "Datasets/05/5.mov", "Datasets/05/10.mov",
+                        "Datasets/06/0.mp4", "Datasets/06/5.mp4", "Datasets/06/10.mp4",
+                        "Datasets/07/0.mp4", "Datasets/07/5.mp4", "Datasets/07/10.mp4",
+                        "Datasets/08/0.mp4", "Datasets/08/5.mp4", "Datasets/08/10.mp4",
+                        "Datasets/09/0.mp4", "Datasets/09/5.mp4", "Datasets/09/10.mp4",
+                        "Datasets/10/0.mov", "Datasets/10/5.mov", "Datasets/10/10.mov",
+                        "Datasets/11/0.mp4", "Datasets/11/5.mp4", "Datasets/11/10.mp4",
+                        "Datasets/12/0.mp4", "Datasets/12/5.mp4", "Datasets/12/10.mp4",
+                        "Datasets/13/0.mp4", "Datasets/13/5.mp4", "Datasets/13/10.mp4",
+                        "Datasets/14/0.mp4", "Datasets/14/5.mp4", "Datasets/14/10.mp4",
+                        "Datasets/15/0.mp4", "Datasets/15/5.mp4", "Datasets/15/10.mp4",
+                        "Datasets/16/0.mov", "Datasets/16/5.mov", "Datasets/16/10.mov",
+                        "Datasets/17/0.mp4", "Datasets/17/5.mp4", "Datasets/17/10.mp4",
+                        "Datasets/18/0.mov", "Datasets/18/5.mov", "Datasets/18/10.mov",
+                        "Datasets/19/0.mov", "Datasets/19/5.mov", "Datasets/19/10.mov",
+                        "Datasets/20/0.mp4", "Datasets/20/5.mov", "Datasets/20/10.mp4",
+                        "Datasets/21/0.mov", "Datasets/21/5.mov", "Datasets/21/10.mov",
+                        "Datasets/22/0.mov", "Datasets/22/5.mov", "Datasets/22/10.mov",
+                        "Datasets/23/0.mp4", "Datasets/23/5.mp4", "Datasets/23/10.mp4",
+                        "Datasets/24/0.mp4", "Datasets/24/5.mp4", "Datasets/24/10.mp4",
+                        #"Datasets/25/0.mp4", "Datasets/25/5.mp4", "Datasets/25/10.mp4",
+                        "Datasets/26/0.mp4", "Datasets/26/5.mp4", "Datasets/26/10.mp4",
+                        "Datasets/27/0.mov", "Datasets/27/5.mov", "Datasets/27/10.mov",
+                        "Datasets/28/0.mov", "Datasets/28/5.mov", "Datasets/28/10.mov",
+                        "Datasets/29/0.mp4", "Datasets/29/5.mp4", "Datasets/29/10.mp4",
+                        "Datasets/30/0.mp4", "Datasets/30/5.mp4", "Datasets/30/10.mp4",
+                        "Datasets/31/0.mp4", "Datasets/31/5.mp4", "Datasets/31/10.mp4",
+                        "Datasets/32/0.mp4", "Datasets/32/5.mp4", "Datasets/32/10.mp4",
+                        "Datasets/33/0.mp4", "Datasets/33/5.mp4", "Datasets/33/10.mp4",
+                        "Datasets/34/0.mov", "Datasets/34/5.mov", "Datasets/34/10.mp4",
+                        "Datasets/35/0.mp4", "Datasets/35/5.mp4", "Datasets/35/10.mp4",
+                        "Datasets/36/0.mp4", "Datasets/36/5.mp4", "Datasets/36/10.mp4",
+                        "Datasets/37/0.mov", "Datasets/37/5.mov", "Datasets/37/10.mov",
+                        "Datasets/38/0.mp4", "Datasets/38/5.mp4", "Datasets/38/10.mp4",
+                        "Datasets/39/0.mp4", "Datasets/39/5.mov", "Datasets/39/10.mov",
+                        "Datasets/40/0.mp4", "Datasets/40/5.mp4", "Datasets/40/10.mp4",
+                        "Datasets/41/0.mp4", "Datasets/41/5.mp4", "Datasets/41/10.mov",
+                        "Datasets/42/0.mp4", "Datasets/42/5.mp4", "Datasets/42/10.mp4",
+                        "Datasets/43/0.mov", "Datasets/43/5.mp4", "Datasets/43/10.mov",
+                        "Datasets/44/0.mov", "Datasets/44/5.mov", "Datasets/44/10.mov",
+                        "Datasets/45/0.mp4", "Datasets/45/5.mp4", "Datasets/45/10.mp4",
+                        "Datasets/46/0.m4v", "Datasets/46/5.m4v", "Datasets/46/10.mov",
+                        "Datasets/47/0.mp4", "Datasets/47/5.mp4", "Datasets/47/10.mp4",
+                        "Datasets/48/0.mov", "Datasets/48/5.mov", "Datasets/48/10.mov"]
 
     def initialize_resources(self, n):
         """
@@ -35,7 +90,6 @@ class DetectionScreen(Screen):
             None
 
         """
-
         # Initialize the Image object
         self.image = Image()
 
@@ -63,9 +117,8 @@ class DetectionScreen(Screen):
         self.succ_frame = 1
 
         # Initialize the Counting length for repetition of warning sound
-        self.seconds_warning_eyes_closed = 1.0
-        self.seconds_warning_classification = 10.0
-        self.count_warning_frame_classifier = 0
+        self.count_warning_frame_eyes_closed = 20
+        self.count_warning_frame_classifier = 100
 
         # Counter for capturing movement
         self.movement_counter = 0
@@ -93,7 +146,7 @@ class DetectionScreen(Screen):
         # Blink Counter
         self.blinks = 0
 
-        self.fps = 28.0
+        self.fps = 0
         self.calibration_start_time = time.time()
         self.elapsed_time = 0.0
 
@@ -110,54 +163,18 @@ class DetectionScreen(Screen):
         Logger.info("Mediapipe: 478 Landmarks are detected")
 
     def on_enter(self):
-        """
-        Event handler called when entering the screen.
-
-        It starts the camera by calling the `start_camera` function.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
-        self.initialize()
-        self.start_camera()
-        self.initialize_resources(0)
+        self.start_camera("Datasets/01/0.mov")
 
     def on_leave(self):
-        """
-        Event handler called when leaving the screen.
-
-        It stops the camera by calling the `stop_camera` function.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
         self.stop_camera()
 
-    def start_camera(self):
-        """
-        Starts the camera capture.
-
-        It initializes the video capture using `cv2.VideoCapture`.
-        The frames per second (fps) is obtained from the capture.
-        An update event is scheduled using `Clock.schedule_interval` to call the `update` function.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
-        self.capture = cv2.VideoCapture(0)
+    def start_camera(self, video_path):
+        self.capture = cv2.VideoCapture(video_path)
+        # Get the framerate
         self.fps = self.capture.get(cv2.CAP_PROP_FPS)
         self.update_event = Clock.schedule_interval(self.update, 1/self.fps)
+        print("fps:")
         print(self.fps)
-
     def stop_camera(self):
         """
         Stops the camera capture.
@@ -177,7 +194,6 @@ class DetectionScreen(Screen):
             Clock.unschedule(self.update_event)
             self.update_event = None
         self.blinks = 0
-        self.ids.image_view.source = './assets/logo2_edit.png'
 
     def update(self, dt):
         """
@@ -200,43 +216,42 @@ class DetectionScreen(Screen):
         """        
         if hasattr(self, 'capture') and hasattr(self, 'fps') and hasattr(self, 'face_mesh') and self.manager.current == 'detection':
             # Read a frame from the video capture
-            if self.capture:
-                ret, frame = self.capture.read()
-                self.elapsed_time = time.time() - self.calibration_start_time
-                if ret:
-                    # Changing to RGB so that mediapipe can process the frame
-                    image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            ret, frame = self.capture.read()
+            self.elapsed_time = time.time() - self.calibration_start_time
+            if ret:
+                # Changing to RGB so that mediapipe can process the frame
+                image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-                    image = np.ascontiguousarray(image)
-                    imgH, imgW, _ = image.shape
-                    
-                    # Generation of the face mesh
-                    results = self.face_mesh.process(image)
+                image = np.ascontiguousarray(image)
+                imgH, imgW, _ = image.shape
+                
+                # Generation of the face mesh
+                results = self.face_mesh.process(image)
 
-                    # Processing of the landmarks
-                    if results.multi_face_landmarks:
-                        for face_landmarks in results.multi_face_landmarks:
+                # Processing of the landmarks
+                if results.multi_face_landmarks:
+                    for face_landmarks in results.multi_face_landmarks:
 
-                            # Drawing the 6 landmarks per eye
-                            for landmark_idx, landmark in enumerate(
-                                face_landmarks.landmark):
-                                if landmark_idx in self.eye_idxs:
-                                    pred_cord = self.denormalize_coordinates(
-                                        landmark.x, landmark.y, imgW, imgH)
-                                    cv2.circle(image, pred_cord,3,(255, 255, 255), -1)
+                        # Drawing the 6 landmarks per eye
+                        for landmark_idx, landmark in enumerate(
+                            face_landmarks.landmark):
+                            if landmark_idx in self.eye_idxs:
+                                pred_cord = self.denormalize_coordinates(
+                                    landmark.x, landmark.y, imgW, imgH)
+                                cv2.circle(image, pred_cord,3,(255, 255, 255), -1)
 
-                            # Getting the coordinate points for left and right eye
-                            coord_points_left = self.get_coord_points(
-                                face_landmarks.landmark, self.left_eye_idxs, imgW, imgH)
+                        # Getting the coordinate points for left and right eye
+                        coord_points_left = self.get_coord_points(
+                            face_landmarks.landmark, self.left_eye_idxs, imgW, imgH)
+                        
+                        coord_points_right = self.get_coord_points(
+                            face_landmarks.landmark, self.right_eye_idxs, imgW, imgH)
+                        
+                        # Testing, if the whole eye is detected
+                        coord_points = coord_points_left + coord_points_right
+                        if not any(item is None for item in coord_points):
                             
-                            coord_points_right = self.get_coord_points(
-                                face_landmarks.landmark, self.right_eye_idxs, imgW, imgH)
-                            
-                            # Testing, if the whole eye is detected
-                            coord_points = coord_points_left + coord_points_right
-                            if not any(item is None for item in coord_points):
-                                
-                                self.count_last +=1
+                            self.count_last +=1
 
                             # Calculating the Eye Aspect ratio for the left and right eye
                             EAR_left = self.calculate_EAR(coord_points_left)
@@ -249,8 +264,8 @@ class DetectionScreen(Screen):
                             # Blink Detection Algorithm
                             blink, closed_eye, blink_duration = self.blink_detection(avg_EAR)
 
-                            # Defining the length for the calibration
-                            time_length = 10 # 1 Minute Duration
+                            # Defining the length for the Lists of the features
+                            time_length = 4 # 6 Minute Duration
   
                             # PERCLOS Calculation based on frames
                             perclos = self.calculate_perclos(closed_eye, 
@@ -265,12 +280,18 @@ class DetectionScreen(Screen):
                             # Counting the blinks
                             if blink == 1:
                                 self.blinks += 1
-                                if blink_duration/self.fps >= self.seconds_warning_eyes_closed:
+
+                            # Processing when the eye has been closed for too long
+                            if blink == 2:
+                                if self.count_warning_frame_eyes_closed == 20:
                                     # Putting a text, that driver might be 
                                     # sleeping every 20 Frames
                                     cv2.putText(image, 'ALARM: Wake up!', (30, 30),
                                     cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                                     self.play_warning_sound()
+                                    self.count_warning_frame_eyes_closed = 0
+                                else:
+                                    self.count_warning_frame_eyes_closed +=1
 
                             # When the calibration is done
                             if self.cal_done:
@@ -280,41 +301,35 @@ class DetectionScreen(Screen):
                                                                      avg_ear_eyes_open_at_test, 
                                                                      avg_ear_at_test)
 
-                                # Prediction of the feature vector whether 
-                                # tired/half-tired/awake
-                                single_prediction = self.new_input(feature_vector)
-                                length = 50
+                                data_path_feat = "Datasets/PERCLOS_EARopen_EAR_BLINKduration_37_48.npy"
+                                if os.path.exists(data_path_feat):
+                                    list_feat = np.load(data_path_feat)
+                                    list_feat = np.hstack((list_feat, feature_vector))
+                                    print(list_feat)
+                                    print("Anzahl an Videos verarbeitet:")
+                                    print(len(list_feat)/4)
+                                    np.save(data_path_feat, list_feat)
 
-                                # Median Prediction
-                                pred = self.prediction_median(single_prediction, length)
-                                
-                                pred = int(pred)
+                                    list_fps = np.load("Datasets/fps.npy")
+                                    list_fps = np.hstack((list_fps, self.fps))
+                                    print(list_fps)
+                                    np.save("Datasets/fps.npy", list_fps)
+                                    
 
-                                # Visual and auditive apperance depending on prediction
-                                if pred == 0:
-                                    # Putting the Prediction value on Screen
-                                    string_perclos = "Wach"
-                                    cv2.putText(image, string_perclos, (30, 120),
-                                    cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-                                    #TODO Visual apperance
-                                elif pred == 1:
-                                    # Putting the Prediction value on Screen
-                                    string_perclos = "Fraglich"
-                                    cv2.putText(image, string_perclos, (30, 120),
-                                    cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-                                    #TODO Visual apperance
                                 else:
-                                    # Putting the Prediction value on Screen
-                                    string_perclos = "Müde"
-                                    cv2.putText(image, string_perclos, (30, 120),
-                                    cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-
-                                    # Visual Apperance and Sound, if the person is tired
-                                    if self.count_warning_frame_classifier/self.fps == self.seconds_warning_classification:
-                                        self.count_warning_frame_classifier = 0
-                                        self.play_warning_sound()
-                                    self.count_warning_frame_classifier += 1
-                                    #TODO Visual apperance
+                                    print(feature_vector)
+                                    np.save(data_path_feat, feature_vector)
+                                    np.save("Datasets/fps.npy", self.fps)
+                            
+                                if self.train_iterator < len(self.video_paths):
+                                    self.stop_camera()
+                                    self.initialize_resources(0)
+                                    self.start_camera(self.video_paths[self.train_iterator])
+                                    print(self.train_iterator)
+                                    self.train_iterator +=1
+                                else:
+                                    print("Traning done")
+                                    self.on_leave()
 
                             # If the Calibration is not done, continue the calibration
                             else:
@@ -332,7 +347,7 @@ class DetectionScreen(Screen):
                     # If unable to detect landmarks for 100 frames,
                     # then give warning signs
                     self.movement_counter += 1
-                    if self.movement_counter/self.fps == 1.0:
+                    if self.movement_counter == 100:
                         self.play_warning_sound()
                         print("Landmarks nicht gefunden")
                         self.movement_counter = 0
@@ -351,11 +366,9 @@ class DetectionScreen(Screen):
 
         This method loads and plays a warning sound from the 'warning.ogg' file. 
         """
-        tmp = True
-        sound = SoundLoader.load('assets/mixkit-siren-tone-1649.wav')
-        if sound and tmp:
+        sound = SoundLoader.load('assets/warning.ogg')
+        if sound:
             sound.play()
-            tmp = False
 
     def set_screen(self, screen_name):
         """
@@ -370,8 +383,7 @@ class DetectionScreen(Screen):
         self.manager.current = screen_name 
 
     def blink_detection(self, avg_EAR: float):
-        """
-        Calculates the blink behavior based on the EAR value. 
+        """Calculates the blink behavior based on the EAR value. 
         If the threshold (how far the eyes are closed)
         is not reached , blinking is detected.
 
@@ -406,6 +418,10 @@ class DetectionScreen(Screen):
             else:
             # When there is no blink 
                 self.count_frame = 0
+        
+        # If the period of time of closed eyes is too long, the driver might be sleeping
+        if self.count_frame > self.fps/2:
+            blink = 2
             
         return blink, eye_closed, blink_duration
 
@@ -423,13 +439,12 @@ class DetectionScreen(Screen):
         Returns:
             perclos (float): Output of the PERCLOS value
         """
-
-        # Initialization
+        #initialization
         perclos = 0
-        seconds_elapsed = int(self.elapsed_time)
+        number_of_frames = int(self.elapsed_time)
 
         # Calculation when time span has been reached
-        if seconds_elapsed >= length_of_frames:
+        if number_of_frames == length_of_frames:
             
             # The oldest frame is removed and the new frame is added to the list
             self.list_of_eye_closure.append(closed_eye)
@@ -438,10 +453,10 @@ class DetectionScreen(Screen):
             # Calculation of the Perclos value based on the values 
             # where eye is closed from the list
             frame_is_blink = self.list_of_eye_closure.count(True)
-            perclos = frame_is_blink/(seconds_elapsed*self.fps)
+            perclos = frame_is_blink/number_of_frames
 
         # Collect frames until time span (in frames) has been reached
-        elif seconds_elapsed < length_of_frames:
+        elif number_of_frames < length_of_frames:
 
             self.list_of_eye_closure.append(closed_eye)
 
@@ -519,15 +534,15 @@ class DetectionScreen(Screen):
             length (int): The length of the list eg. of the collected frames
         """
         # Initialization
-        seconds_elapsed = self.elapsed_time
+        number_of_frames = self.elapsed_time
 
         # Calculation when time span has been reached
-        if seconds_elapsed == length:
+        if number_of_frames == length:
             self.list_of_EAR.append(avg_ear)
             self.list_of_EAR.pop(0)
             
         # Collect EAR until time span (in frames) has been reached
-        elif seconds_elapsed < length:
+        elif number_of_frames < length:
 
             self.list_of_EAR.append(avg_ear)
 
@@ -541,7 +556,7 @@ class DetectionScreen(Screen):
         at values where the eye is open is the mean
 
         Returns
-            avg_ear_eyes_open (float): Mean of the EAR value 
+            avg_ear_eyes_open(float): Mean of the EAR value 
             over a specified time when the eyes are open
         """
         # Initialise
@@ -602,7 +617,7 @@ class DetectionScreen(Screen):
             # Collect EAR until time span (in frames) has been reached
             elif number_of_frames < length:
 
-                self.list_of_blink_durations.append((frame_blink_duration/self.fps)*1000)
+                self.list_of_blink_durations.append(frame_blink_duration)
                 avg_blink_duration = np.mean(self.list_of_blink_durations)
         
         return avg_blink_duration
@@ -659,10 +674,10 @@ class DetectionScreen(Screen):
         """
         
         # Calculate the Ratios
-        ratio_avg_ear = frame_avg_ear/self.awake_avg_ear
-        ratio_avg_ear_eyes_open = frame_avg_ear_eyes_open/self.awake_ear_eyes_open
-        ratio_blink_duration = frame_blink_duration/self.awake_blink_duration
-        ratio_perclos = frame_perclos/self.awake_perclos
+        ratio_avg_ear = self.awake_avg_ear
+        ratio_avg_ear_eyes_open = self.awake_ear_eyes_open
+        ratio_blink_duration = self.awake_blink_duration
+        ratio_perclos = self.awake_perclos
 
         return [ratio_perclos, ratio_blink_duration, ratio_avg_ear_eyes_open, ratio_avg_ear]
     
@@ -683,8 +698,8 @@ class DetectionScreen(Screen):
             prediction = 0
         else:
             prediction = classifier_all.predict([feature_vector])
-            prediction = prediction[0]
-            print(prediction)
+            if isinstance(prediction, list):
+                prediction = prediction[0]
 
         return prediction
     
@@ -713,6 +728,8 @@ class DetectionScreen(Screen):
         elif number_of_frames < length:
             self.list_of_predictions.append(prediction)
         
-        print(self.list_of_predictions)
-
         return self.median_prediction  
+    
+
+    def yawning():
+        return 0
