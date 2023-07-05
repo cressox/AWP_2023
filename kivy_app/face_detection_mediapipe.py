@@ -121,6 +121,7 @@ class DetectionScreen(Screen):
         Returns:
             None
         """
+        self.initialize()
         self.start_camera()
         self.initialize_resources(0)
 
@@ -175,6 +176,8 @@ class DetectionScreen(Screen):
         if self.update_event is not None:
             Clock.unschedule(self.update_event)
             self.update_event = None
+        self.blinks = 0
+        self.ids.image_view.source = './assets/logo2_edit.png'
 
     def update(self, dt):
         """
@@ -197,42 +200,43 @@ class DetectionScreen(Screen):
         """        
         if hasattr(self, 'capture') and hasattr(self, 'fps') and hasattr(self, 'face_mesh') and self.manager.current == 'detection':
             # Read a frame from the video capture
-            ret, frame = self.capture.read()
-            self.elapsed_time = time.time() - self.calibration_start_time
-            if ret:
-                # Changing to RGB so that mediapipe can process the frame
-                image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            if self.capture:
+                ret, frame = self.capture.read()
+                self.elapsed_time = time.time() - self.calibration_start_time
+                if ret:
+                    # Changing to RGB so that mediapipe can process the frame
+                    image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-                image = np.ascontiguousarray(image)
-                imgH, imgW, _ = image.shape
-                
-                # Generation of the face mesh
-                results = self.face_mesh.process(image)
+                    image = np.ascontiguousarray(image)
+                    imgH, imgW, _ = image.shape
+                    
+                    # Generation of the face mesh
+                    results = self.face_mesh.process(image)
 
-                # Processing of the landmarks
-                if results.multi_face_landmarks:
-                    for face_landmarks in results.multi_face_landmarks:
+                    # Processing of the landmarks
+                    if results.multi_face_landmarks:
+                        for face_landmarks in results.multi_face_landmarks:
 
-                        # Drawing the 6 landmarks per eye
-                        for landmark_idx, landmark in enumerate(
-                            face_landmarks.landmark):
-                            if landmark_idx in self.eye_idxs:
-                                pred_cord = self.denormalize_coordinates(
-                                    landmark.x, landmark.y, imgW, imgH)
-                                cv2.circle(image, pred_cord,3,(255, 255, 255), -1)
+                            # Drawing the 6 landmarks per eye
+                            for landmark_idx, landmark in enumerate(
+                                face_landmarks.landmark):
+                                if landmark_idx in self.eye_idxs:
+                                    pred_cord = self.denormalize_coordinates(
+                                        landmark.x, landmark.y, imgW, imgH)
+                                    cv2.circle(image, pred_cord,3,(255, 255, 255), -1)
 
-                        # Getting the coordinate points for left and right eye
-                        coord_points_left = self.get_coord_points(
-                            face_landmarks.landmark, self.left_eye_idxs, imgW, imgH)
-                        
-                        coord_points_right = self.get_coord_points(
-                            face_landmarks.landmark, self.right_eye_idxs, imgW, imgH)
-                        
-                        # Testing, if the whole eye is detected
-                        coord_points = coord_points_left + coord_points_right
-                        if not any(item is None for item in coord_points):
+                            # Getting the coordinate points for left and right eye
+                            coord_points_left = self.get_coord_points(
+                                face_landmarks.landmark, self.left_eye_idxs, imgW, imgH)
                             
-                            self.count_last +=1
+                            coord_points_right = self.get_coord_points(
+                                face_landmarks.landmark, self.right_eye_idxs, imgW, imgH)
+                            
+                            # Testing, if the whole eye is detected
+                            coord_points = coord_points_left + coord_points_right
+                            if not any(item is None for item in coord_points):
+                                
+                                self.count_last +=1
 
                             # Calculating the Eye Aspect ratio for the left and right eye
                             EAR_left = self.calculate_EAR(coord_points_left)
@@ -347,9 +351,11 @@ class DetectionScreen(Screen):
 
         This method loads and plays a warning sound from the 'warning.ogg' file. 
         """
-        sound = SoundLoader.load('assets/warning.ogg')
-        if sound:
+        tmp = True
+        sound = SoundLoader.load('assets/mixkit-siren-tone-1649.wav')
+        if sound and tmp:
             sound.play()
+            tmp = False
 
     def set_screen(self, screen_name):
         """
