@@ -90,6 +90,7 @@ class DetectionScreen(Screen):
         self.count_last = -1
         self.cal_done = False
         
+        self.closed_frames = 0
         # Blink Counter
         self.blinks = 0
 
@@ -250,7 +251,7 @@ class DetectionScreen(Screen):
                             blink, closed_eye, blink_duration = self.blink_detection(avg_EAR)
 
                             # Defining the length for the calibration
-                            time_length = 10 # 1 Minute Duration
+                            time_length = 60 # 1 Minute Duration
   
                             # PERCLOS Calculation based on frames
                             perclos = self.calculate_perclos(closed_eye, 
@@ -265,12 +266,18 @@ class DetectionScreen(Screen):
                             # Counting the blinks
                             if blink == 1:
                                 self.blinks += 1
-                                if blink_duration/self.fps >= self.seconds_warning_eyes_closed:
+                            
+                            if closed_eye:
+                                self.closed_frames += 1
+                                if self.closed_frames/self.fps >= self.seconds_warning_eyes_closed:
                                     # Putting a text, that driver might be 
                                     # sleeping every 20 Frames
                                     cv2.putText(image, 'ALARM: Wake up!', (30, 30),
                                     cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                                     self.play_warning_sound()
+                                    self.closed_frames = 0
+                            else:
+                                self.closed_frames = 0
 
                             # When the calibration is done
                             if self.cal_done:
@@ -283,7 +290,7 @@ class DetectionScreen(Screen):
                                 # Prediction of the feature vector whether 
                                 # tired/half-tired/awake
                                 single_prediction = self.new_input(feature_vector)
-                                length = 50
+                                length = self.fps*30
 
                                 # Median Prediction
                                 pred = self.prediction_median(single_prediction, length)
@@ -328,14 +335,14 @@ class DetectionScreen(Screen):
                                 cv2.putText(image, string_cal, (30, 120),
                                 cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
 
-                else:
-                    # If unable to detect landmarks for 100 frames,
-                    # then give warning signs
-                    self.movement_counter += 1
-                    if self.movement_counter/self.fps == 1.0:
-                        self.play_warning_sound()
-                        print("Landmarks nicht gefunden")
-                        self.movement_counter = 0
+                        else:
+                            # If unable to detect landmarks for 100 frames,
+                            # then give warning signs
+                            self.movement_counter += 1
+                            if self.movement_counter/self.fps == 3.0:
+                                self.play_warning_sound()
+                                print("Landmarks nicht gefunden")
+                                self.movement_counter = 0
                 
                 # Flip the image vertically for processing in kivy
                 buf1 = cv2.flip(image, 0)
@@ -514,7 +521,7 @@ class DetectionScreen(Screen):
         For a given length of frames a list ist build 
         with the EAR for the last frames
 
-        Args:
+        Args:avg_blink_duration
             avg_ear (float): EAR Value for a given Frame
             length (int): The length of the list eg. of the collected frames
         """
