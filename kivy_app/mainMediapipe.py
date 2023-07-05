@@ -1,7 +1,7 @@
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
-from face_detection_mediapipe import DetectionScreen
+from video_input_detection_mediapipe import DetectionScreen
 import os
 from kivy.graphics import Color, Rectangle
 from kivy.clock import Clock
