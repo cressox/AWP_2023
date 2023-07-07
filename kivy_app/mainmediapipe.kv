@@ -1,0 +1,273 @@
+#: import RelativeLayout kivy.uix.relativelayout.RelativeLayout
+#: import SlideTransition kivy.uix.screenmanager.SlideTransition
+
+# Definition des ScreenManagers, der zwischen verschiedenen Bildschirmen wechselt
+<MyScreenManager>:
+    MainScreen:
+        name: 'main'
+    DetectionScreen:
+        name: 'detection'
+    SettingsScreen:
+        name: 'settings'
+    HelpScreen:
+        name: 'help'
+    LoadingScreen:
+        name: 'loading'
+
+# Hauptbildschirm
+<MainScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '20dp'
+        canvas:
+            Color:
+                rgb: app.color_scheme['background']
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        # Platzierung des Logos in der Mitte des Bildschirms
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '200dp'
+            pos_hint: {'center_x': 0.5}
+            Image:
+                source: app.color_scheme['img']
+                size_hint: None, None
+                pos_hint: {'center_x': 0.5}
+                size: '310dp', '310dp'
+
+        # Schaltflächen zum Wechseln zu anderen Bildschirmen
+        Button:
+            text: 'Start'
+            color: app.color_scheme['button_text']
+            on_press: app.root.set_screen('detection')
+            size_hint_y: None
+            height: '48dp'
+            background_color: app.color_scheme['button']
+            font_name: app.font_scheme['font_name']
+            font_size: app.font_scheme['font_size_main']
+
+        Button:
+            text: 'Settings'
+            color: app.color_scheme['button_text']
+            on_press: app.root.set_screen('settings')
+            size_hint_y: None
+            height: '48dp'
+            background_color: app.color_scheme['button']
+            font_name: app.font_scheme['font_name']
+            font_size: app.font_scheme['font_size_main']
+
+        Button:
+            text: 'About'
+            color: app.color_scheme['button_text']
+            on_press: app.root.set_screen('help')
+            size_hint_y: None
+            height: '48dp'
+            background_color: app.color_scheme['button']
+            font_name: app.font_scheme['font_name']
+            font_size: app.font_scheme['font_size_main']
+
+# Einstellungsbildschirm
+<SettingsScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '20dp'
+        canvas:
+            Color:
+                rgba: app.color_scheme['background']
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Button:
+            id: fast_mode_button
+            text: 'Fast mode'
+            color: app.color_scheme['button_text']
+            background_color: app.color_scheme['button']
+            on_release: root.change_mode('fast')
+            font_name: app.font_scheme['font_name']
+            font_size: app.font_scheme['font_size_settings']
+            
+        Button:
+            id: detailed_mode_button
+            text: 'Detailed mode'
+            color: app.color_scheme['button_text']
+            background_color: app.color_scheme['button']
+            on_release: root.change_mode('detailed')
+            font_name: app.font_scheme['font_name']
+            font_size: app.font_scheme['font_size_settings']
+
+        Button:
+            text: 'Dark mode'
+            color: app.color_scheme['button_text']
+            on_release: app.toggle_dark_mode()
+            background_color: app.color_scheme['button']
+            font_name: app.font_scheme['font_name']
+            font_size: app.font_scheme['font_size_settings']
+
+        # Schaltfläche zum Zurückkehren zum Hauptbildschirm
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '48dp'
+
+            Button:
+                text: 'Back'
+                color: app.color_scheme['button_text']
+                on_press: app.root.set_screen('main')
+                size_hint_x: None
+                width: '120dp'
+                background_color: app.color_scheme['button']
+                font_name: app.font_scheme['font_name']
+                font_size: app.font_scheme['font_size_back']
+
+# Bildschirm für die Erkennung
+<DetectionScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '20dp'
+        canvas:
+            Color:
+                rgb: app.color_scheme['background']
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        # Layout Element oberhalb des Bildes
+        BoxLayout:
+            id: head
+            size_hint_y: 1  # nehmen Sie 20% des vertikalen Platzes ein
+            canvas:
+                Color:
+                    rgba: root.color
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+        # Anzeige des Kamerabildes
+        Image:
+            id: image_view
+            source: app.color_scheme['img']
+            keep_ratio: True
+            allow_stretch: False
+
+        # Layout Element unterhalb des Bildes
+        BoxLayout:
+            id: tail
+            size_hint_y: 1  # nehmen Sie 20% des vertikalen Platzes ein
+            canvas:
+                Color:
+                    rgba: root.color
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+        # Schaltfläche zum Zurückkehren zum Hauptbildschirm
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '48dp'
+
+            Button:
+                text: 'Back'
+                color: app.color_scheme['button_text']
+                on_press: app.root.set_screen('main')
+                size_hint_x: None
+                width: '120dp'
+                background_color: app.color_scheme['button']
+                font_name: app.font_scheme['font_name']
+                font_size: app.font_scheme['font_size_back']
+
+# Hilfebildschirm
+<HelpScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '20dp'
+        canvas:
+            Color:
+                rgba: app.color_scheme['background']
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        
+        Label:
+            text: "Willkommen in der Hilfe!"
+            font_size: '24sp'
+            color: app.color_scheme['button_text']
+            font_name: app.font_scheme['font_name']
+
+        ScrollView:
+            bar_width: 10
+            bar_color: app.color_scheme['button']
+            effect_cls: 'ScrollEffect'
+            size_hint: 1, 0.7
+
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+
+                Label:
+                    text: "Diese App dient zur Erkennung und Analyse von Müdigkeit. Im 'Detection' Bildschirm können Sie ein live ihre Müdigkeit analysieren lassen. Im 'Settings' Bildschirm können Sie zwischen dem 'Fast mode' und dem 'Detailed mode' wechseln. Der 'Fast mode' führt eine schnelle, aber weniger genaue Analyse durch, während der 'Detailed mode' eine gründlichere, aber zeitaufwändigere Analyse durchführt. Sie können auch den 'Dark mode' ein- oder ausschalten."
+                    color: app.color_scheme['button_text']
+                    font_name: app.font_scheme['font_name']
+                    font_size: app.font_scheme['font_size_help']
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    text_size: self.width, None
+
+                Widget:
+                    size_hint_y: None
+                    height: '10dp'
+
+                Button:
+                    text: "Für weitere Informationen und Updates können Sie unser GitHub-Repository besuchen: [ref=github]https://github.com/cressox/AWP_2023[/ref]"
+                    markup: True
+                    on_release:
+                        import webbrowser
+                        webbrowser.open('https://github.com/cressox/AWP_2023')
+                    background_normal: ''
+                    background_color: app.color_scheme['button_hover']
+                    color: app.color_scheme['button_text']
+                    font_name: app.font_scheme['font_name']
+                    font_size: app.font_scheme['font_size_help']
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    text_size: self.width, None
+
+        # Schaltfläche zum Zurückkehren zum Hauptbildschirm
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '48dp'
+
+            Button:
+                text: 'Back'
+                color: app.color_scheme['button_text']
+                on_press: app.root.set_screen('main')
+                size_hint_x: None
+                width: '120dp'
+                background_color: app.color_scheme['button']
+                font_name: app.font_scheme['font_name']
+                font_size: app.font_scheme['font_size_back']
+
+<LoadingScreen>
+    FloatLayout:
+        canvas:
+            Color:
+                rgb: app.color_scheme['background']
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        # Platzierung des Logos in der Mitte des Bildschirms
+        Image:
+            source: app.color_scheme['img']
+            size_hint: None, None
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            size: '310dp', '310dp'
