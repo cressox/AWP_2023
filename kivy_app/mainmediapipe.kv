@@ -11,6 +11,8 @@
         name: 'settings'
     HelpScreen:
         name: 'help'
+    LoadingScreen:
+        name: 'loading'
 
 # Hauptbildschirm
 <MainScreen>:
@@ -39,7 +41,7 @@
 
         # Schaltflächen zum Wechseln zu anderen Bildschirmen
         Button:
-            text: 'Go to Detection'
+            text: 'Start'
             color: app.color_scheme['button_text']
             on_press: app.root.set_screen('detection')
             size_hint_y: None
@@ -49,7 +51,7 @@
             font_size: app.font_scheme['font_size_main']
 
         Button:
-            text: 'Go to Settings'
+            text: 'Settings'
             color: app.color_scheme['button_text']
             on_press: app.root.set_screen('settings')
             size_hint_y: None
@@ -59,7 +61,7 @@
             font_size: app.font_scheme['font_size_main']
 
         Button:
-            text: 'Go to Help'
+            text: 'About'
             color: app.color_scheme['button_text']
             on_press: app.root.set_screen('help')
             size_hint_y: None
@@ -113,7 +115,7 @@
             height: '48dp'
 
             Button:
-                text: 'Back to Main'
+                text: 'Back'
                 color: app.color_scheme['button_text']
                 on_press: app.root.set_screen('main')
                 size_hint_x: None
@@ -137,10 +139,11 @@
 
         # Layout Element oberhalb des Bildes
         BoxLayout:
+            id: head
             size_hint_y: 1  # nehmen Sie 20% des vertikalen Platzes ein
             canvas:
                 Color:
-                    rgba: app.color_scheme['layout_element']
+                    rgba: root.color
                 Rectangle:
                     pos: self.pos
                     size: self.size
@@ -154,10 +157,11 @@
 
         # Layout Element unterhalb des Bildes
         BoxLayout:
+            id: tail
             size_hint_y: 1  # nehmen Sie 20% des vertikalen Platzes ein
             canvas:
                 Color:
-                    rgba: app.color_scheme['layout_element']
+                    rgba: root.color
                 Rectangle:
                     pos: self.pos
                     size: self.size
@@ -169,7 +173,7 @@
             height: '48dp'
 
             Button:
-                text: 'Back to Main'
+                text: 'Back'
                 color: app.color_scheme['button_text']
                 on_press: app.root.set_screen('main')
                 size_hint_x: None
@@ -243,7 +247,7 @@
             height: '48dp'
 
             Button:
-                text: 'Back to Main'
+                text: 'Back'
                 color: app.color_scheme['button_text']
                 on_press: app.root.set_screen('main')
                 size_hint_x: None
@@ -251,3 +255,19 @@
                 background_color: app.color_scheme['button']
                 font_name: app.font_scheme['font_name']
                 font_size: app.font_scheme['font_size_back']
+
+<LoadingScreen>
+    FloatLayout:
+        canvas:
+            Color:
+                rgb: app.color_scheme['background']
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        # Platzierung des Logos in der Mitte des Bildschirms
+        Image:
+            source: app.color_scheme['img']
+            size_hint: None, None
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            size: '310dp', '310dp'
