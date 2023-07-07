@@ -10,4 +10,3 @@ Docstrings
 
 Regression oder Klassifikation?
 
-Verbesserung der Ergebnisse

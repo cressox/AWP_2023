@@ -1,47 +1,45 @@
-import os
-
-import time
 from kivy.app import App
+from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
+from video_input_detection_mediapipe import DetectionScreen
+import os
 from kivy.graphics import Color, Rectangle
 from kivy.clock import Clock
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty, BooleanProperty
-from kivy.uix.screenmanager import Screen, ScreenManager, SlideTransition
-from face_detection_mediapipe import DetectionScreen
+from kivy.core.window import Window
+from kivy.properties import ObjectProperty
+from kivy.uix.screenmanager import SlideTransition
 from kivy.config import Config
 
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
+
+
 os.environ['KIVY_CAMERA'] = 'opencv'
+
 SCREENS = {}
 
 
 class MainScreen(Screen):
-    """Der Hauptbildschirm der Anwendung."""
-
+    """Hauptbildschirm"""
 
 class SettingsScreen(Screen):
-    """
-    Bildschirm, auf dem die Anwendungseinstellungen verwaltet werden können.
-    """
-
+    """Einstellungsbildschirm"""
     def __init__(self, **kwargs):
         super(SettingsScreen, self).__init__(**kwargs)
         self.app = App.get_running_app()
-
+    global mode 
     mode = 'fast'  # Hinzugefügtes mode-Attribut
 
     def change_mode(self, mode):
         """
-        Ändert den Modus der Anwendung basierend auf dem übergebenen Wert.
-        :param mode: Der Modus, zu dem gewechselt werden soll.
-        :type mode: str
-        :return: None
+        Ändert den Modus basierend auf dem ausgewählten Modus.
         """
         if mode == 'detailed':
             # Detailierter Modus
             self.ids.detailed_mode_button.background_color = (0.5, 1, 0.5, 0.5)  # Light Green
             self.ids.fast_mode_button.background_color = self.app.color_scheme['button']  # Default button color
+
+
         else:
             # Schneller Modus
             self.ids.fast_mode_button.background_color = (0.5, 1, 0.5, 0.5)  # Light Green
