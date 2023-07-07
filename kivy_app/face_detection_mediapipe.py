@@ -83,22 +83,13 @@ class DetectionScreen(Screen):
         self.awake_avg_ear = 0
 
         # Flags to control calculations
-        self.cal_perclos = False
-        self.cal_ear = False
-        self.cal_blinks = False
-
-        self.count_last = -1
         self.cal_done = False
         
-        self.closed_frames = 0
-        # Blink Counter
-        self.blinks = 0
-
+        # Initialisation fpr time calculations
         self.fps = 28.0
         self.calibration_start_time = time.time()
         self.elapsed_time = 0.0
 
-        self.first = 0
         # Predicition, Initialize with 0 = Awake
         self.median_prediction = 0
 
@@ -237,8 +228,6 @@ class DetectionScreen(Screen):
                             coord_points = coord_points_left + coord_points_right
                             if not any(item is None for item in coord_points):
                                 
-                                self.count_last +=1
-
                                 # Calculating the Eye Aspect ratio for the left and right eye
                                 EAR_left = self.calculate_EAR(coord_points_left)
                                 
@@ -262,10 +251,6 @@ class DetectionScreen(Screen):
                                 avg_ear_eyes_open_at_test = self.avg_ear_eyes_open()
                                 avg_ear_at_test = self.avg_ear()
                                 avg_blink_duration = self.avg_blink_duration(blink_duration, time_length, blink)
-                                
-                                # Counting the blinks
-                                if blink == 1:
-                                    self.blinks += 1
                                 
                                 # Warning Sound, if the eye is closed too long
                                 if closed_eye:
@@ -472,7 +457,7 @@ class DetectionScreen(Screen):
         Returns:
             list: A List of the coordinate points
         """
-        denormalize_coordinates = mp.solutions.drawing_utils._normalized_to_pixel_coordinates  # noqa: E501
+        denormalize_coordinates = mp.solutions.drawing_utils._normalized_to_pixel_coordinates
 
         coords_points = []
 
@@ -591,6 +576,7 @@ class DetectionScreen(Screen):
         - The average blink duration as a float.
         """
 
+        # Calculating the blink duration
         if np.any(self.list_of_blink_durations):
             avg_blink_duration = np.mean(self.list_of_blink_durations)
         else:
@@ -682,6 +668,7 @@ class DetectionScreen(Screen):
         """
         classifier_all  = joblib.load("best_classifier.pkl")
         
+        # Getting the predicition based on the loaded classifier
         if feature_vector[0] < 1.0:
             prediction = 0
         else:
