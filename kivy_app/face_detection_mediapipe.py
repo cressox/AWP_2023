@@ -1,3 +1,7 @@
+import joblib
+from kivy.uix.screenmanager import Screen
+import cv2
+from kivy.app import App
 import time
 import joblib
 from kivy.uix.screenmanager import Screen
@@ -10,39 +14,26 @@ from kivy.logger import Logger
 import mediapipe as mp
 import numpy as np
 from scipy.spatial import distance as dist
+from kivy.properties import BooleanProperty
+from kivy.graphics import Color
+from kivy.properties import ListProperty
 
 class DetectionScreen(Screen):
+    color = ListProperty([0.3, 0.3, 0.3, 0.3])  # Weiß
+
     def initialize(self):
-        """
-        Initializes the application by scheduling the initialization of resources.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
         Clock.schedule_once(self.initialize_resources)
 
-    def initialize_resources(self, n):
-        """
-        Initializes the necessary resources for the application.
-
-        Parameters:
-            n (int): The parameter n.
-
-        Returns:
-            None
-
-        """
-
-        # Initialize the Image object
+    def initialize_resources(self,n):
         self.image = Image()
+        Clock.schedule_interval(self.update, 0.02)
 
+        self.fps = 0
         self.update_event = None
         self.draw_landmarks = True
 
-        # Importing the required packages from Mediapipe
+        # Loading the important packages from Mediapipe
+
         self.mp_drawing = mp.solutions.drawing_utils
         self.mp_face_mesh = mp.solutions.face_mesh
         self.mp_drawing_styles = mp.solutions.drawing_styles
@@ -207,6 +198,7 @@ class DetectionScreen(Screen):
 
                     # Processing of the landmarks
                     if results.multi_face_landmarks:
+                        self.color = [0.3, 0.3, 0.3, 0.3]
                         for face_landmarks in results.multi_face_landmarks:
 
                             # Drawing the 6 landmarks per eye
@@ -343,10 +335,11 @@ class DetectionScreen(Screen):
         This method loads and plays a warning sound from the 'warning.ogg' file. 
         """
         tmp = True
+        if self.color == [0.3, 0.3, 0.3, 0.3]:
+            self.color = [1, 0, 0, 1] # Rot 
+        else:
+            self.color = [0.3, 0.3, 0.3, 0.3]
         sound = SoundLoader.load('assets/mixkit-siren-tone-1649.wav')
-        if sound and tmp:
-            sound.play()
-            tmp = False
 
     def set_screen(self, screen_name):
         """
