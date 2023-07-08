@@ -1,0 +1,11 @@
+Linear Regression
+R2 Score Linear Regression: 0.18104663902003837
+
+Polynomial Regression
+R2 Score Polynomial Regression: 0.2273231232177182
+
+Ridge Regression
+R2 Score Ridge Regression: 0.11612125673462681
+
+Lasso Regression
+R2 Score Lasso Regression: 0.0633486749774318
