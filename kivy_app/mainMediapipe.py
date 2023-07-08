@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+=======
+from kivy.app import App
+from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.core.window import Window
+from video_input_detection_mediapipe import DetectionScreen
+>>>>>>> main
 import os
 
 import time
@@ -6,10 +13,20 @@ from kivy.core.window import Window
 from kivy.graphics import Color, Rectangle
 from kivy.clock import Clock
 from kivy.lang import Builder
+<<<<<<< HEAD
 from kivy.properties import ObjectProperty, BooleanProperty
 from kivy.uix.screenmanager import Screen, ScreenManager, SlideTransition
 from face_detection_mediapipe import DetectionScreen
 from kivy.config import Config
+=======
+from kivy.core.window import Window
+from kivy.properties import ObjectProperty
+from kivy.uix.screenmanager import SlideTransition
+from kivy.config import Config
+
+Config.set('input', 'mouse', 'mouse,disable_multitouch')
+
+>>>>>>> main
 
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
 os.environ['KIVY_CAMERA'] = 'opencv'
