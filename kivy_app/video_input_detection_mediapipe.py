@@ -252,7 +252,6 @@ class DetectionScreen(Screen):
                         if not any(item is None for item in coord_points):
                             
                             self.count_last +=1
-
                             # Calculating the Eye Aspect ratio for the left and right eye
                             EAR_left = self.calculate_EAR(coord_points_left)
                             

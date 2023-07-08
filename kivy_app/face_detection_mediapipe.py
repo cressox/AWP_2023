@@ -696,4 +696,6 @@ class DetectionScreen(Screen):
         elif number_of_frames < length:
             self.list_of_predictions.append(prediction)
         
+        print(self.list_of_predictions)
+
         return self.median_prediction  
