@@ -140,6 +140,8 @@ class DetectionScreen(Screen):
         self.fps = self.capture.get(cv2.CAP_PROP_FPS)
         self.update_event = Clock.schedule_interval(self.update, 1/self.fps)
         print(self.fps)
+        app = App.get_running_app()
+        app.show_detection_button = BooleanProperty(False)
 
     def stop_camera(self):
         """
@@ -340,6 +342,10 @@ class DetectionScreen(Screen):
         else:
             self.color = [0.3, 0.3, 0.3, 0.3]
         sound = SoundLoader.load('assets/mixkit-siren-tone-1649.wav')
+
+        if sound and tmp:
+            sound.play()
+            tmp = False
 
     def set_screen(self, screen_name):
         """
