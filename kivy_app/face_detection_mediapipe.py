@@ -137,8 +137,6 @@ class DetectionScreen(Screen):
         self.fps = self.capture.get(cv2.CAP_PROP_FPS)
         self.update_event = Clock.schedule_interval(self.update, 1/self.fps)
         print(self.fps)
-        app = App.get_running_app()
-        app.show_detection_button = BooleanProperty(False)
 
     def stop_camera(self):
         """
@@ -333,12 +331,12 @@ class DetectionScreen(Screen):
 
         This method loads and plays a warning sound from the 'warning.ogg' file. 
         """
+        tmp = True
         if self.color == [0.3, 0.3, 0.3, 0.3]:
             self.color = [1, 0, 0, 1] # Rot 
         else:
             self.color = [0.3, 0.3, 0.3, 0.3]
         sound = SoundLoader.load('assets/mixkit-siren-tone-1649.wav')
-        sound.play()
 
         if sound and tmp:
             sound.play()
