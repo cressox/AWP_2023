@@ -1,23 +1,19 @@
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
-from video_input_detection_mediapipe import DetectionScreen
+from face_detection_mediapipe import DetectionScreen
 import os
 from kivy.graphics import Color, Rectangle
 from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.core.window import Window
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, BooleanProperty
 from kivy.uix.screenmanager import SlideTransition
 from kivy.config import Config
 
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
-
-
 os.environ['KIVY_CAMERA'] = 'opencv'
-
 SCREENS = {}
-
 
 class MainScreen(Screen):
     """Hauptbildschirm"""
@@ -44,7 +40,6 @@ class SettingsScreen(Screen):
             # Schneller Modus
             self.ids.fast_mode_button.background_color = (0.5, 1, 0.5, 0.5)  # Light Green
             self.ids.detailed_mode_button.background_color = self.app.color_scheme['button']  # Default button color
-
 
 class HelpScreen(Screen):
     """Bildschirm, der den Benutzern hilft, die Anwendung zu verstehen."""
