@@ -1,7 +1,6 @@
 import joblib
 from kivy.uix.screenmanager import Screen
 import cv2
-from kivy.app import App
 import time
 import joblib
 from kivy.uix.screenmanager import Screen
@@ -14,21 +13,19 @@ from kivy.logger import Logger
 import mediapipe as mp
 import numpy as np
 from scipy.spatial import distance as dist
-from kivy.properties import BooleanProperty
-from kivy.graphics import Color
 from kivy.properties import ListProperty
+import sklearn
 
 class DetectionScreen(Screen):
     color = ListProperty([0.3, 0.3, 0.3, 0.3])  # Weiß
 
     def initialize(self):
         Clock.schedule_once(self.initialize_resources)
-
     def initialize_resources(self,n):
         self.image = Image()
         Clock.schedule_interval(self.update, 0.02)
 
-        self.fps = 0
+        self.fps = 28
         self.update_event = None
         self.draw_landmarks = True
 
@@ -340,6 +337,10 @@ class DetectionScreen(Screen):
         else:
             self.color = [0.3, 0.3, 0.3, 0.3]
         sound = SoundLoader.load('assets/mixkit-siren-tone-1649.wav')
+
+        if sound and tmp:
+            sound.play()
+            tmp = False
 
     def set_screen(self, screen_name):
         """

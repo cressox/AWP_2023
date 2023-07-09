@@ -11,6 +11,7 @@ import mediapipe as mp
 import numpy as np
 from scipy.spatial import distance as dist
 import os
+from kivy.properties import ListProperty
 
 data_path_class = "Datasets/PERCLOS_EARopen_EAR_BLINKduration_class.npy"
 
@@ -27,6 +28,7 @@ np.save(data_path_class, data_class)
 train_iterator = 0
 
 class DetectionScreen(Screen):
+    color = ListProperty([0.3, 0.3, 0.3, 0.3])  # Weiß
     def initialize(self):
         Clock.schedule_once(self.initialize_resources)
         self.train_iterator = 0
@@ -146,7 +148,7 @@ class DetectionScreen(Screen):
         # Blink Counter
         self.blinks = 0
 
-        self.fps = 0
+        self.fps = 28
         self.calibration_start_time = time.time()
         self.elapsed_time = 0.0
 
@@ -365,9 +367,12 @@ class DetectionScreen(Screen):
 
         This method loads and plays a warning sound from the 'warning.ogg' file. 
         """
-        sound = SoundLoader.load('assets/warning.ogg')
-        if sound:
-            sound.play()
+        if self.color == [0.3, 0.3, 0.3, 0.3]:
+            self.color = [1, 0, 0, 1] # Rot 
+        else:
+            self.color = [0.3, 0.3, 0.3, 0.3]
+        sound = SoundLoader.load('assets/mixkit-siren-tone-1649.wav')
+        sound.play()
 
     def set_screen(self, screen_name):
         """
