@@ -51,7 +51,7 @@ class DetectionScreen(Screen):
         self.succ_frame = 1
 
         # Initialize the Counting length for repetition of warning sound
-        self.seconds_warning_eyes_closed = 1.0
+        self.seconds_warning_eyes_closed = 4.0
         self.seconds_warning_classification = 10.0
         self.count_warning_frame_classifier = 0
 
@@ -66,7 +66,7 @@ class DetectionScreen(Screen):
 
         # Initialize values for awake state
         self.awake_ear_eyes_open = 0
-        self.awake_perclos = 0.01
+        self.awake_perclos = 0.2
         self.awake_blink_duration = 0
         self.awake_avg_ear = 0
 
@@ -77,6 +77,7 @@ class DetectionScreen(Screen):
         self.fps = 28.0
         self.calibration_start_time = time.time()
         self.elapsed_time = 0.0
+        self.elapsed_time_warning_sound = time.time() 
 
         # Predicition, Initialize with 0 = Awake
         self.median_prediction = 0
@@ -229,7 +230,7 @@ class DetectionScreen(Screen):
                                 blink, closed_eye, blink_duration = self.blink_detection(avg_EAR)
 
                                 # Defining the length for the calibration
-                                time_length = 60 # 1 Minute Duration
+                                time_length = 30 # 1 Minute Duration
     
                                 # PERCLOS Calculation based on seconds
                                 perclos = self.calculate_perclos(closed_eye, 
@@ -244,10 +245,13 @@ class DetectionScreen(Screen):
                                 # Warning Sound, if the eye is closed too long
                                 if closed_eye:
                                     self.closed_frames += 1
-                                    if self.closed_frames/self.fps >= self.seconds_warning_eyes_closed:
+                                    print(self.closed_frames)
+                                    print(time.time()-self.elapsed_time_warning_sound)
+                                    if self.closed_frames/self.fps >= 1.0 and time.time()-self.elapsed_time_warning_sound >= self.seconds_warning_eyes_closed:
                                         cv2.putText(image, 'ALARM: Wake up!', (30, 30),
                                         cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                                         self.play_warning_sound()
+                                        self.elapsed_time_warning_sound = time.time()
                                         self.closed_frames = 0
                                 else:
                                     self.closed_frames = 0
@@ -410,7 +414,6 @@ class DetectionScreen(Screen):
         """
 
         # Initialization
-        perclos = 0
         seconds_elapsed = int(self.elapsed_time)
 
         # Calculation when time span has been reached
@@ -423,16 +426,19 @@ class DetectionScreen(Screen):
             # Calculation of the Perclos value based on the values 
             # where eye is closed from the list
             frame_is_blink = self.list_of_eye_closure.count(True)
-            perclos = frame_is_blink/(seconds_elapsed*self.fps)
-
+            perclos = frame_is_blink/len(self.list_of_eye_closure)
         # Collect frames until time span (in frames) has been reached
         elif seconds_elapsed < length:
 
             self.list_of_eye_closure.append(closed_eye)
+            frame_is_blink = self.list_of_eye_closure.count(True)
+            perclos = frame_is_blink/len(self.list_of_eye_closure)
 
         # Error message when list gets longer for some reason
         else:
             print("Fehler, Liste zu lang")
+            frame_is_blink = self.list_of_eye_closure.count(True)
+            perclos = frame_is_blink/len(self.list_of_eye_closure)
 
         return perclos
     
@@ -459,7 +465,7 @@ class DetectionScreen(Screen):
         for i in eye_idxs:
             lm = landmark_list[i]
             coord = denormalize_coordinates(lm.x, lm.y, imgW, imgH)
-            coords_points.append(coord)
+            coords_points.append(coord) 
 
         return coords_points
 
@@ -545,7 +551,7 @@ class DetectionScreen(Screen):
              # Calculating the average
             if len(list_of_eyes_open) > 0:
                 avg_ear_eyes_open = sum(list_of_eyes_open) / len(list_of_eyes_open)
-        
+
         return avg_ear_eyes_open
      
     def avg_ear(self):
@@ -668,7 +674,6 @@ class DetectionScreen(Screen):
         else:
             prediction = classifier_all.predict([feature_vector])
             prediction = prediction[0]
-            print(prediction)
 
         return prediction
     
