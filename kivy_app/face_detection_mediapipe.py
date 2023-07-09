@@ -414,7 +414,9 @@ class DetectionScreen(Screen):
         """
 
         # Initialization
-        seconds_elapsed = int(self.elapsed_time)
+        seconds_elapsed = self.elapsed_time
+        if seconds_elapsed == 0:
+            seconds_elapsed = 1
 
         # Calculation when time span has been reached
         if seconds_elapsed >= length:
@@ -426,19 +428,19 @@ class DetectionScreen(Screen):
             # Calculation of the Perclos value based on the values 
             # where eye is closed from the list
             frame_is_blink = self.list_of_eye_closure.count(True)
-            perclos = frame_is_blink/len(self.list_of_eye_closure)
+            perclos = frame_is_blink/(seconds_elapsed*self.fps)
         # Collect frames until time span (in frames) has been reached
         elif seconds_elapsed < length:
 
             self.list_of_eye_closure.append(closed_eye)
             frame_is_blink = self.list_of_eye_closure.count(True)
-            perclos = frame_is_blink/len(self.list_of_eye_closure)
+            perclos = frame_is_blink/(seconds_elapsed*self.fps)
 
         # Error message when list gets longer for some reason
         else:
             print("Fehler, Liste zu lang")
             frame_is_blink = self.list_of_eye_closure.count(True)
-            perclos = frame_is_blink/len(self.list_of_eye_closure)
+            perclos = frame_is_blink/(seconds_elapsed*self.fps)
 
         return perclos
     
@@ -584,7 +586,7 @@ class DetectionScreen(Screen):
 
         if blink == 1:
             # Calculation when time span has been reached
-            if self.elapsed_time == length:
+            if self.elapsed_time >= length:
                 self.list_of_blink_durations.append((frame_blink_duration/self.fps)*1000)
                 self.list_of_blink_durations.pop(0)
 
@@ -623,12 +625,13 @@ class DetectionScreen(Screen):
 
         # Defining the awake status values, when calibration time length is reached
         if time_length <= self.elapsed_time:
-            self.awake_perclos = perclos
-            self.awake_ear_eyes_open = ear_eyes_open
-            self.awake_avg_ear = avg_ear
-            self.awake_blink_duration = avg_blink_duration
-            self.cal_done = True
-            calibrate_status = 100.0
+            if perclos and ear_eyes_open and avg_ear and avg_blink_duration != 0:
+                self.awake_perclos = perclos
+                self.awake_ear_eyes_open = ear_eyes_open
+                self.awake_avg_ear = avg_ear
+                self.awake_blink_duration = avg_blink_duration
+                self.cal_done = True
+                calibrate_status = 100.0
 
         return calibrate_status
     
