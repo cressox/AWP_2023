@@ -18,9 +18,12 @@ import sklearn
 
 class DetectionScreen(Screen):
     color = ListProperty([0.3, 0.3, 0.3, 0.3])  # Weiß
+    tmp = True
+    color_change_event = None
 
     def initialize(self):
         Clock.schedule_once(self.initialize_resources)
+    
     def initialize_resources(self,n):
         self.image = Image()
         Clock.schedule_interval(self.update, 0.02)
@@ -326,21 +329,26 @@ class DetectionScreen(Screen):
                 self.ids.image_view.texture = image_texture
 
     def play_warning_sound(self):
-        """
-        Plays a warning sound.
+        # Farbänderung mit Clock.schedule_interval() planen
+        self.color_change_event = Clock.schedule_interval(self.change_color, 0.5)  # Farbänderung alle 0.5 Sekunden
 
-        This method loads and plays a warning sound from the 'warning.ogg' file. 
-        """
-        tmp = True
+        # Sound abspielen
+        sound = SoundLoader.load('assets/mixkit-siren-tone-1649.wav')
+        sound.play()
+
+        # Nach 3 Sekunden beenden
+        Clock.schedule_once(self.stop_color_change, 3)
+
+    def change_color(self, dt):
         if self.color == [0.3, 0.3, 0.3, 0.3]:
-            self.color = [1, 0, 0, 1] # Rot 
+            self.color = [1, 0, 0, 1]  # Rot 
         else:
             self.color = [0.3, 0.3, 0.3, 0.3]
-        sound = SoundLoader.load('assets/mixkit-siren-tone-1649.wav')
 
-        if sound and tmp:
-            sound.play()
-            tmp = False
+    def stop_color_change(self, dt):
+        if self.color_change_event is not None:
+            self.color_change_event.cancel()
+            self.color_change_event = None
 
     def set_screen(self, screen_name):
         """
