@@ -330,12 +330,13 @@ class DetectionScreen(Screen):
 
     def play_warning_sound(self):
         # Farbänderung mit Clock.schedule_interval() planen
-        self.color_change_event = Clock.schedule_interval(self.change_color, 0.5)  # Farbänderung alle 0.5 Sekunden
+        if self.color_change_event is None:
+            self.color_change_event = Clock.schedule_interval(self.change_color, 0.5)  # Farbänderung alle 0.5 Sekunden
 
         # Sound abspielen
         sound = SoundLoader.load('assets/mixkit-siren-tone-1649.wav')
         sound.play()
-
+        
         # Nach 3 Sekunden beenden
         Clock.schedule_once(self.stop_color_change, 3)
 
