@@ -56,6 +56,7 @@ class DetectionScreen(Screen):
 
         # Counter for capturing movement
         self.movement_counter = 0
+        self.time_no_landmarks = 0
 
         # Lists to store eye closure, EAR, blink durations, and predictions
         self.list_of_eye_closure = []
@@ -135,7 +136,6 @@ class DetectionScreen(Screen):
         self.capture = cv2.VideoCapture(0)
         self.fps = self.capture.get(cv2.CAP_PROP_FPS)
         self.update_event = Clock.schedule_interval(self.update, 1/self.fps)
-        print(self.fps)
 
     def stop_camera(self):
         """
@@ -181,7 +181,7 @@ class DetectionScreen(Screen):
             # Read a frame from the video capture
             if self.capture:
                 ret, frame = self.capture.read()
-                self.elapsed_time = time.time() - self.calibration_start_time
+                self.elapsed_time = time.time() - self.calibration_start_time - self.time_no_landmarks
                 if ret:
                     # Changing to RGB so that mediapipe can process the frame
                     image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -239,12 +239,11 @@ class DetectionScreen(Screen):
                                 avg_ear_eyes_open_at_test = self.avg_ear_eyes_open()
                                 avg_ear_at_test = self.avg_ear()
                                 avg_blink_duration = self.avg_blink_duration(blink_duration, time_length, blink)
-                                
+
+                                self.movement_counter = 0
                                 # Warning Sound, if the eye is closed too long
                                 if closed_eye:
                                     self.closed_frames += 1
-                                    print(self.closed_frames)
-                                    print(time.time()-self.elapsed_time_warning_sound)
                                     if self.closed_frames/self.fps >= 1.0 and time.time()-self.elapsed_time_warning_sound >= self.seconds_warning_eyes_closed:
                                         cv2.putText(image, 'ALARM: Wake up!', (30, 30),
                                         cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
@@ -314,14 +313,14 @@ class DetectionScreen(Screen):
                                     cv2.putText(image, string_cal, (30, 120),
                                     cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
 
-                        else:
-                            # If unable to detect landmarks for 3 seconds,
-                            # then give warning signs
-                            self.movement_counter += 1
-                            if self.movement_counter/self.fps == 180:
-                                self.play_warning_sound()
-                                print("Landmarks nicht gefunden")
-                                self.movement_counter = 0
+                    else:
+                        # If unable to detect landmarks for 3 seconds,
+                        # then give warning signs
+                        self.movement_counter += 1
+                        if self.movement_counter/self.fps == 3:
+                            self.play_warning_sound()
+                            self.movement_counter = 0
+                        self.time_no_landmarks += 1/self.fps
                 
                 # Flip the image vertically for processing in kivy
                 buf1 = cv2.flip(image, 0)
