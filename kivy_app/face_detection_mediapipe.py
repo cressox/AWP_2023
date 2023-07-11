@@ -4,7 +4,6 @@ import cv2
 import time
 import joblib
 from kivy.uix.screenmanager import Screen
-import cv2
 from kivy.core.audio import SoundLoader
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
@@ -104,7 +103,6 @@ class DetectionScreen(Screen):
         """
         self.initialize()
         self.start_camera()
-        self.initialize_resources(0)
 
     def on_leave(self):
         """
@@ -230,7 +228,7 @@ class DetectionScreen(Screen):
                                 blink, closed_eye, blink_duration = self.blink_detection(avg_EAR)
 
                                 # Defining the length for the calibration
-                                time_length = 30 # 1 Minute Duration
+                                time_length = 60 # 1 Minute Duration
     
                                 # PERCLOS Calculation based on seconds
                                 perclos = self.calculate_perclos(closed_eye, 
@@ -280,25 +278,27 @@ class DetectionScreen(Screen):
                                         string_perclos = "Wach"
                                         cv2.putText(image, string_perclos, (30, 120),
                                         cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-                                        #TODO Visual apperance
+                                        # Visual apperance
+                                        self.color = [0, 205/255, 102/255, 0.5]
                                     elif pred == 1:
                                         # Putting the Prediction value on Screen
                                         string_perclos = "Fraglich"
                                         cv2.putText(image, string_perclos, (30, 120),
                                         cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-                                        #TODO Visual apperance
+                                        # Visual apperance
+                                        self.color = [255/255, 165/255, 0, 0.5]
                                     else:
                                         # Putting the Prediction value on Screen
-                                        string_perclos = "Müde"
+                                        string_perclos = "Muede"
                                         cv2.putText(image, string_perclos, (30, 120),
                                         cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-
+                                        # Visual apperance
+                                        self.color = [1, 0, 0, 0.5]
                                         # Visual Apperance and Sound, if the person is tired
                                         if self.count_warning_frame_classifier/self.fps == self.seconds_warning_classification:
                                             self.count_warning_frame_classifier = 0
                                             self.play_warning_sound()
                                         self.count_warning_frame_classifier += 1
-                                        #TODO Visual apperance
 
                                 # If the Calibration is not done, continue the calibration
                                 else:
@@ -308,6 +308,8 @@ class DetectionScreen(Screen):
                                     
                                     # Putting a text for the calibration status
                                     calibration = round(calibration, 2)*100
+                                    #Visual apperance
+                                    self.color = [159/255, 182/255, 205/255, round(calibration, 2)/100]
                                     string_cal = "Calibration: " + str(calibration) + "%"
                                     cv2.putText(image, string_cal, (30, 120),
                                     cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
