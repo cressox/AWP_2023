@@ -14,6 +14,7 @@ import numpy as np
 from scipy.spatial import distance as dist
 from kivy.properties import ListProperty
 import sklearn
+import threading
 
 class DetectionScreen(Screen):
     color = ListProperty([0.3, 0.3, 0.3, 0.3])  # Weiß
@@ -66,7 +67,7 @@ class DetectionScreen(Screen):
 
         # Initialize values for awake state
         self.awake_ear_eyes_open = 0
-        self.awake_perclos = 0.2
+        self.awake_perclos = 0
         self.awake_blink_duration = 0
         self.awake_avg_ear = 0
 
@@ -247,7 +248,7 @@ class DetectionScreen(Screen):
                                     if self.closed_frames/self.fps >= 1.0 and time.time()-self.elapsed_time_warning_sound >= self.seconds_warning_eyes_closed:
                                         cv2.putText(image, 'ALARM: Wake up!', (30, 30),
                                         cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-                                        self.play_warning_sound()
+                                        threading.Thread(target=self.play_warning_sound).start()
                                         self.elapsed_time_warning_sound = time.time()
                                         self.closed_frames = 0
                                 else:
@@ -296,7 +297,7 @@ class DetectionScreen(Screen):
                                         # Visual Apperance and Sound, if the person is tired
                                         if self.count_warning_frame_classifier/self.fps == self.seconds_warning_classification:
                                             self.count_warning_frame_classifier = 0
-                                            self.play_warning_sound()
+                                            threading.Thread(target=self.play_warning_sound).start()
                                         self.count_warning_frame_classifier += 1
 
                                 # If the Calibration is not done, continue the calibration
@@ -318,7 +319,7 @@ class DetectionScreen(Screen):
                         # then give warning signs
                         self.movement_counter += 1
                         if self.movement_counter/self.fps == 3:
-                            self.play_warning_sound()
+                            threading.Thread(target=self.play_warning_sound).start()
                             self.movement_counter = 0
                         self.time_no_landmarks += 1/self.fps
                 
