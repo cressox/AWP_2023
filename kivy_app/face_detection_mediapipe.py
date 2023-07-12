@@ -20,6 +20,7 @@ class DetectionScreen(Screen):
     color = ListProperty([0.3, 0.3, 0.3, 0.3])  # Weiß
     tmp = True
     color_change_event = None
+    cal_done = False
 
     def initialize(self):
         Clock.schedule_once(self.initialize_resources)
@@ -104,9 +105,9 @@ class DetectionScreen(Screen):
         Returns:
             None
         """
-        self.initialize()
+        if not self.cal_done:
+            self.initialize()
         self.start_camera()
-        self.initialize_resources(0)
 
     def on_leave(self):
         """
