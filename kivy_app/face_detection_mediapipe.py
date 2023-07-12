@@ -51,7 +51,7 @@ class DetectionScreen(Screen):
         self.succ_frame = 1
 
         # Initialize the Counting length for repetition of warning sound
-        self.seconds_warning_eyes_closed = 4.0
+        self.seconds_warning_eyes_closed = 1.0
         self.seconds_warning_classification = 10.0
         self.count_warning_frame_classifier = 0
 
