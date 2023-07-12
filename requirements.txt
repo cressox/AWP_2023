@@ -4,3 +4,4 @@ opencv-python
 joblib
 scipy
 numpy
+scikit-learn==1.2.2
