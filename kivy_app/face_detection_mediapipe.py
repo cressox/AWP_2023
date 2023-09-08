@@ -51,11 +51,11 @@ class DetectionScreen(Screen):
 
         # Initialize values for blink detection
         self.count_frame = 0
-        self.blink_thresh = 0.16
+        self.blink_thresh = 0.18
         self.succ_frame = 1
 
         # Initialize the Counting length for repetition of warning sound
-        self.seconds_warning_eyes_closed = 1.0
+        self.seconds_warning_eyes_closed = 2.0
         self.seconds_warning_classification = 10.0
         self.count_warning_frame_classifier = 0
 
@@ -266,7 +266,7 @@ class DetectionScreen(Screen):
                                                                         avg_blink_duration, 
                                                                         avg_ear_eyes_open_at_test, 
                                                                         avg_ear_at_test)
-
+                                    print([self.awake_perclos, self.awake_blink_duration, self.awake_ear_eyes_open, self.awake_avg_ear])
                                     # Prediction of the feature vector whether 
                                     # tired/half-tired/awake
                                     single_prediction = self.new_input(feature_vector)
