@@ -162,3 +162,12 @@ cython_debug/
 
 #venv
 kivy_app/kivy_venv
+
+#tex
+*.aux
+*.bbl
+*.blg
+*.lof
+*.out
+*.synctex.gz
+*.toc

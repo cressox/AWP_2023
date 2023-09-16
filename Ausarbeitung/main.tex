@@ -1,0 +1,83 @@
+%%%%% Explanation of class options
+%
+% font size: YOU HAVE TO CHOOSE one of the following: 10pt, 11pt, 12pt
+% language: YOU HAVE TO CHOOSE one of the following: english, german, ngerman
+% type: YOU HAVE TO CHOOSE one of the following: seminar, project
+%
+% additional options will be passed to the base class "scrartcl"
+%
+%%%%% End of explanations
+\documentclass[12pt,ngerman,seminar]{dbvstudentwork}
+
+\include{./header} % put all the required packages and stuff in file header.tex
+\usepackage{blindtext}
+\usepackage{caption}
+
+\begin{document}
+	
+	\begin{dbvstudentworkTitlepage}
+		
+		% Specify the title and a possible subtitle of your work, if you do not have a subtitle, comment the Subtitle command out
+		\Title{Blink Detector} % mandatory
+		
+		% Specify your first and last name
+		\FirstName{Jan-Nicolas Weider, Felix Tischler und Mattis Dietrich} % mandatory
+		\LastName{Dietrich} % mandatory
+		
+		% Specify the title of the course (title of seminar or project) and the name of your advisor(s)
+		\CourseTitle{Seminar Rechnersehen}
+		\Advisor{Niklas Penzel} % mandatory
+		
+		% Specify the date of your submission/deadline, default: \Deadline{\today}
+		\Deadline{\today}
+		
+		% Specify a second institute, company, etc. if you do not have a second institute or a company, comment the following command out
+		% \SecondInstitute{Carl Zeiss AG \\ 07743 Jena \\ Germany} % optional
+		
+	\end{dbvstudentworkTitlepage}
+	
+	\tableofcontents
+	\clearpage
+	
+	% ----------------------------------------------------------------------------------------
+	
+	\section{Einführung}
+	\label{sec:introduction}
+		\input{sections/einfuerung.tex}
+	
+	\section{Interface/Front-End}
+	\label{sec:frontend}
+		\input{sections/interface.tex}
+	\section{Theorie}
+	\label{sec:theorie}
+		\input{sections/theorie.tex}
+	
+	\section{Datensatz}
+	\label{sec:dataset}
+		\input{sections/datensatz.tex}
+		
+	\section{Evaluation}
+	\label{sec:evaluation}
+		\input{sections/evaluation.tex}
+		
+	\section{Lessons Learned}
+	\label{sec:lessonslearned}
+		\input{sections/lessonslearned.tex}
+		
+	\section{Zusammenfassung}
+	\label{sec:summary}
+		\input{sections/zusammenfassung.tex}
+	
+	% ----------------------------------------------------------------------------------------
+	
+	\singlespacing
+	
+	\interlinepenalty10000 % so no bib-entry will be separated by a pagebreak
+	\clearpage
+	\bibliography{studentwork.bib}
+	\bibliographystyle{alphadin} % change the bib-style if you want to
+	\clearpage
+	\listoffigures % optional
+	\clearpage
+	
+\end{document}
