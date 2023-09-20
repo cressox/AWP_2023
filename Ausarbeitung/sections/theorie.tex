@@ -1,60 +1,121 @@
-a) Einordnung von unserer Betrachtung des Auges, es gibt noch weitere Möglichkeiten, um Müdigkeit zu detektieren, insbesondere im Kontext Auto fahren:
-Es gibt drei verschiedene Methoden, die unterschieden werden, um Müdigkeit zu detektieren, wie sie von Arunasalam et al. \cite{AR20} und Ramzan et al. \cite{RA19} beschrieben werden:
-Physiologisch: Puls, EEG, etc.
-Fahrverhalten, 
-Verhaltensweise: Auge, Gesicht, Kopf
-Die Visuelle Betrachtung der Verhaltensweise bietet eine einfache und umsetzbare Lösung, für andere Methoden ist die Datenbeschaffung ein zu großes Problem
-b) Ziel ist es wie schon Erwähnt (Verweis Aufgabenstellung) eine Warnung auszusprechen, falls eine Person in Müdigkeit verfällt, um Sekundenschlaf frühzeitig zu vermeiden.
-Es benötigt eine Funktionalität, um eine Person als müde zu erkennen. und nebendran auch zu erkenn falls eine Person abgelenkt ist (Person schaut zu lange nicht nach vorne). Die Herausforderung ist also zu erkennen wann zu lange zu lange ist und ab wann eine Person objektiv müde ist. Dafür braucht es Werte, die dies bestimmen. Eine weitere wichtige Herausforderung die nicht außer Acht gelassen werden kann: Jede Person ist individuell und Müdigkeit äußert sich bei jeder Person anders, das Auge verhält sich auch bei jeder Person unterschiedlich. So ist beispielsweise die Blinzelrate bei jeder Person unterschiedlich und variiert von 4 Blinzlern pro Minute bis zu 48 Blinzler pro Minute unter Ruhe zwischen Personen (Bentivoglio et al. \cite{BE97}). 
-c) Bei der Vorgehensweise haben wir uns an Ghodoosian et al. \cite{GH19} orientiert und auch den verwendeten Datensatz genutzt, um eine Grundlegende Vorgehensweise zu haben. Videodaten einer Person verarbeiten und Werte, Landmarks, extrahieren, um quantitative Features berechnen zu können. Unsere Features beziehen sich auf das Auge, wobei insbesondere die Blinzeldetektion eine entscheidende Rolle spielt, um damit weiterarbeiten zu können. Für die individuelle Betrachtungsweise ist dann eine Kalibrierung nötig, die die absoluten Daten in relative Werte umsetzt und die Features werden für die Klassifikation müde/nicht müde genutzt.
+In unserem Ansatz zur Untersuchung von Müdigkeit, insbesondere im Zusammenhang mit Autofahren, gibt es verschiedene Methoden zur Müdigkeitserkennung, wie sie von Arunasalam et al. \cite{AR20} und Ramzan et al. \cite{RA19} beschrieben werden. Diese lassen sich in drei Hauptkategorien unterteilen:
 
+\begin{itemize}
+\item Physiologische Methoden: Hierzu gehören Messungen wie Puls und EEG.
+\item Verhaltensbasierte Methoden im Fahrverhalten: Dies umfasst die Analyse des Fahrverhaltens.
+\item Verhaltensbasierte Methoden im visuellen Bereich: Hierbei liegt der Fokus auf Beobachtungen von Auge, Gesicht und Kopfbewegungen.
+\end{itemize}
+
+Die visuelle Analyse des Verhaltens bietet eine praktikable Lösung, da die Datenbeschaffung für andere Methoden oft problematisch ist.
+
+Unser Hauptziel, wie bereits in der Aufgabenstellung erwähnt, besteht darin, eine frühzeitige Warnung auszugeben, wenn eine Person Anzeichen von Müdigkeit zeigt, um Sekundenschlaf zu verhindern. Dies erfordert die Erkennung von Müdigkeit sowie die Identifizierung von Ablenkung (z. B. wenn eine Person zu lange nicht nach vorne schaut). Die Herausforderung besteht darin, den Zeitpunkt zu bestimmen, ab dem eine Person als müde gelten kann, und objektive Kriterien dafür zu entwickeln. Dies erfordert die Verwendung von Messwerten. Eine weitere wichtige Herausforderung besteht darin, dass Müdigkeit bei jeder Person unterschiedlich ist und sich visuelle Verhaltensweisen individuell manifestieren. Zum Beispiel variiert die Blinzelrate erheblich von Person zu Person, selbst bei Ruhe (Bentivoglio et al. \cite{BE97} berichtet von 4 bis 48 Blinzlern pro Minute).
+
+Unsere Vorgehensweise orientiert sich an Ghodoosian et al. \cite{GH19} und verwendet den gleichen Datensatz als Ausgangspunkt. Wir verarbeiten Videodaten einer Person und extrahieren Landmarks, um quantitative Merkmale zu berechnen. Unsere Schwerpunkte liegen auf den visuellen Eigenschaften des Auges, wobei die Erkennung von Blinzeln eine entscheidende Rolle spielt. Um die Ergebnisse auf individuelle Unterschiede abzustimmen, führen wir eine Kalibrierung durch, die absolute Daten in relative Werte umwandelt. Diese Merkmale werden dann für die Klassifikation von "müde" und "nicht müde" verwendet.
 
 \subsection{Gesichtserkennung}
 \label{sec:facedetection}
-Um verarbeitbare Werte zu erhalten, ist die Erkennung der Struktur des Auges in Echtzeit Voraussetzung, 
-um Blinzler erkennen zu können, welche eine Grundlage für die weitere Arbeit bietet. 
-Bei einer größeren Framerate lassen sich genauere Ergebnisse erzielen, 
-in der Praxis haben die meisten Kameras jedoch eine Framerate um die 30, so auch die meisten Videos zum Trainieren des Klassifikators. 
-Wichtig ist, das die Framerate durch die Berechnungen des Algorithmus nicht groß verlangsamt. 
-Ein gutes und schnelles System ist dafür Mediapipe \cite{LU19}. 
-Das Mediapipe Face Mesh detektiert 468 3D Face Landmarks in Echtzeit, auch auf mobilen Geräten. 
-Es ermöglicht mittels eines Kamera Inputs über Machine Learning eine 3D Oberfläche des Gesichts zu approximieren. 
-Wir haben die Version 0.9.0 genutzt, um eine Verbindung mit der Bibliothek kivy zu ermöglichen, eine neuere Version von Mediapipe hat zu 
-unergründlichen Problemen geführt. Das Mediapipe Face Mesh in der Version 0.9.0 ist in den Grundeinstellungen in sich statisch und bewegt 
-sich bei Kopfbewegung als ganzes mit. Für unsere Betrachtung ist jedoch die Bewegung innerhalb des Gesichts und der Augen essenziell, 
-sodass die Einstellung "refine" auf True gesetzt werden muss, welches 10 weitere Landmarks und die Bewegungen 
-innerhalb des Gesichts zu ermöglichen. Zudem muss static image mode = False gesetzt werden, um das Face Mesh auf Videos anzuwenden. 
-Wir haben uns auch mit anderen Möglichkeiten eines Face Meshes auseinandergesetzt und auch den Dlib Face Landmark Detector 
-(Davis E. King \cite{DLIB09}) basierend auf Dalal et al. \cite{DA05} getestet. Im Vergleich zum Mediapipe Face Mesh hat dieser 
-jedoch bei dem entscheidenden Faktor Genauigkeit schlechter performt und zudem hin und wieder mehrere Aussetzer gehabt. 
-Weiteres dazu bei Evaluation (Verweis).
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.3\textwidth}
+        \includegraphics[width=\linewidth]{images/MPFaceMesh1.png}
+        \caption{Die Landmarks des Mediapipe Face Mesh mit Nummerierungen.}
+        \label{fig:MPFaceMesh1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.3\textwidth}
+        \includegraphics[width=\linewidth]{images/MPFaceMesh2.png}
+        \caption{Alle Landmarks des Face Mesh während der Anwendung.}
+        \label{fig:MPFaceMesh2}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.3\textwidth}
+        \includegraphics[width=\linewidth]{images/MPFaceMesh3.png}
+        \caption{Die Augenlandmarks des Face Mesh zur Berechnung der EAR.}
+        \label{fig:MPFaceMesh3}
+    \end{subfigure}
+    \caption{Prozess der Extraktion der entscheidenden Landmarks für unsere Müdigkeitsdetektion.}
+    \label{fig:MPFaceMesh}
+\end{figure}
+
+Um verwertbare Daten zu generieren, ist die Echtzeit-Erkennung der Augenstruktur entscheidend, um Blinzler zu identifizieren, was die Grundlage für weitere Analysen bildet. Eine höhere Bildwiederholrate (Framerate) ermöglicht präzisere Ergebnisse, obwohl die meisten Kameras und Videodaten für die Klassifikator-Schulung üblicherweise eine Framerate von etwa 30 Bildern pro Sekunde haben. Es ist von Bedeutung, dass die Framerate durch die Berechnungen des Algorithmus nicht erheblich verlangsamt wird. 
+
+Ein leistungsstarkes und schnelles System dafür ist Mediapipe \cite{LU19}. Das Mediapipe Face Mesh erkennt in Echtzeit 468 3D-Gesichtslandmarks, selbst auf mobilen Geräten, und ermöglicht die Approximation einer 3D-Oberfläche des Gesichts durch maschinelles Lernen. Für unsere Anwendung verwendeten wir Version 0.9.0, um eine Integration mit der Kivy-Bibliothek zu ermöglichen, da eine neuere Version von Mediapipe auf unerklärliche Probleme stieß. In der Version 0.9.0 des Mediapipe Face Mesh bleibt die Grundeinstellung statisch und bewegt sich als Ganzes mit, was jedoch für unsere Untersuchung unzureichend ist. Daher muss die Einstellung "refine" auf "True" gesetzt werden, um 10 zusätzliche Landmarks und Bewegungen innerhalb des Gesichts zu erfassen. Darüber hinaus muss der "static image mode" auf "False" gesetzt werden, um das Face Mesh auf Videos anzuwenden. 
+
+Wir haben auch andere Ansätze für ein Face Mesh evaluiert, darunter den Dlib Face Landmark Detector (Davis E. King \cite{DLIB09}), basierend auf Dalal et al. \cite{DA05}. Im Vergleich zum Mediapipe Face Mesh erzielte dieser jedoch in Bezug auf Genauigkeit schlechtere Ergebnisse und zeigte gelegentlich Aussetzer. Weitere Details dazu finden sich in der Evaluation (siehe Verweis).
 
 \subsection{Blinzeldetektion}
 \label{sec:blinkdetection}
-Mittels der berechneten Landmarks lässt sich nun das Blinzeln einer Person detektieren. Die gängige Methode ist die Berechnung der Eye Aspect Ratio (EAR), präsentiert durch Soukupova \cite{SO16}.
 
-Über das Auge und 6 Landmarks (P1 bis P6) lässt sich die Eye Aspect Ratio berechnen -> das Verhältnis der vertikalen Öffnung zur horizontalen Öffnung. Average EAR ist das der Average über beide Augen hinweg. Die EAR bietet den Vorteil einen Wert über die Zeit für jedes Frame zu haben, welches eine weitere Verarbeitung zulässt. Der EAR ist immer größer, wenn das Auge offen ist, als wenn das Auge zu ist. Jedoch bestehen große Unterschiede zwischen Personen, wie auch unser Selbsttest zeigt. So hat Jannic einen Wert von x und Mattis einen Wert von y. Bei einem Blinzler sieht die Kurve des EAR Werts wie in Abbildung "Bild" aus, sprich geht parabelförmig nach unten und wieder hoch. Wichtig ist nun der Schwellwert, um zu erkennen, ab wann das Auge als "geschlossen" gilt und ab wann als "offen", um einen Blinzler zu erkennen und auch die Länge zu berechnen. Aus unserem Selbsttest hat sich zunächst ein fester Wert von 0.16 als besten Wert herausgestellt. Weitere Nachforschungen um die Genauigkeit zu verbessern, individuelle Unterschiede und mögliche Krankheiten wie grauer Star oder das altersbedingte Einengen der Augen zu betrachten sind wichtig und sollten in zukünftigen Arbeiten näher betrachtet werden. Auch eine agile Berechnung der EAR Schwelle für jede Person zu Beginn einer Aufnahme wären weitere Möglichkeiten, wie Ghoddoosian et al. in ihrem “Blink Retrieval Algorithm” \cite{GH19} ihn beschreiben. Sobald die EAR den Schwellwert unterschreitet gilt das Auge als zu und nachdem es daraufhin den Schwellwert wieder überschreitet wird der Prozess als Blinzler detektiert (möglicherweise alles als Formel). Die Länge lässt sich über die Frameanzahl festhalten, über die der EAR Wert < 0.16 ist. Um unterschiedliche Frameraten herauszurechnen, wird die Framerate des Videos genommen, um einen zeitlichen Wert in ms zu erhalten. Dies ist unabdinglich für die Trainingsphase des Klassifikators und der Nutzbarkeit über verschiedene Frameraten und Geräte.
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\linewidth]{images/EyeLandmarks.jpg}
+        \caption{Die sechs Landmarks von P1 bis zu P6 in ihrer Anordnung am Auge \cite{DE22}}
+        \label{fig:eyelandmarks}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\linewidth]{images/EARCurve.png}
+        \caption{Vereinfachte Darstellung eines Blinzelvorgangs und der Auswirkung auf die EAR.}
+        \label{fig:earcurve}
+    \end{subfigure}
+    \caption{Prozess der Berechnung eines Blinzlers über die sechs Augenlandmarks (a) über die EAR Kurve und dem Blink Threshold (b)}
+    \label{fig:eyeaspectratio}
+\end{figure}
+
+Durch die Berechnung von Landmarks können wir nun das Blinzeln einer Person erkennen. Eine gängige Methode hierfür ist die Berechnung des "Eye Aspect Ratio" (EAR), wie von Soukupova \cite{SO16} präsentiert. Die EAR wird anhand des Auges und sechs Landmarks (P1 bis P6) ermittelt und entspricht dem Verhältnis der vertikalen Öffnung zur horizontalen Öffnung:
+
+\begin{equation}
+	\text{EAR} = \frac{{\|P2 - P6\| + \|P3 - P5\|}}{{2\|P1 - P4\|}}
+\end{equation}
+
+In dieser Formel repräsentieren P1 bis P6 die Koordinaten der Landmarks, wobei P1 und P4 die äußeren Augenwinkel sind, P2 und P6 die oberen Augenlider und P3 und P5 die unteren Augenlider (Abbildung \ref{fig:eyelandmarks}). Die $ \| \| $ Symbole stellen die euklidische Norm (L2-Norm) dar, die den Abstand zwischen den Punkten berechnet. Beachten Sie, dass dies eine vereinfachte Darstellung ist und verschiedene Implementierungen zusätzliche Anpassungen und Schwellenwerte verwenden können.
+
+Die EAR ist stets größer, wenn das Auge geöffnet ist, im Vergleich dazu, wenn es geschlossen ist. Allerdings variieren diese Werte erheblich zwischen Personen, wie auch unser eigener Test zeigt, beispielsweise hat Jannic einen Wert von x und Mattis einen Wert von y. Der Durchschnitts-EAR wird über beide Augen berechnet und ermöglicht die kontinuierliche Erfassung dieses Werts für jedes Einzelbild, was weitere Analysen ermöglicht:
+
+\begin{equation}
+	\text{Durchschnittliche EAR} = \frac{{\text{EAR}_{\text{linkes Auge}} + \text{EAR}_{\text{rechtes Auge}}}}{2}
+\end{equation}
+
+Bei einem Blinzeln zeigt die EAR-Kurve einen typischen Verlauf, der in Abbildung \ref{fig:earcurve} dargestellt ist - sie sinkt zunächst parabelförmig ab und steigt dann wieder an. Ein wichtiger Aspekt ist nun der Schwellenwert, um zu erkennen, ab wann das Auge als "geschlossen" oder "offen" gilt, um ein Blinzeln zu detektieren und seine Dauer zu berechnen. In unseren Selbsttests hat sich vorläufig ein fester Schwellenwert von 0.16 als am besten geeignet erwiesen. Allerdings sollten weitere Untersuchungen zur Verbesserung der Genauigkeit sowie zur Berücksichtigung individueller Unterschiede und möglicher Augenkrankheiten wie Grauer Star oder altersbedingter Verengung der Augen in zukünftigen Arbeiten durchgeführt werden.
+
+Eine agile Berechnung der EAR-Schwelle zu Beginn jeder Aufnahme für jede Person könnte eine weitere Möglichkeit sein, wie es von Ghoddoosian et al. \cite{GH19} in ihrem "Blink Retrieval Algorithm" beschrieben wird. Sobald der EAR den Schwellenwert unterschreitet, wird das Auge als geschlossen betrachtet, und wenn er ihn wieder überschreitet, wird der Vorgang als Blinzeln erkannt (möglicherweise in Form einer Formel). Die Blinzelzeit kann anhand der Anzahl der Frames ermittelt werden, in denen der EAR-Wert < 0.16 liegt. Um verschiedene Bildwiederholungsraten auszugleichen, wird die Framerate des Videos verwendet, um einen zeitlichen Wert in Millisekunden zu erhalten. Dies ist entscheidend für die Trainingsphase des Klassifikators und die Anwendbarkeit über verschiedene Bildwiederholungsraten und Geräte hinweg.
+
 
 \subsection{Features}
 \label{sec:features}
-Der nächste Verarbeitungsschritt ist nun die Sammlung von Features. Insbesondere für das Auge gibt es eine Vielzahl an möglichen Features (F1), jedoch sind einige aussagekräftiger als andere. Bewährt haben sich für uns die einfache Betrachtung des EAR, die durchschnittliche Blinzeldauer und der PERCLOS Wert.
-Die Eye Aspect Ratio ist die Grundlage für die weiteren Features, hat aber auch selbst schon eine Aussagekraft. Wenn wir uns die gemittelte EAR über eine Zeitspanne anschauen und mit vorherigen Zeitspann(Formel). Zudem haben wir uns die gemittelte EAR über alle Werte > 0.16 angeschaut, um die Werte herauszunehmen, wenn das Auge geschlossen ist.
-Als weiteres Feature haben wir die durchschnittliche Blinzeldauer betrachtet. Wenn eine Person müde wird, sollte die Blinzeldauer länger werden. Für jeden Blinzler haben wir also die Blinzeldauer in ms gespeichert und über eine Zeitspanne gemittelt. (F3)
-Der Percentage of eye closure (PERCLOS) Wert, zuerst beschrieben durch Wierwille et al.
-\cite{WI94}, ist der Anteil der Zeit in einer Minute, in der die Augen zu mindestens 80 Prozent geschlossen sind und wird bei einer müden Person auch größer werden. Der einfacheren Berechnung haben wir den PERCLOS Wert als Anteil der Zeit in einer Minute, in der die EAR unter dem EAR Schwellwert 0.16 liegt, also das Auge als geschlossen gilt.
-Jetzt stellt sich nur die Frage, wie die Zeitspanne für die Berechnungen festgelegt wird. Aus unseren Recherchen hat sich eine Dauer von 60sec als eine gängige Spanne erwiesen (F5). Die Berechnung erfolgt überlappend, sprich bei jedem neuen Frame gibt es neue Werte für die Featueres.
-Diskussion: Ist mehr besser, welches sind die besten?
+
+Der nächste Schritt in unserem Verarbeitungsprozess besteht darin, Features zu sammeln. Insbesondere für das Auge stehen verschiedene mögliche Features zur Verfügung, und unterschiedliche Kombinationen können zu besseren Ergebnissen führen, wie von Dreißig et al. \cite{DREI} untersucht wurde. Dreißig et al. hat auch Kopfbewegungen in seine Untersuchungen einbezogen. Aich Ebrahim \cite{EB16} stellt 19 Features vor, die sich ausschließlich auf den Blinzelvorgang beziehen.
+
+Für uns haben sich folgende Features bewährt: die einfache Betrachtung des "Eye Aspect Ratio" (EAR), die durchschnittliche Blinzdauer und der "Percentage of Eye Closure" (PERCLOS) Wert. Der EAR bildet die Grundlage für weitere Features und besitzt auch allein schon Aussagekraft. Wir betrachten die gemittelte EAR über eine Zeitspanne und vergleichen sie mit vorherigen Zeitspannen (Formel). Außerdem analysieren wir die gemittelte EAR über alle Werte > 0.16, um die Werte zu entfernen, wenn das Auge als geschlossen gilt.
+
+Ein weiteres Feature ist die durchschnittliche Blinzdauer. Wenn eine Person müde wird, sollte die Blinzdauer länger sein. Daher speichern wir für jeden Blinzelvorgang die Dauer in Millisekunden und berechnen den Durchschnitt über eine Zeitspanne.
+Der PERCLOS-Wert, erstmals von Wierwille et al. \cite{WI94} beschrieben, repräsentiert den Anteil der Zeit in einer Minute, in der die Augen zu mindestens 80 Prozent geschlossen sind. Bei müden Personen wird dieser Wert tendenziell größer. Für eine einfachere Berechnung verwenden wir den PERCLOS-Wert als den Anteil der Zeit in einer Minute, in der der EAR-Wert unterhalb des Schwellenwerts von 0.16 liegt, was darauf hinweist, dass das Auge als geschlossen betrachtet wird.
+
+Die Frage nach der Festlegung der Zeitspanne für diese Berechnungen stellt sich nun. Unsere Recherchen ergaben, dass eine Dauer von 60 Sekunden als gängige Spanne angesehen wird, da Werte wie der PERCLOS-Wert pro Minute berechnet werden. Diese Berechnungen erfolgen überlappend, was bedeutet, dass bei jedem neuen Frame neue Werte für die Features generiert werden.
 
 \subsection{Kalibrierung}
 \label{sec:calibration}
-Eine aufgabenstellungsspezifische Problematik, die wir zuzdem betrachten müssen, ist die Individualität in der Augenöffnung und insbesondere bei dem Verhalten bei Müdigkeit. Bei der einen Person wird die Blinzeldauer länger, bei der anderen Person eher die Blinzelhäufigkeit. Zudem ist die EAR bei jeder Person unterschiedlich, wie auch unser Selbsttest zeigt. Aufgrundessen ist eine relativierung uanbdingbar. Zu Beginn eines jeden Starts gehen wir davon das die Person wach ist und somit werden die ersten 60sec verwendet, um Werte für den Wachzustand zu erhalten. (K1) Die für jeden Frame neuen berechneten Werte werden dann in relation zu dem Wachzustand-Wert gesetzt. Somit ergibt sich immer ein relativer Wert für jedes Feature. Auch in der Klassifikation, welche wir gleich erläutern, spielt die Kalibrierung eine große Rolle. (K2) Fall: Person wird wacher/bleibt gleich wach?!
+
+Eine spezifische Herausforderung, die wir in Anbetracht unserer Aufgabenstellung berücksichtigen müssen, ist die Individualität in Bezug auf die Augenöffnung und das Verhalten bei Müdigkeit. Bei verschiedenen Personen zeigt sich Müdigkeit auf unterschiedliche Weisen: Bei einer Person kann die Blinzeldauer länger werden, während bei einer anderen Person eher die Blinzelhäufigkeit zunimmt. Zusätzlich variiert die EAR bei jeder Person erheblich, wie auch unser Selbsttest bestätigt hat. Daher ist eine Relativierung der Werte unerlässlich.
+
+Zu Beginn jeder Aufzeichnung gehen wir davon aus, dass die Person wach ist, und verwenden die ersten 60 Sekunden, um Referenzwerte für den Wachzustand zu erfassen. Diese Zeitspanne entspricht derjenigen, die für die weiteren Berechnungen verwendet wird. Die für jeden neuen Frame berechneten Werte werden dann in Beziehung zu den Werten des Wachzustands gesetzt. Auf diese Weise erhalten wir immer relative Werte für jedes einzelne Feature.
 
 \subsection{Klassifizierung}
 \label{sec:classification}
-Über die drei Videos pro Person wird für jedes Feature der Zustand 5 (halbewach) und (10) müde in relation zu dem Wachzustand gesetzt und daraufhin über die relativen Werte klassifiziert. Dabei haben wir uns auf drei gängige Klassifikatoren fokussiert. (Näheres zu den Klassifikatoren under Funktionsweise herausfinden)
-1.Logistische Regression
-2.K-Nearest Neighbour mit K=3
-3.Support Vector Machine (Kl1)
-Wir haben auch die Idee in Betracht bezogen einen Score zu entwickeln, jedoch aufgrund der zu wenigen Daten verworfen.
-Die Klassifikationsergebnisse sind in der Evaluation näher betrachtet, für uns hat sich jedoch der K Nearest Neighbour als beste Möglichkeit herausgestellt. Für eine Verbesserung des Systems wären mehr Daten der größte Punkt.
-Disskusion: Macht die Klassifikation so sinn?
+
+In Bezug auf die drei Videos pro Person setzen wir für jedes Feature den Zustand 5 (halbwach) und (10) müde in Relation zum Wachzustand und führen daraufhin Klassifikationen basierend auf den relativen Werten durch. Hierbei konzentrieren wir uns auf drei gängige Klassifikatoren und nutzen die Funktionen aus der Bibliothek scikit-learn von Pedregosa et al. \cite{PE11}. Die Ergebnisse werden anhand der folgenden drei Klassifikatoren ausgewertet und verglichen:
+
+\begin{itemize}
+\item Logistische Regression: Für zwei Klassen wird die "One-Versus-Rest" (ovr) Multi-Class-Strategie verwendet, während die Strategie für drei Klassen automatisch ausgewählt wird. Das Modell nutzt den 'lbfgs'-Solver und führt bis zu 1000 Iterationen durch, um das Modell zu trainieren.
+\item K-Nearest Neighbour mit K=3.
+\item Support Vector Machine.
+\end{itemize}
+
+Zudem untersuchen wir die Ergebnisse für drei Klassen (müde/fraglich/wach) sowie für zwei Klassen (müde/wach). Wir erwägen auch die Entwicklung eines Scores, haben diese Idee jedoch aufgrund der begrenzten Datenmenge verworfen, da uns lediglich Daten für die Zustände müde, fraglich und wach zur Verfügung standen, jedoch keine Zwischenwerte.
+
+Die Details zu den Klassifikationsergebnissen werden in der Evaluation genauer analysiert. Für unser Projekt hat sich jedoch der K-Nearest Neighbour als die beste Option erwiesen. Um das System weiter zu verbessern, wäre eine größere Datenmenge von entscheidender Bedeutung. Zusätzlich könnten auch weitere Klassifikatoren in Betracht gezogen werden.
+
+
+
