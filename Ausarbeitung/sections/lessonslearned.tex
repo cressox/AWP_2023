@@ -3,7 +3,27 @@
 	%Schwierigkeiten beim Design der Benutzeroberfläche
 	%Technische Herausforderungen bei der Implementierung
 	
+	Unsere Reise in der App-Entwicklung war von zahlreichen Herausforderungen und Lernprozessen geprägt, die unser Verständnis für die Entwicklung von plattformübergreifenden Anwendungen vertieft haben. Eines der wichtigsten Erkenntnisse, die wir gewonnen haben, war die Bedeutung einer umfassenden Betrachtung aller Faktoren, bevor wir uns auf eine bestimmte Technologie festlegen. In unserem Fall war es ein Fehler, sich frühzeitig auf Python als Programmiersprache festzulegen, ohne die Alternativen zu prüfen. Eine gründliche Analyse aller relevanten Faktoren, einschließlich der Eignung der Programmiersprache, hätte uns möglicherweise zu besseren Entscheidungen geführt.
+	\\\\
+	Wir haben nach Abschluss des Projekt erkannt, dass Java und Kotlin als Programmiersprachen besser zu unseren Anforderungen gepasst hätten. Beide Sprachen bieten nicht nur eine reibungslose Integration der benötigten Bibliotheken wie OpenCV und Mediapipe, sondern sind auch in Bezug auf die App-Entwicklung insgesamt charmanter. Diese Erkenntnis hat uns gezeigt, wie wichtig es ist, die Flexibilität bei der Wahl der Technologie zu wahren und die Optionen offen zu halten.
+	\\\\
+	Ein weiterer wesentlicher Lernpunkt war die Priorisierung von Design und Usability. In unserem Fall lag die Hauptaufmerksamkeit zu stark auf der reinen Integration der Müdigkeitserkennungslogik und dem Versuch, die App zu deployen. Dabei hätten wir mehr Ressourcen und Aufmerksamkeit auf das Design und die Benutzerfreundlichkeit der App und des Interfaces lenken können. 
+	\\\\
+	Darüber hinaus haben wir erkannt, dass die App-Entwicklung noch tiefer gehen kann, insbesondere im Hinblick auf die Nutzung der Hardware des Endgeräts. Wir könnten spezielle Techniken zur Verbesserung der Stabilität und Geschwindigkeit der App erforschen. Dies umfasst die effiziente Nutzung von Ressourcen wie Kamera und Prozessor, um eine reibungslose Erfahrung für die Benutzer sicherzustellen.
+	\\\\
+	Insgesamt haben diese Herausforderungen und Lernprozesse unser Verständnis für die Entwicklung von Apps erweitert und uns dabei geholfen, fundierte Entscheidungen zu treffen. Diese Erkenntnisse werden uns in zukünftigen Projekten dabei helfen, die Qualität unserer Apps weiter zu verbessern und die Anforderungen hypothetischer Benutzer optimal zu erfüllen.
+	
 \subsection{Deployment-Herausforderungen}
 	\label{ssec:lldeployment}
 	%Probleme und Stolpersteine beim Bereitstellen der App
 	%Lösungen und bewährte Praktiken
+	
+	Eine der herausforderndsten Phasen unseres Projekts war zweifellos der Versuch, die App als APK-Datei bereitzustellen. Diese Herausforderungen ergaben sich aus unserer anfänglichen Entscheidung, Python und das Kivy-Framework zu verwenden, was sich als eine limitierende Faktoren für das Deployment herausstellte. 
+	\\
+	Ein bedeutendes Problem war die Unausgereiftheit des Build-Prozesses mit Kivy im Vergleich zu etablierten Alternativen wie Android Studio in Verbindung mit Java oder Kotlin. Der Build-Prozess mit Kivy war anfälliger für Fehler und Schwierigkeiten. Je mehr Abhängigkeiten und Bibliotheken in unserer Logik verwendet wurden, desto geringer war die Wahrscheinlichkeit, dass der Build-Prozess ohne Fehler durchlief.
+	\\
+	Wir haben schmerzlich erfahren, dass die Wahl von Kivy für unser Projekt die Möglichkeit, die App als APK-Datei bereitzustellen, stark eingeschränkt hat. Dies führte zu erheblichem Zeitaufwand und frustrierenden Versuchen, Lösungen zu finden. Wir unternahmen eine Vielzahl von Rettungsversuchen, darunter das Deployment über Docker und die Implementierung in einem Container. Wir gingen sogar so weit, die grundlegende Funktionsweise von Kivy beim Kompilieren und Builden tiefgehend zu analysieren.
+	\\
+	Die Zeit, die in diese Bemühungen investiert wurde, hätte stattdessen genutzt werden können, um die Potenziale zu erforschen, die bereits in Kapitel 3 erwähnt wurden. Eine verstärkte Fokussierung auf die Verbesserung des Designs, der Usability und der Effizienz der App sowie die tiefere Integration der Hardware des Endgeräts hätte unsere App insgesamt verbessern können.
+	\\
+	Diese Deployment-Herausforderungen haben uns wertvolle Einsichten vermittelt, darunter die Notwendigkeit, den Build-Prozess frühzeitig zu evaluieren und eine gut durchdachte Wahl der Entwicklungsumgebung zu treffen. Sie haben uns auch gezeigt, wie wichtig es ist, die Abhängigkeiten und Anforderungen der ausgewählten Technologie sorgfältig zu berücksichtigen, um unerwartete Schwierigkeiten im späteren Entwicklungsprozess zu vermeiden.
