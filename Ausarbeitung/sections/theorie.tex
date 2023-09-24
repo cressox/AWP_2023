@@ -14,6 +14,7 @@
 \label{ssec:appEntwicklung}
 	%Beschreibung des Projekts
 	%Ziele und Zweck der App
+	Unser Projekt hatte zum Ziel, eine Anwendung zu entwickeln, die die Müdigkeitserkennung durchführt. Diese App soll auf verschiedene Plattformen und Geräte zugänglich sein und es den Benutzern ermöglichen, ihre Müdigkeit in Echtzeit zu überwachen. Die App sollte einfach zu bedienen, effizient und zuverlässig sein. Zusätzlich war es von entscheidender Bedeutung, dass die App auch offline reibungslos funktioniert, da sie in Situationen eingesetzt werden soll, in denen möglicherweise keine kontinuierliche Internetverbindung verfügbar ist.
 	
 	\subsubsection{Technologieauswahl}
 	\label{sssec:technologie}
@@ -21,14 +22,48 @@
 		%Entscheidung für das Kivy-Framework
 		%Begründung für die Wahl dieser Technologien
 		
+		Bei der Auswahl der Technologien für unser Projekt haben wir uns intensiv mit den verschiedenen Optionen auseinandergesetzt. Eine entscheidende Überlegung war die Notwendigkeit der Offline-Funktionalität, da unsere App in Umgebungen zum Einsatz kommen sollte, in denen eine dauerhafte Internetverbindung nicht immer gewährleistet ist. Aus diesem Grund haben wir uns bewusst gegen die Realisierung einer API mit React und Flask entschieden.
+		\\\\
+		Die Wahl der Programmiersprache fiel auf Python, aufgrund seiner Vielseitigkeit und der umfangreichen Unterstützung in der Entwicklergemeinschaft. Python ermöglichte es uns, schnell Prototypen zu erstellen und den Entwicklungsprozess effizient zu gestalten.
+		\\\\
+		Die Entscheidung für das Kivy-Framework als Frontend-Framework war sorgfältig abgewogen. Kivy bietet eine benutzerfreundliche Schnittstelle für die Entwicklung plattformübergreifender Apps, die auf verschiedenen Betriebssystemen und Geräten laufen. Da unsere App auf einer breiten Palette von Geräten funktionieren sollte, war dies von entscheidender Bedeutung.
+		\\\\
+		Die Begründung für die Wahl dieser Technologien ergibt sich aus ihrer Kombination von Flexibilität und Leistungsfähigkeit. Python ist in der Lage, die erforderliche Logik effizient umzusetzen, während Kivy die Erstellung einer ansprechenden Benutzeroberfläche ermöglicht. Die Möglichkeit, Python-Bibliotheken wie OpenCV und Mediapipe in unser Projekt zu integrieren, stellte sicher, dass wir die Müdigkeitserkennung auf höchstem Niveau durchführen können.
+		\\\\
+		Diese Technologieauswahl ermöglichte es uns, unsere App effektiv zu entwickeln und ihre Ziele zu erreichen. In den folgenden Abschnitten werden wir auf den Entwicklungsprozess, die Implementierung und die Herausforderungen bei der Bereitstellung näher eingehen.
+		
 	\subsubsection{Entwicklungsprozess}
 	\label{sssec:entwicklung}
 		%Projektplanung und -management
 		%Entwurf des Benutzeroberflächen-Designs
 		%Implementierung und Code-Struktur
 		
+		Der Entwicklungsprozess unserer App war ein sorgfältig durchdachter Prozess, der auf die Schaffung einer zuverlässigen und benutzerfreundlichen Anwendung abzielte. Dieser Prozess begann mit der Festlegung auf Python als Programmiersprache. Python wurde aufgrund seiner Vielseitigkeit und seiner breiten Akzeptanz in der Entwicklergemeinschaft ausgewählt, was uns eine solide Grundlage für unser Projekt verschaffte.
+		\\\\
+		Als nächstes stand die Frage im Raum, wie wir überhaupt eine App entwickeln können. Wir analysierten verschiedene Ansätze und untersuchten Tools und Frameworks, die unsere Anforderungen erfüllen könnten. Dabei wurden verschiedene Optionen wie Streamlit, Docker und React in Betracht gezogen. Allerdings stellten wir fest, dass diese Tools eher auf die Entwicklung von APIs oder onlinebasierten Anwendungen ausgerichtet waren und nicht unseren Anforderungen an Offline-Funktionalität entsprachen.
+		\\\\
+		Unser Durchbruch kam, als wir das Kivy-Framework entdeckten. Kivy unterstützte Python und erwies sich als ideal für unsere Zwecke. Es ermöglichte uns nicht nur die Integration der benötigten Bibliotheken wie OpenCV und Mediapipe, sondern auch die Entwicklung einer benutzerfreundlichen Benutzeroberfläche.
+		\\\\
+		Die Integration der Python-Funktionalitäten zur Müdigkeitserkennung in die App erforderte eine sorgfältige Planung und technische Umsetzung. Wir konzentrierten uns darauf, die Funktionalitäten effizient und zuverlässig in die App zu integrieren, um eine genaue Müdigkeitserkennung sicherzustellen.
+		\\\\
+		Während des Entwicklungsprozesses arbeiteten wir intensiv an der Desktop-basierten Entwicklung der App. Dies ermöglichte es uns, das Layout und die Funktionalitäten der App effizient zu entwickeln und zu optimieren. Dabei standen die Benutzerfreundlichkeit und die Gewährleistung der Offline-Funktionalität stets im Mittelpunkt unserer Bemühungen.
+		\\\\
+		Im Lessons Learned-Teil werden wir näher darauf eingehen, warum wir uns gegen die Fortsetzung der Bereitstellung bis zur Erstellung einer APK-Datei entschieden haben. Dabei werden wir auf die Herausforderungen und Lernprozesse eingehen, die diese Entscheidung beeinflusst haben.
+		
 	\subsubsection{Deployment-Strategie}
 	\label{sssec:deployment}
 		%Zielplattformen und -geräte
 		%Deployment-Tools und -Methoden
 		%Herausforderungen bei der Bereitstellung
+		
+		Die Bereitstellung unserer App auf verschiedenen Plattformen und Geräten war ein wichtiger Teil unseres Projekts. Hier sind einige Aspekte unserer Deployment-Strategie:
+		
+		\begin{itemize}
+			\item Zielplattformen und -geräte: Wir konzentrierten uns auf die Zielplattformen Android und iOS, da dies die am weitesten verbreiteten mobilen Betriebssysteme sind. Unser Ziel war es, die App auf einer breiten Palette von Geräten nutzbar zu machen.
+			
+			\item Deployment-Tools und -Methoden: Wir verwendeten spezielle Tools und Methoden, um die App erfolgreich zu bereitstellen. Dabei standen die Integration von OpenCV und Mediapipe sowie die plattformübergreifende Kompatibilität im Vordergrund.
+			
+			\item Herausforderungen bei der Bereitstellung: Während des Bereitstellungsprozesses traten einige Herausforderungen auf, insbesondere in Bezug auf die plattformübergreifende Kompatibilität und die Gewährleistung der Offline-Funktionalität. Wir waren jedoch in der Lage, diese Hindernisse erfolgreich zu bewältigen.
+		\end{itemize}
+		
+		\noindent Die Erfahrungen, die wir während des Entwicklungsprozesses und der Bereitstellung gesammelt haben, haben unser Verständnis für die Entwicklung plattformübergreifender Apps vertieft und uns wertvolle Erkenntnisse geliefert, die wir in zukünftigen Projekten anwenden können.
