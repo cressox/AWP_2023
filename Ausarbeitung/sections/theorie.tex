@@ -99,7 +99,16 @@ Eine spezifische Herausforderung, die wir in Anbetracht unserer Aufgabenstellung
 
 Zu Beginn jeder Aufzeichnung gehen wir davon aus, dass die Person wach ist, und verwenden die ersten 60 Sekunden, um Referenzwerte für den Wachzustand zu erfassen. Diese Zeitspanne entspricht derjenigen, die für die weiteren Berechnungen verwendet wird. Die für jeden neuen Frame berechneten Werte werden dann in Beziehung zu den Werten des Wachzustands gesetzt. Auf diese Weise erhalten wir immer relative Werte für jedes einzelne Feature.
 
-\subsection{Klassifizierung}
+
+\subsection{Datensatz}
+Bei dem ausgewählten Datensatz zum Trainieren des Klassifikators handelt es sich um den UTA Real-Life Drowsiness Dataset [Quelle]. Der Datensatz stand unglücklicherweise nur zu zwei Drittel zur Verfügung, da auf der offiziellen Seite der Veröffentlichenden technische Probleme zur Zeit der Ausarbeitung vorlagen. In dem verwendeten Datensatz befinden sich jeweils drei Videos von 48 Individuen. Die teilnehmenden Personen wurden so ausgewählt, dass verschiedene Ethnien, Altersgruppen und Geschlechter abgedeckt sind. Weiterhin trug ein Teil der Probanden eine Brille. Die Aufnahmen entstanden jeweils in natürlicher Umgebung mit verschiedenen Perspektiven, Hintergründen und Belichtungsverhältnissen. Pro Person ist ein Video für die Klasse „wach“, „fraglich“ und „müde“ gegeben. Die drei Kategorien ergeben sich, wie in der ABBILDUNG erkenntlich, durch eine Zusammenfassung des offiziellen Karolinska Sleepiness Scale (KSS) [Quelle]. Als „wach“ werden die Stufen eins bis drei betitelt, wobei für „fraglich“ die Stufen 6 und 7 repräsentativ sind. Auf den Zustand „müde“ weisen die Einordnungen in die Stufen acht und neun hin. Die durchschnittliche Länge eines einzelnen Videos beträgt in etwa 10 Minuten, so dass die für die Klassifikation benötigten Featurewerte über einen längeren Zeitraum möglichst genau und fehlerunabhängig ermittelt werden können. 
+
+Bild einfügen
+
+Zu beachten bei der vorliegenden Datengrundlage ist die Tatsache, dass die Videos über verschiedene Dateiformate, Frameraten und Längen verfügen. Einerseits sichert dies die Robustheit des Programms, um mit verschiedener Hardware umgehen zu können, jedoch war andererseits für das automatisierte Einlesen und Featurextrahieren ein Mehraufwand benötigt. Es wurde ein Skript erstellt, welches alle Videos mit den entsprechenden Datenformat aufruft und abspielt und dabei die Extraktion der Features über eine bestimmte Zeit laufen lässt, sodass aus jedem Video relevante Informationen gewonnen werden, alle Werte aus den Videos gleich stark gewichtet sind und zusätzlich kein Video vor einer vollständigen Extraktion aufgrund zu kurzer Aufnahmedauer eines Probanden abbricht.
+
+
+\subsection{Klassifikation}
 \label{sec:classification}
 
 In Bezug auf die drei Videos pro Person setzen wir für jedes Feature den Zustand halbwach und müde in Relation zum Wachzustand und führen daraufhin Klassifikationen basierend auf den relativen Werten durch. Hierbei konzentrieren wir uns auf drei gängige Klassifikatoren und nutzen die Funktionen aus der Bibliothek scikit-learn von Pedregosa et al. \cite{PE11}. Die Ergebnisse werden anhand der folgenden drei Klassifikatoren ausgewertet und verglichen:
