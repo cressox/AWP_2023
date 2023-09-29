@@ -42,7 +42,7 @@ Um verwertbare Daten zu generieren, ist die Echtzeit-Erkennung der Augenstruktur
 
 Ein leistungsstarkes und schnelles System dafür ist Mediapipe \cite{LU19}. Das Mediapipe Face Mesh erkennt in Echtzeit 468 3D-Gesichtslandmarks, selbst auf mobilen Geräten, und ermöglicht die Approximation einer 3D-Oberfläche des Gesichts durch maschinelles Lernen. Für unsere Anwendung verwendeten wir Version 0.9.0, um eine Integration mit der Kivy-Bibliothek zu ermöglichen, da eine neuere Version von Mediapipe auf unerklärliche Probleme stieß. In der Version 0.9.0 des Mediapipe Face Mesh bleibt die Grundeinstellung statisch und bewegt sich als Ganzes mit, was jedoch für unsere Untersuchung unzureichend ist. Daher muss die Einstellung "refine" auf "True" gesetzt werden, um 10 zusätzliche Landmarks und Bewegungen innerhalb des Gesichts zu erfassen. Darüber hinaus muss der "static image mode" auf "False" gesetzt werden, um das Face Mesh auf Videos anzuwenden. 
 
-Wir haben auch andere Ansätze für ein Face Mesh evaluiert, darunter den Dlib Face Landmark Detector (Davis E. King \cite{DLIB09}), basierend auf Dalal et al. \cite{DA05}. Im Vergleich zum Mediapipe Face Mesh erzielte dieser jedoch in Bezug auf Genauigkeit schlechtere Ergebnisse und zeigte gelegentlich Aussetzer. Weitere Details dazu finden sich in der Evaluation (siehe \ref{sec:evaluation}).
+Wir haben auch andere Ansätze für ein Face Mesh evaluiert, darunter den Dlib Face Landmark Detector (Davis E. King \cite{DLIB09}), basierend auf Dalal et al. \cite{DA05}. Im Vergleich zum Mediapipe Face Mesh erzielte dieser jedoch in Bezug auf Genauigkeit schlechtere Ergebnisse und zeigte gelegentlich Aussetzer. Weitere Details dazu finden sich in der Evaluation (siehe \ref{subsec:selftest}).
 
 \subsection{Blinzeldetektion}
 \label{sec:blinkdetection}
@@ -78,34 +78,58 @@ Die EAR ist stets größer, wenn das Auge geöffnet ist, im Vergleich dazu, wenn
 	\text{Durchschnittliche EAR} = \frac{{\text{EAR}_{\text{linkes Auge}} + \text{EAR}_{\text{rechtes Auge}}}}{2}
 \end{equation}
 
-Bei einem Blinzeln zeigt die EAR-Kurve einen typischen Verlauf, der in Abbildung \ref{fig:earcurve} dargestellt ist - sie sinkt zunächst parabelförmig ab und steigt dann wieder an. Ein wichtiger Aspekt ist nun der Schwellenwert, um zu erkennen, ab wann das Auge als "geschlossen" oder "offen" gilt, um ein Blinzeln zu detektieren und seine Dauer zu berechnen. In unseren Selbsttests hat sich vorläufig ein fester Schwellenwert von 0.16 als am besten geeignet erwiesen. Sobald der EAR den Schwellenwert unterschreitet, wird das Auge als geschlossen betrachtet, und wenn er ihn wieder überschreitet, wird der Vorgang als Blinzeln erkannt. Die Blinzelzeit kann anhand der Anzahl der Frames ermittelt werden, in denen der EAR-Wert < 0.16 liegt. Um verschiedene Bildwiederholungsraten auszugleichen, wird die Framerate des Videos verwendet, um einen zeitlichen Wert in Millisekunden zu erhalten. Dies ist entscheidend für die Trainingsphase des Klassifikators und die Anwendbarkeit über verschiedene Bildwiederholungsraten und Geräte hinweg.  Allerdings sollten weitere Untersuchungen zur Verbesserung der Genauigkeit sowie zur Berücksichtigung individueller Unterschiede und möglicher Augenkrankheiten wie Grauer Star oder altersbedingter Verengung der Augen in zukünftigen Arbeiten durchgeführt werden. Eine agile Berechnung der EAR-Schwelle zu Beginn jeder Aufnahme für jede Person könnte eine Möglichkeit sein, wie es von Ghoddoosian et al. \cite{GH19} in ihrem "Blink Retrieval Algorithm" beschrieben wird.
+Bei einem Blinzeln zeigt die EAR-Kurve einen typischen Verlauf, der in Abbildung \ref{fig:earcurve} dargestellt ist - sie sinkt zunächst parabelförmig ab und steigt dann wieder an. Ein wichtiger Aspekt ist nun der Schwellenwert, um zu erkennen, ab wann das Auge als "geschlossen" oder "offen" gilt, um ein Blinzeln zu detektieren und seine Dauer zu berechnen. In unseren Selbsttests (siehe \ref{subsec:selftest}) hat sich vorläufig ein fester Schwellenwert von 0.16 als am besten geeignet erwiesen. Sobald der EAR den Schwellenwert unterschreitet, wird das Auge als geschlossen betrachtet, und wenn er ihn wieder überschreitet, wird der Vorgang als Blinzeln erkannt. Die Blinzelzeit kann anhand der Anzahl der Frames ermittelt werden, in denen der EAR-Wert kleiner als 0.16 ist. Um verschiedene Bildwiederholungsraten auszugleichen, wird die Framerate des Videos verwendet, um einen zeitlichen Wert in Millisekunden zu erhalten. Dies ist entscheidend für die Trainingsphase des Klassifikators und die Anwendbarkeit über verschiedene Bildwiederholungsraten und Geräte hinweg.  Allerdings sollten weitere Untersuchungen zur Verbesserung der Genauigkeit sowie zur Berücksichtigung individueller Unterschiede und möglicher Augenkrankheiten wie Grauer Star oder altersbedingter Verengung der Augen in zukünftigen Arbeiten durchgeführt werden. Eine agile Berechnung der EAR-Schwelle zu Beginn jeder Aufnahme für jede Person könnte eine Möglichkeit sein, wie es von Ghoddoosian et al. \cite{GH19} in ihrem "Blink Retrieval Algorithm" beschrieben wird.
 
 \subsection{Features}
 \label{sec:features}
 
 Der nächste Schritt in unserem Verarbeitungsprozess besteht darin, Features zu sammeln. Insbesondere für das Auge stehen verschiedene mögliche Features zur Verfügung, und unterschiedliche Kombinationen können zu besseren Ergebnissen führen, wie von Dreißig et al. \cite{DREI} untersucht wurde. Dreißig et al. hat auch Kopfbewegungen in seine Untersuchungen einbezogen. Aich Ebrahim \cite{EB16} stellt 19 Features vor, die sich ausschließlich auf den Blinzelvorgang beziehen.
 
-Für uns haben sich folgende Features bewährt: die einfache Betrachtung des "Eye Aspect Ratio" (EAR), die durchschnittliche Blinzdauer und der "Percentage of Eye Closure" (PERCLOS) Wert. Der EAR bildet die Grundlage für weitere Features und besitzt auch allein schon Aussagekraft. Wir betrachten die gemittelte EAR über eine Zeitspanne und vergleichen sie mit vorherigen Zeitspannen (Formel). Außerdem analysieren wir die gemittelte EAR über alle Werte > 0.16, um die Werte zu entfernen, wenn das Auge als geschlossen gilt.
+Für uns haben sich folgende Features bewährt: die einfache Betrachtung des "Eye Aspect Ratio" (EAR), die durchschnittliche Blinzdauer und der "Percentage of Eye Closure" (PERCLOS) Wert. Der EAR bildet die Grundlage für weitere Features und besitzt auch allein schon Aussagekraft. Wir betrachten die gemittelte EAR über eine Zeitspanne und vergleichen sie mit vorherigen Zeitspannen. Außerdem analysieren wir die gemittelte EAR über alle Werte kleiner als 0.16, um die Werte zu entfernen, wenn das Auge als geschlossen gilt.
 
 Ein weiteres Feature ist die durchschnittliche Blinzdauer. Wenn eine Person müde wird, sollte die Blinzdauer länger sein. Daher speichern wir für jeden Blinzelvorgang die Dauer in Millisekunden und berechnen den Durchschnitt über eine Zeitspanne.
 Der PERCLOS-Wert, erstmals von Wierwille et al. \cite{WI94} beschrieben, repräsentiert den Anteil der Zeit in einer Minute, in der die Augen zu mindestens 80 Prozent geschlossen sind. Bei müden Personen wird dieser Wert tendenziell größer. Für eine einfachere Berechnung verwenden wir den PERCLOS-Wert als den Anteil der Zeit in einer Minute, in der der EAR-Wert unterhalb des Schwellenwerts von 0.16 liegt, was darauf hinweist, dass das Auge als geschlossen betrachtet wird.
 
 Die Frage nach der Festlegung der Zeitspanne für diese Berechnungen stellt sich nun als nächstes. Unsere Recherchen ergaben, dass eine Dauer von 60 Sekunden als gängige Spanne angesehen wird, da Werte wie der PERCLOS-Wert pro Minute berechnet werden. Diese Berechnungen erfolgen überlappend, was bedeutet, dass bei jedem neuen Frame neue Werte für die Features generiert werden.
 
+Ein Beispielhafter Feature-Vektor nach der Berechnung ist in Tabelle \ref{table:featurevector} zu erkennen.
+
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{|l|l|l|l|l|}
+    \hline
+        ~ & PERCLOS (\%) & Blinzeldauer (ms) & EAR bei geöffnete Augen & EAR \\ \hline
+        Wach & 0.0094 & 80.24 & 0.2639 & 0.2627 \\ \hline
+        Fraglich & 0.0879 & 174.77 & 0.2267 & 0.2188 \\ \hline
+        Müde & 0.1780 & 168.60 & 0.1985 & 0.1878 \\ \hline
+    \end{tabular}
+\caption{Beispielhafter Featurevektor}
+\label{table:featurevector}
+\end{table}
+
 \subsection{Kalibrierung}
 \label{sec:calibration}
 
-Eine spezifische Herausforderung, die wir in Anbetracht unserer Aufgabenstellung berücksichtigen müssen, ist die Individualität in Bezug auf die Augenöffnung und das Verhalten bei Müdigkeit. Bei verschiedenen Personen zeigt sich Müdigkeit auf unterschiedliche Weisen: Bei einer Person kann die Blinzeldauer länger werden, während bei einer anderen Person eher die Blinzelhäufigkeit zunimmt. Zusätzlich variiert die EAR bei jeder Person erheblich, wie auch unser Selbsttest bestätigt hat. Daher ist eine Relativierung der Werte unerlässlich.
+Eine spezifische Herausforderung, die wir in Anbetracht unserer Aufgabenstellung betrachten müssen, ist die Individualität in Bezug auf die Augenöffnung und das Verhalten bei Müdigkeit. Bei verschiedenen Personen zeigt sich Müdigkeit auf unterschiedliche Weisen: Bei einer Person kann die Blinzeldauer länger werden, während bei einer anderen Person eher die Blinzelhäufigkeit zunimmt. Zusätzlich variiert die EAR bei jeder Person erheblich, wie auch unser Selbsttest (siehe \ref{subsec:selftes}) bestätigt hat. Daher ist eine Relativierung der Werte unerlässlich.
 
 Zu Beginn jeder Aufzeichnung gehen wir davon aus, dass die Person wach ist, und verwenden die ersten 60 Sekunden, um Referenzwerte für den Wachzustand zu erfassen. Diese Zeitspanne entspricht derjenigen, die für die weiteren Berechnungen verwendet wird. Die für jeden neuen Frame berechneten Werte werden dann in Beziehung zu den Werten des Wachzustands gesetzt. Auf diese Weise erhalten wir immer relative Werte für jedes einzelne Feature.
 
 
 \subsection{Datensatz}
-Bei dem ausgewählten Datensatz zum Trainieren des Klassifikators handelt es sich um den UTA Real-Life Drowsiness Dataset [Quelle]. Der Datensatz stand unglücklicherweise nur zu zwei Drittel zur Verfügung, da auf der offiziellen Seite der Veröffentlichenden technische Probleme zur Zeit der Ausarbeitung vorlagen. In dem verwendeten Datensatz befinden sich jeweils drei Videos von 48 Individuen. Die teilnehmenden Personen wurden so ausgewählt, dass verschiedene Ethnien, Altersgruppen und Geschlechter abgedeckt sind. Weiterhin trug ein Teil der Probanden eine Brille. Die Aufnahmen entstanden jeweils in natürlicher Umgebung mit verschiedenen Perspektiven, Hintergründen und Belichtungsverhältnissen. Pro Person ist ein Video für die Klasse „wach“, „fraglich“ und „müde“ gegeben. Die drei Kategorien ergeben sich, wie in der ABBILDUNG erkenntlich, durch eine Zusammenfassung des offiziellen Karolinska Sleepiness Scale (KSS) [Quelle]. Als „wach“ werden die Stufen eins bis drei betitelt, wobei für „fraglich“ die Stufen 6 und 7 repräsentativ sind. Auf den Zustand „müde“ weisen die Einordnungen in die Stufen acht und neun hin. Die durchschnittliche Länge eines einzelnen Videos beträgt in etwa 10 Minuten, so dass die für die Klassifikation benötigten Featurewerte über einen längeren Zeitraum möglichst genau und fehlerunabhängig ermittelt werden können. 
+Bei dem ausgewählten Datensatz zum Trainieren des Klassifikators handelt es sich um den UTA Real-Life Drowsiness Dataset von Ghodoosian et al. \cite{GH19}. Der Datensatz stand unglücklicherweise nur zu zwei Drittel zur Verfügung, da auf der offiziellen Seite der Veröffentlichenden technische Probleme zur Zeit der Ausarbeitung vorlagen. In dem verwendeten Datensatz befinden sich jeweils drei Videos von 48 Individuen. Die teilnehmenden Personen wurden so ausgewählt, dass verschiedene Ethnien, Altersgruppen und Geschlechter abgedeckt sind. Weiterhin trug ein Teil der Probanden eine Brille. Die Aufnahmen entstanden jeweils in natürlicher Umgebung mit verschiedenen Perspektiven, Hintergründen und Belichtungsverhältnissen. Pro Person ist ein Video für die Klasse „wach“, „fraglich“ und „müde“ gegeben. 
 
-Bild einfügen
+Die drei Kategorien ergeben sich, wie in Abbildung \ref{fig:KSSScale} erkenntlich, durch eine Zusammenfassung des offiziellen Karolinska Sleepiness Scale (KSS). Die KSS wurde von Akerstedt et al. \cite{AK90} zuerst vorgestellt. Als „wach“ werden die Stufen eins bis drei betitelt, wobei für „fraglich“ die Stufen 6 und 7 repräsentativ sind. Auf den Zustand „müde“ weisen die Einordnungen in die Stufen acht und neun hin. Die durchschnittliche Länge eines einzelnen Videos beträgt in etwa 10 Minuten, so dass die für die Klassifikation benötigten Featurewerte über einen längeren Zeitraum möglichst genau und fehlerunabhängig ermittelt werden können. 
 
-Zu beachten bei der vorliegenden Datengrundlage ist die Tatsache, dass die Videos über verschiedene Dateiformate, Frameraten und Längen verfügen. Einerseits sichert dies die Robustheit des Programms, um mit verschiedener Hardware umgehen zu können, jedoch war andererseits für das automatisierte Einlesen und Featurextrahieren ein Mehraufwand benötigt. Es wurde ein Skript erstellt, welches alle Videos mit den entsprechenden Datenformat aufruft und abspielt und dabei die Extraktion der Features über eine bestimmte Zeit laufen lässt, sodass aus jedem Video relevante Informationen gewonnen werden, alle Werte aus den Videos gleich stark gewichtet sind und zusätzlich kein Video vor einer vollständigen Extraktion aufgrund zu kurzer Aufnahmedauer eines Probanden abbricht.
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{images/KSSScale.png}
+\caption{Karolinska Sleepiness Scale (KSS)}
+\label{fig:KSSScale}
+\end{figure}
+
+Zu beachten bei der vorliegenden Datengrundlage ist die Tatsache, dass die Videos über verschiedene Dateiformate, Frameraten und Längen verfügen. Einerseits sichert dies die Robustheit des Programms, um mit verschiedener Hardware umgehen zu können, jedoch war andererseits für das automatisierte Einlesen und Featurextrahieren ein Mehraufwand benötigt. 
+
+Es wurde ein Skript erstellt, welches alle Videos mit den entsprechenden Datenformat aufruft und abspielt und dabei die Extraktion der Features über eine bestimmte Zeit laufen lässt, sodass aus jedem Video relevante Informationen gewonnen werden, alle Werte aus den Videos gleich stark gewichtet sind und zusätzlich kein Video vor einer vollständigen Extraktion aufgrund zu kurzer Aufnahmedauer eines Probanden abbricht.
 
 
 \subsection{Klassifikation}
@@ -119,9 +143,25 @@ In Bezug auf die drei Videos pro Person setzen wir für jedes Feature den Zustan
 \item Support Vector Machine.
 \end{itemize}
 
-Zudem untersuchen wir die Ergebnisse für drei Klassen (müde/fraglich/wach) sowie für zwei Klassen (müde/wach). Wir erwägen auch die Entwicklung eines Scores, haben diese Idee jedoch aufgrund der begrenzten Datenmenge verworfen, da uns lediglich Daten für die Zustände müde, fraglich und wach zur Verfügung standen, jedoch keine weiteren Zwischenwerte.
+Zudem untersuchen wir die Ergebnisse für drei Klassen (müde/fraglich/wach) sowie für zwei Klassen (müde/wach). Wir erwägten auch die Entwicklung eines Scores, haben diese Idee jedoch aufgrund der begrenzten Datenmenge verworfen, da uns lediglich Daten für die Zustände müde, fraglich und wach zur Verfügung standen, jedoch keine weiteren Zwischenwerte.
 
-Die Details zu den Klassifikationsergebnissen werden in der Evaluation genauer analysiert. Für unser Projekt hat sich jedoch der K-Nearest Neighbour als die beste Option erwiesen. Um das System weiter zu verbessern, wäre eine größere Datenmenge von entscheidender Bedeutung. Zusätzlich könnten auch weitere Klassifikatoren in Betracht gezogen werden.
+Die Details zu den Klassifikationsergebnissen werden in der Evaluation \ref{subsec:classificatorcomparison} genauer analysiert. Für unser Projekt hat sich jedoch der K-Nearest Neighbour als die beste Option erwiesen. Um das System weiter zu verbessern, wäre eine größere Datenmenge von entscheidender Bedeutung. Zusätzlich könnten auch weitere Klassifikatoren in Betracht gezogen werden.
+
+\subsection{Evaluationsmetriken zur Beurteilung der Klassifikatoren}
+\label{sec:classificationmetrics}
+
+Für die Evaluierung unserer Klassifikatoren haben wir verschiedene Metriken angewendet. Dabei haben wir die Funktionen aus der scikit-learn-Bibliothek von Pedregosa et al. \cite{PE11} genutzt. Konkret haben wir den Precision Score, Recall Score, F1 Score, Accuracy Score und die Fehlermatrix (auch als Confusion Matrix bekannt) verwendet.
+
+Der Precision Score gibt an, wie viele der vorhergesagten positiven Instanzen tatsächlich positiv sind. Sein Wert liegt zwischen 0 und 1, wobei 1 für eine perfekte Präzision steht.
+
+Der Recall Score zeigt, wie viele der tatsächlich positiven Instanzen korrekt als positiv vorhergesagt wurden. Auch hier reicht der Wertebereich von 0 bis 1, wobei 1 für einen perfekten Recall steht.
+
+Der F1 Score ist das harmonische Mittel zwischen Precision und Recall und bietet ein ausgewogenes Maß für die Modellleistung. Auch dieser Wert liegt zwischen 0 und 1, wobei 1 eine perfekte Balance zwischen Precision und Recall repräsentiert.
+
+Der Accuracy Score gibt das Verhältnis der korrekt klassifizierten Instanzen zur Gesamtanzahl der Instanzen im Testdatensatz an, wobei höhere Werte auf eine bessere Klassifikationsgenauigkeit hinweisen.
+
+Die Fehlermatrix, auch als Confusion Matrix bezeichnet, ist eine tabellarische Darstellung der Anzahl der wahren positiven, wahren negativen, falsch positiven und falsch negativen Vorhersagen eines Klassifikationsmodells. Sie bietet eine aufgeschlüsselte Übersicht über die Verteilung der Ergebnisse.
+
 
 
 
