@@ -8,7 +8,7 @@ Neben der Anzahl der Blinzelschläge wurden zusätzlich die durchschnittlichen E
 
 \subsection{Vergleich der Klassifikatoren}
 \label{subsec:classificatorcomparison}
-Wie in der Theorie im Abschnitt zur Klassifikation beschrieben, wurden verschiedene Klassifikatoren getestet, um den am besten geeigneten für unsere Anwendung zu ermitteln. Dabei haben wir sowohl den Fall mit zwei Klassen (müde und wach) als auch den mit drei Klassen (müde, fraglich und wach) getestet. Die Metriken, die wir verwendet haben, wurden im Abschnitt zur Klassifikationsbewertung vorgestellt.
+Wie in der Theorie im Abschnitt \ref{sec:classification} zur Klassifikation beschrieben, wurden verschiedene Klassifikatoren getestet, um den am besten geeigneten für unsere Anwendung zu ermitteln. Dabei haben wir sowohl den Fall mit zwei Klassen (müde und wach) als auch den mit drei Klassen (müde, fraglich und wach) getestet. Die Metriken, die wir verwendet haben, wurden in Abschnitt \ref{sec:classificationmetrics} vorgestellt.
 
 \begin{table}
     \centering
@@ -23,7 +23,7 @@ Wie in der Theorie im Abschnitt zur Klassifikation beschrieben, wurden verschied
 \label{table:threeclassificator}
 \end{table}
 
-Die Trainingsdaten für die Klassifikatoren wurden aus den berechneten Feature-Vektoren abgeleitet, die aus den Videos des verwendeten Datensatzes gewonnen wurden. Insgesamt hatten wir 144 Feature-Vektoren, davon jeweils 48 für die Zustände müde, fraglich und wach, jeweils einmal für jeden Probanden. Um die Feature-Vektoren zu erstellen, haben wir die ersten sechs Minuten jedes Videos für die Kalibrierung genutzt. Die Aufteilung in Test- und Trainingsdatensätze erfolgte zufällig über die 144 Feature-Vektoren, unabhängig von der Person. Die Werte für halbwach und müde wurden im Verhältnis zu den Wachwerten gesetzt, und danach wurden die Klassifikatoren trainiert. Dies führte dazu, dass für jedes Feature ein Wach-Wert von eins vorlag, was die Ergebnisse der Klassifikatoren beeinflusste und bessere Ergebnisse für die verwendeten Metriken lieferte. Trotzdem ergibt die Klassifikation Sinn, da sie eine sinnvolle Trennung zwischen den Klassen ermöglicht und eine signifikante Abweichung von Wach-Werten für die Klassifikation von fraglich und müde aufzeigt.
+Die Trainingsdaten für die Klassifikatoren bestehen aus den berechneten Feature-Vektoren, die aus den Videos des verwendeten Datensatzes gewonnen wurden. Insgesamt hatten wir 144 Feature-Vektoren, davon jeweils 48 für die Zustände müde, fraglich und wach, jeweils einmal für jeden Probanden. Um die Feature-Vektoren zu erstellen, haben wir die ersten sechs Minuten jedes Videos für die Kalibrierung genutzt. Die Aufteilung in Test- und Trainingsdatensätze erfolgte zufällig über die 144 Feature-Vektoren, unabhängig von der Person. Durch eine fünf-fache Crossvalidierung haben wir immer 1/5 als Test und 4/5 als Trainingsdaten verwendet. Die Werte für halbwach und müde wurden im Verhältnis zu den Wachwerten gesetzt, und danach wurden die Klassifikatoren trainiert. Dies führte dazu, dass für jedes Feature ein Wach-Wert von eins vorlag, was die Ergebnisse der Klassifikatoren beeinflusste und bessere Ergebnisse für die verwendeten Metriken lieferte, da alle wach Testdaten rihtig klassifiziert wurden. Trotzdem ergibt die Klassifikation Sinn, da sie eine sinnvolle Trennung zwischen den Klassen ermöglicht und eine signifikante Abweichung von Wach-Werten für die Klassifikation von fraglich und müde aufzeigt.
 
 \begin{table}
     \centering
@@ -62,7 +62,7 @@ Die Trainingsdaten für die Klassifikatoren wurden aus den berechneten Feature-V
 \label{table:confusionmatrixthreeclasses}
 \end{table}
 
-Die Ergebnisse zeigen im direkten Vergleich der Klassifikatoren für drei Klassen:
+Die Ergebnisse zeigen im direkten Vergleich der Klassifikatoren für drei Klassen in Tabelle \ref{table:threeclassificator}:
 
 \begin{itemize}
 \item Alle Metriken sind bei dem KNN-Klassifikator am besten, wobei die Accuracy und die Precision die höchsten Werte aufweisen.
@@ -70,7 +70,7 @@ Die Ergebnisse zeigen im direkten Vergleich der Klassifikatoren für drei Klasse
 \item Der F1 Score und der Recall sind ebenfalls beim KNN-Klassifikator am höchsten.
 \end{itemize}
 
-Ein Blick auf die Confusion Matrizen eines Durchlaufs der Crossvalidierung lohnt sich, insbesondere wenn man bedenkt, dass eine Fehlklassifikation von wach/fraglich als müde in unserem Fall weniger problematisch ist als die Fehlklassifikation von müde als wach/fraglich. Da wir vor Sekundenschlaf warnen möchten, ist eine frühzeitige fehlerhafte Warnung weniger problematisch. Natürlich unter der Berücksichtigung, dass zu viele Warnungen als "nervig" empfunden werden könnten. Die Confusion Matrix für den KNN-Klassifikator zeigt beispielsweise, dass 6 fragliche Videos als müde klassifiziert wurden, während bei der SVM und der Logistischen Regression eine größere Streuung zu sehen ist: Bei der SVM wurden 8 Videos als wach statt fraglich klassifiziert, und bei der logistischen Regression 2 als wach statt fraglich. Dies ist in unserem Fall ungünstig. Der KNN-Klassifikator hat keine Videos fehlerhaft als wach klassifiziert, sondern lediglich ein Video als fraglich statt müde. Daher zeigt sich der KNN-Klassifikator als die beste Wahl zur Detektion von Müdigkeit.
+Ein Blick auf die Confusion Matrizen eines Durchlaufs der Crossvalidierung lohnt sich (siehe Tabelle \ref{table:confusionmatrixthreeclasses}, insbesondere wenn man bedenkt, dass eine Fehlklassifikation von wach/fraglich als müde in unserem Fall weniger problematisch ist als die Fehlklassifikation von müde als wach/fraglich. Da wir vor Sekundenschlaf warnen möchten, ist eine frühzeitige fehlerhafte Warnung weniger problematisch. Natürlich unter der Berücksichtigung, dass zu viele Warnungen als "nervig" empfunden werden könnten. Die Confusion Matrix für den KNN-Klassifikator zeigt beispielsweise, dass 6 fragliche Videos als müde klassifiziert wurden, während bei der SVM und der Logistischen Regression eine größere Streuung zu sehen ist: Bei der SVM wurden 8 Videos als wach statt fraglich klassifiziert, und bei der logistischen Regression 2 als wach statt fraglich. Dies ist in unserem Fall ungünstig. Der KNN-Klassifikator hat keine Videos fehlerhaft als wach klassifiziert, sondern lediglich ein Video als fraglich statt müde. Daher zeigt sich der KNN-Klassifikator als die beste Wahl zur Detektion von Müdigkeit.
 
 \begin{table}
     \centering
@@ -85,7 +85,7 @@ Ein Blick auf die Confusion Matrizen eines Durchlaufs der Crossvalidierung lohnt
 \label{table:twoclassificator}
 \end{table}
 
-Der Vergleich von zwei Klassen führte aufgrund der in Relation gesetzten Werte zu einem noch besseren Ergebnis, und dennoch konnte auch hier eine klare Trennung erreicht werden. Die logistische Regression und der KNN-Klassifikator haben beide sehr gut abgeschnitten, wobei die Accuracy beim KNN-Klassifikator höher war als bei der logistischen Regression, was bedeutet, dass der KNN-Klassifikator in allen Durchläufen eine bessere Klassifikation durchgeführt hat. Ein Beispiel aus einer Crossvalidierungsrunde zeigt, dass der KNN-Klassifikator und die logistische Regression in diesem Fall alles richtig klassifiziert haben, wie durch die Werte von eins bei den F1-, Recall- und Precision-Werten gezeigt wird. Die SVM hat in diesem Fall jedoch 2 Werte falsch klassifiziert. Hier ist der Accuracy Score ausschlaggebend.
+Der Vergleich von zwei Klassen führte aufgrund der in Relation gesetzten Werte zu einem noch besseren Ergebnis, und dennoch konnte auch hier eine klare Trennung erreicht werden. Wie in Tabelle \ref{table:twoclassificator} haben die logistische Regression und der KNN-Klassifikator beide sehr gut abgeschnitten, wobei die Accuracy beim KNN-Klassifikator höher war als bei der logistischen Regression. Dies bedeutet, dass der KNN-Klassifikator in allen Durchläufen eine bessere Klassifikation durchgeführt hat. Ein Beispiel aus einem Crossvalidierungsdurchlauf zeigt, dass der KNN-Klassifikator und die logistische Regression in diesem Fall alles richtig klassifiziert haben (siehe Tabelle \ref{table:confusionmatrixtwoclasses}), wie auch die Werte von eins bei den F1-, Recall- und Precision-Werten in Tabelle \ref{table:twoclassificator} zeigen. Die SVM hat in diesem Fall jedoch 2 Werte falsch klassifiziert. Hier ist der Accuracy Score am ausschlaggebendsten.
 
 
 \begin{table}
