@@ -1,53 +1,47 @@
 Um die Genauigkeit des entwickelten Müdigkeitsdetektors einschätzen zu können, muss dieser evaluiert werden. Da verschiedene Verfahren und Metriken in die Abläufe involviert sind, ist nicht nur eine gesamtheitliche, sondern auch eine granulare Bewertung einzelner Stufen als sinnvoll anzusehen. 
 
-\subsection{Das Interface/Die App}
+\subsection{Das Interface}
 \label{ssec:interface}
 
-Die App bietet eine Benutzeroberfläche mit verschiedenen Bildschirmen, wie in den Abbildungen \ref{fig:mainscreen}, \ref{fig:detectionscreen}, \ref{fig:settingscreen}, und \ref{fig:helpscreen} zu erkennen ist.
+Die App bietet eine Benutzeroberfläche mit verschiedenen Bildschirmen, wie in der Abbildung \ref{fig:screens} zu erkennen ist.
 
 \begin{figure}[h]
 	\centering
-	\begin{minipage}[b]{0.22\textwidth}
+	\begin{subfigure}[b]{0.22\textwidth}
 		\includegraphics[width=\linewidth]{images/mainscreen.png}
-		\caption{}
+		\caption{Startseite}
 		\label{fig:mainscreen}
-	\end{minipage}
+	\end{subfigure}
 	\hfill
-	\begin{minipage}[b]{0.22\textwidth}
+	\begin{subfigure}[b]{0.22\textwidth}
 		\includegraphics[width=\linewidth]{images/detectionscreen.png}
-		\caption{}
+		\caption{Detektion}
 		\label{fig:detectionscreen}
-	\end{minipage}
+	\end{subfigure}
 	\hfill
-	\begin{minipage}[b]{0.22\textwidth}
+	\begin{subfigure}[b]{0.22\textwidth}
 		\includegraphics[width=\linewidth]{images/settingscreen.png}
-		\caption{}
+		\caption{Einstellungsseite}
 		\label{fig:settingscreen}
-	\end{minipage}
+	\end{subfigure}
 	\hfill
-	\begin{minipage}[b]{0.22\textwidth}
+	\begin{subfigure}[b]{0.22\textwidth}
 		\includegraphics[width=\linewidth]{images/helpscreen.png}
-		\caption{}
+		\caption{Hilfebereich}
 		\label{fig:helpscreen}
-	\end{minipage}
+	\end{subfigure}
+    \caption{Verschiedene Screenshots aus der Anwendung.}
+    \label{fig:screens}
 \end{figure}
 
 In Abbildung \ref{fig:mainscreen} ist der Einstiegsbildschirm der App zu sehen. Hier erhalten Benutzer eine kurze Einführung in die App und können die Müdigkeitserkennung starten oder auf die Einstellungen zugreifen. Die eigentliche Müdigkeitserkennung findet im Erkennungsbildschirm (Abbildung \ref{fig:detectionscreen}) statt, wo erkannte Gesichtsmerkmale wie die Augen markiert werden. Bei Erkennung von Müdigkeitsmerkmalen kann die App Warnungen anzeigen oder Alarmtöne abspielen. Im Einstellungsbildschirm (Abbildung \ref{fig:settingscreen}) können Benutzer verschiedene Einstellungen für die Benutzeroberfläche anpassen. Der Hilfebildschirm (Abbildung \ref{fig:helpscreen}) bietet detaillierte Informationen zur Verwendung der App und ihrer Funktionen.
 
-Grundsätzlich sind wir mit dem Layout zufrieden, da es Minimalismus und Nutzbarkeit vereint. Der gesamte Funktionsumfang wird von der App abgedeckt und dem Nutzer zur Verfügung gestellt. Hierbei ist die Bedienung selbsterklärend und zielführend, ohne die potenziellen Nutzer vor Schwierigkeiten der Orientierung zu stellen. Wie in Abschnitt \ref{ssec:llentwicklung} bereits erwähnt, hätte mehr Zeit in die Möglichkeiten der Entwicklung investiert werden können, somit hätte das Design noch interaktiver und flexibler sein können.
+Grundsätzlich sind wir mit dem Layout zufrieden, da es Minimalismus und Nutzbarkeit vereint. Der gesamte Funktionsumfang wird von der App abgedeckt und dem Nutzer zur Verfügung gestellt. Hierbei ist die Bedienung selbsterklärend und zielführend, ohne die potenziellen Nutzer vor Schwierigkeiten der Orientierung zu stellen. Wie in Abschnitt \ref{ssec:lessonslearned} bereits erwähnt, hätte mehr Zeit in die Möglichkeiten der Entwicklung investiert werden können, somit hätte das Design noch interaktiver und flexibler sein können.
 
 \subsection{Selbsttest zu Metriken und Frameworks}
 \label{subsec:selftest}
 Zur Evaluation verschiedener Schwellwerte zur Blinzeldetektion und Frameworks wurde einen Selbsttest im Wachzustand durchgeführt, wobei zu zweit in einer alltäglichen Arbeitsumgebung mit natürlicher Beleuchtung über die interne Webcam des eigenen Laptops das Programm circa eine Minute lang ausgeführt wurde. Von diesen Versuchen entnahmen wir die selbstgezählte reale und die detektierte Anzahl der Blinzelschläge in diesem Zeitraum für verschiedene Parametervoreinstellungen. Zusätzlich führten wir dies für zwei verschiedene Frameworks aus, um durch Selbsttests herauszufinden, welches für unseren Anwendungsbereich geeigneter ist. Für Proband 1 ist in Tabelle \ref{table:selbsttest} zu erkennen, dass MediaPipe im Durchschnitt eine signifikant bessere Detektionsrate aufweisen kann als Dlib. Hierbei ist es wichtig, dass weder zu viele noch zu wenig Blinzelschläge detektiert werden. Da keine Toleranz für Fehldetektionen geplant war, ist dieser Wert zu optimieren. Für Probanden 2 sind ähnliche Ergebnisse zu verzeichnen, eine fehlerfreie Erkennung kann auch hier nur MediaPipe liefern. Jedoch ist zu bemerken, dass für diese Versuchsperson die optimale Detektion nur bei einem kleineren Schwellwert des EAR-Wertes gegeben ist. Zu begründen ist dies durch die generellen Unterschiede in Individuen sowie die persönliche Form und Anatomie des Auges. Für jede Person ist der EAR-Wert im geöffneten Zustand verschieden, ein kleinerer Wert tendiert dazu, dass bei einem vergleichsweise hohen Schwellwert einige Blinzelschläge fälschlicherweise erkannt werden, da der Schwellwert bereits ohne ein Schließen des Auges unterschritten wird. Dies ist auch in dem Test aufgefallen, so wurden für einige Kombinationen zu viele Blinzelschläge detektiert, weshalb der Detektor nicht vertrauenswürdig wäre. Ein zu kleiner Schwellwert resultiert jedoch darin, dass aufgrund der möglicherweise geringen Framerate der Videos ein Blinzeln nicht erkannt wird, wenn nicht zufälligerweise ein Bild bei der vollständigen Schließung des Auges aufgenommen wird. Nach Beachtung dieser Zusammenhänge und Auswertung der Tabelle des Selbsttest (Tabelle \ref{table:selbsttest}) ist der Entschluss zu ziehen, dass die Benutzung von MediaPipe als Framework das geeignetere Mittel ist. Weiterhin stellte sich der Schwellwert für die Blinzeldetektion von 0.16 als passend heraus, da dieser verschiedene Probleme minimiert. Für diesen Wert wurde die höchste Genauigkeit erreicht, da sowohl die Anzahl der falschpositiven als auch falschnegativen Werte für das ausgewählte Framework gleich Null ist. Somit ist zu sagen, dass die implementierte Detektion verlässlich und genau arbeitet. 
 
-
-%Please add the following packages if necessary:
-%\usepackage{booktabs, multirow} % for borders and merged ranges
-%\usepackage{soul}% for underlines
-%\usepackage[table]{xcolor} % for cell colors
-%\usepackage{changepage,threeparttable} % for wide tables
-%If the table is too wide, replace \begin{table}[!htp]...\end{table} with
-%\begin{adjustwidth}{-2.5 cm}{-2.5 cm}\centering\begin{threeparttable}[!htb]...\end{threeparttable}\end{adjustwidth}
 \begin{table}[!htp]\centering
 	\scriptsize
 	\begin{tabular}{lrrrrr}%\toprule
@@ -75,57 +69,60 @@ Neben der Anzahl der Blinzelschläge wurden zusätzlich die durchschnittlichen E
 \label{subsec:classificatorcomparison}
 Wie in der Theorie im Abschnitt \ref{sec:classification} zur Klassifikation beschrieben, wurden verschiedene Klassifikatoren getestet, um den am besten geeigneten für unsere Anwendung zu ermitteln. Dabei haben wir sowohl den Fall mit zwei Klassen (müde/wach) als auch den mit drei Klassen (müde/fraglich/wach) getestet. Die Metriken, die wir verwendet haben, wurden in Abschnitt \ref{sec:classificationmetrics} vorgestellt.
 
-\begin{table}
-    \centering
-    \begin{tabular}{|l|l|l|l|l|}
-    \hline
-        {Klassifikator} & {F1-Score} & f{Recall} & {Precision} & {Accuracy} \\ \hline
-        {KNN Klassifikator mit k = 3} & 0.743962 & 0.758621 & 0.801724 & 0.680542 \\ \hline
-        {Logistische Regression} & 0.663643 & 0.689655 & 0.671121 & 0.602709 \\ \hline
-        {Support Vector Machine} & 0.552622 & 0.62069 & 0.79454 & 0.489655 \\ \hline
-    \end{tabular}
-\caption{Ergebnisse der drei verglichenen Klassifikatoren über die vorgestellten Metriken für die drei Klassen wach, fraglich und müde.}
-\label{table:threeclassificator}
+\begin{table}[!htp]
+	\centering
+	\scriptsize
+	\begin{tabular}{lcccc}%\toprule
+		\textbf{Klassifikator} & \textbf{F1-Score} & \textbf{Recall} & \textbf{Precision} & \textbf{Accuracy} \\\midrule
+		\textbf{KNN Klassifikator mit k = 3} & 0.743962 & 0.758621 & 0.801724 & 0.680542 \\
+		\textbf{Logistische Regression} & 0.663643 & 0.689655 & 0.671121 & 0.602709 \\
+		\textbf{Support Vector Machine} & 0.552622 & 0.62069 & 0.79454 & 0.489655 \\
+	\end{tabular}
+	\caption{Ergebnisse der drei verglichenen Klassifikatoren über die vorgestellten Metriken für die drei Klassen wach, fraglich und müde.}
+	\label{table:threeclassificator}
 \end{table}
+
 
 Die Trainingsdaten für die Klassifikatoren bestehen aus den berechneten Feature-Vektoren, die aus den Videos des verwendeten Datensatzes gewonnen wurden. Insgesamt hatten wir 144 Feature-Vektoren, davon jeweils 48 für die Zustände \glqq müde\grqq{}, \glqq fraglich\grqq{} und \glqq wach\grqq{}, jeweils einmal für jeden Probanden. Um die Feature-Vektoren zu erstellen, haben wir die ersten sechs Minuten jedes Videos für die Kalibrierung genutzt. Die Aufteilung in Test- und Trainingsdatensätze erfolgte zufällig über die 144 Feature-Vektoren, unabhängig von der Person. Durch eine fünf-fache Crossvalidierung haben wir immer 20 Prozent als Test- und 80 Prozent als Trainingsdaten verwendet. Die Werte für \glqq fraglich\grqq{} und \glqq müde\grqq{} wurden ins Verhältnis zu den Wachwerten gesetzt, und danach wurden die Klassifikatoren trainiert. Dies führte dazu, dass für jedes Feature ein Wach-Wert von 1 vorlag, was die Ergebnisse der Klassifikatoren beeinflusste und bessere Ergebnisse für die verwendeten Metriken lieferte, da alle Testdaten für \glqq wach\grqq{} richtig klassifiziert wurden. Trotzdem ergibt die Klassifikation Sinn, da sie eine sinnvolle Trennung zwischen den Klassen ermöglicht und eine signifikante Abweichung von Werten der Klasse \glqq wach\grqq{} für die Klassifikation von \glqq fraglich\grqq{} und \glqq müde\grqq{} aufzeigt.
 
 \begin{table}
     \centering
-    \begin{tabular}{|l|l|l|l|}
-    \hline
-    \multicolumn{4}{|c|}{\textbf{KNN Klassifikator mit k=3}} \\ \hline
-    & vorhergesagt wach & vorhergesagt fraglich & vorhergesagt müde \\ \hline
-    {Wahr wach} & 13 & 0 & 0 \\ \hline
-    {Wahr fraglich} & 0 & 3 & 6 \\ \hline
-    {Wahr müde} & 0 & 1 & 6 \\ \hline
+    \scriptsize
+    \begin{tabular}{llll}
+    \multicolumn{4}{c}{\textbf{KNN Klassifikator mit k=3}} \\
+    & \textbf{vorhergesagt wach} & \textbf{vorhergesagt fraglich} & \textbf{vorhergesagt müde} \\ \hline
+    \textbf{Wahr wach} & 13 & 0 & 0 \\ 
+    \textbf{Wahr fraglich} & 0 & 3 & 6 \\ 
+    \textbf{Wahr müde} & 0 & 1 & 6 \\ 
     \end{tabular}
     
     \vspace{0.5cm} % Vertikaler Abstand zwischen den Tabellen
     
-    \begin{tabular}{|l|l|l|l|}
-    \hline
-    \multicolumn{4}{|c|}{\textbf{Support Vector Machine}} \\ \hline
-    & vorhergesagt wach & vorhergesagt fraglich & vorhergesagt müde \\ \hline
-    {Wahr wach} & 13 & 0 & 0 \\ \hline
-    {Wahr fraglich} & 8 & 1 & 0 \\ \hline
-    {Wahr müde} & 3 & 0 & 4 \\ \hline
+    \begin{tabular}{llll}
+
+    \multicolumn{4}{c}{\textbf{Support Vector Machine}} \\ 
+    & \textbf{vorhergesagt wach} & \textbf{vorhergesagt fraglich} & \textbf{vorhergesagt müde} \\ \hline
+    \textbf{Wahr wach} & 13 & 0 & 0 \\ 
+    \textbf{Wahr fraglich} & 8 & 1 & 0 \\ 
+    \textbf{Wahr müde} & 3 & 0 & 4 \\ 
     \end{tabular}
     
     \vspace{0.5cm} % Vertikaler Abstand zwischen den Tabellen
     
-    \begin{tabular}{|l|l|l|l|}
-    \hline
-    \multicolumn{4}{|c|}{\textbf{Logistische Regression}} \\ \hline
-    & vorhergesagt wach & vorhergesagt fraglich & vorhergesagt müde \\ \hline
-    {Wahr wach} & 13 & 0 & 0 \\ \hline
-    {Wahr fraglich} & 2 & 3 & 4 \\ \hline
-    {Wahr müde} & 1 & 2 & 4 \\ \hline
+    \begin{tabular}{llll}
+
+    \multicolumn{4}{c}{\textbf{Logistische Regression}} \\ 
+    & \textbf{vorhergesagt wach} & \textbf{vorhergesagt fraglich} & \textbf{vorhergesagt müde} \\ \hline
+    \textbf{Wahr wach} & 13 & 0 & 0 \\ 
+    \textbf{Wahr fraglich} & 2 & 3 & 4 \\ 
+    \textbf{Wahr müde} & 1 & 2 & 4 \\ 
     \end{tabular}
 
 \caption{Confusion Matritzen für die drei Klassifikatoren für die drei Klassen wach, fraglich und müde.}
 \label{table:confusionmatrixthreeclasses}
 \end{table}
+
+
 
 Die Ergebnisse zeigen im direkten Vergleich der Klassifikatoren für drei Klassen in Tabelle \ref{table:threeclassificator}:
 
@@ -139,12 +136,12 @@ Ein Blick auf die Confusion Matrizen eines Durchlaufs der Crossvalidierung lohnt
 
 \begin{table}
     \centering
-    \begin{tabular}{|l|l|l|l|l|}
-    \hline
-        {Klassifikator} & {F1-Score} & {Recall} & {Precision} & {Accuracy} \\ \hline
-        {KNN Klassifikator mit k = 3} & 1 & 1 & 1 & 0.947368 \\ \hline
-        {Logistische Regression} & 1 & 1 & 1 & 0.904094 \\ \hline
-        {Support Vector Machine} & 0.88797 & 0.894737 & 0.908772 & 0.712865 \\ \hline
+    \begin{tabular}{lllll}
+
+        \textbf{Klassifikator} & \textbf{F1-Score} & \textbf{Recall} & \textbf{Precision} & \textbf{Accuracy} \\ \hline
+        \textbf{KNN Klassifikator mit k = 3} & 1 & 1 & 1 & 0.947368 \\ 
+        \textbf{Logistische Regression} & 1 & 1 & 1 & 0.904094 \\ 
+        \textbf{Support Vector Machine} & 0.88797 & 0.894737 & 0.908772 & 0.712865 \\ 
     \end{tabular}
 \caption{Ergebnisse der drei verglichenen Klassifikatoren über die vorgestellten Metriken für die zwei Klassen wach und müde.}
 \label{table:twoclassificator}
@@ -155,32 +152,32 @@ Der Vergleich von zwei Klassen führte aufgrund der in Relation gesetzten Werte 
 
 \begin{table}
     \centering
-    \begin{tabular}{|l|l|l|}
-    \hline
-    \multicolumn{3}{|c|}{KNN Klassifikator mit k=3} \\ \hline
-    & vorhergesagt wach & vorhergesagt müde \\ \hline
-    Wahr wach & 13 & 0 \\ \hline
-    Wahr müde & 0 & 6 \\ \hline
+    \begin{tabular}{lll}
+
+    \multicolumn{3}{c}{\textbf{KNN Klassifikator mit k=3}}\\
+    & \textbf{vorhergesagt wach} & \textbf{vorhergesagt müde} \\ \hline
+    \textbf{Wahr wach} & 13 & 0 \\ 
+    \textbf{Wahr müde} & 0 & 6 \\ 
     \end{tabular}
     
     \vspace{0.5cm} % Vertikaler Abstand zwischen den Tabellen
     
-    \begin{tabular}{|l|l|l|}
-    \hline
-    \multicolumn{3}{|c|}{Support Vector Machine} \\ \hline
+    \begin{tabular}{lll}
+    
+    \multicolumn{3}{c}{\textbf{Support Vector Machine}}\\
     & vorhergesagt wach & vorhergesagt müde \\ \hline
-    Wahr wach & 13 & 0 \\ \hline
-    Wahr müde & 0 & 6 \\ \hline
+    \textbf{Wahr wach} & 13 & 0 \\ 
+   \textbf{ Wahr müde} & 0 & 6 \\ 
     \end{tabular}
     
     \vspace{0.5cm} % Vertikaler Abstand zwischen den Tabellen
     
-    \begin{tabular}{|l|l|l|}
-    \hline
-    \multicolumn{3}{|c|}{Logistische Regression} \\ \hline
-    & vorhergesagt wach & vorhergesagt müde \\ \hline
-    Wahr wach & 13 & 0 \\ \hline
-    Wahr müde & 2 & 4 \\ \hline
+    \begin{tabular}{lll}
+    
+    \multicolumn{3}{c}{\textbf{Logistische Regression}} \\ 
+    & \textbf{vorhergesagt wach} & \textbf{vorhergesagt müde} \\ \hline
+   \textbf{ Wahr wach} & 13 & 0 \\ 
+    \textbf{Wahr müde }& 2 & 4 \\ 
     \end{tabular}
 \caption{Confusion Matritzen für die drei Klassifikatoren für die zwei Klassen wach und müde.}
 \label{table:confusionmatrixtwoclasses}
