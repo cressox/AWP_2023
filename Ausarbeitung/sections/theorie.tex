@@ -14,7 +14,7 @@
 \label{ssec:appEntwicklung}
 	%Beschreibung des Projekts
 	%Ziele und Zweck der App
-	Unser Projekt hatte zum Ziel, eine Anwendung zu entwickeln, die die Müdigkeitserkennung durchführt. Diese App sollte auf verschiedene Plattformen und Geräte zugänglich sein und es den Benutzern ermöglichen, ihre Müdigkeit in Echtzeit zu überwachen. Die App sollte einfach zu bedienen, effizient und zuverlässig sein. 
+	Unser Projekt hat zum Ziel, eine Anwendung zu entwickeln, die die Müdigkeitserkennung durchführt. Diese App sollte auf verschiedenen Plattformen und Geräten zugänglich sein und es den Benutzern ermöglichen, ihre Müdigkeit in Echtzeit zu überwachen. Die App sollte einfach zu bedienen, effizient und zuverlässig sein. 
 	
 	\subsubsection{Technologieauswahl}
 	\label{sssec:technologie}
@@ -22,15 +22,11 @@
 		%Entscheidung für das Kivy-Framework
 		%Begründung für die Wahl dieser Technologien
 		
-		Zu Beginn der Technologieauswahl stand für uns schon fest (wie sich später noch als unüberlegt herausstellen sollte): Python ist das Mittel der Wahl für unsere Idee und Umsetzung aller benötigten Algorithmen. Wir machten uns also von Anfang an auf die Suche nach geeigneten Symbiosen die uns die Entwicklung einer App mit Hilfe von Python ermöglichen.
-		\\\\
-		Als folge dessen haben wir uns bei der Auswahl der weiteren Technologien für unser Projekt intensiv mit den verschiedenen Optionen auseinandergesetzt. Eine entscheidende Überlegung war die Notwendigkeit der Offline-Funktionalität, da unsere App in Umgebungen zum Einsatz kommen sollte, in denen eine dauerhafte Internetverbindung nicht immer gewährleistet ist. Aus diesem Grund haben wir uns zum Beispiel bewusst gegen die Realisierung einer API mit React und Flask entschieden.
-		\\\\
-		An dieser Stelle sei erwähnt dass die Entscheidung gegen soeben erwähntes nicht so leichtfertig viel wie der vorherige Satz vermuten mag. Hinter der Entscheidung stand ein intensives Erproben und Evaluieren der Möglichkeiten mit React und Flask. Schlussendlich war uns klar dass man nur zu benannten Konklusion kommen kann.
-		\\\\
-		Es musste eine andere Lösung her und nach genauerer Recherche (Erprobung und Evaluation) viel die Wahl auf Kivy. Die Entscheidung für das Kivy-Framework als Frontend-Framework war fast schon eine zwingende Konsequenz auf Grund von vielen Vorteilen. Kivy Apps können auf verschiedenen Systemen zum Einsatz kommen und bieten somit eine breite Einsatzmöglichkeit. Zusätzlich synergiert Kivy mit Python und wurde einst für diese Programmier Sprache entwickelt. Dies legte final den Grundstein für die Verbindung unseres Frontend mit unserer Logik die ausschließlich in Python liegt. 
-		\\\\
-		Die Wahl von Kivy als notwendige Konsequenz zur Wahl von Python ermöglichte es uns unser Projekt in den verschiedenen Fassetten zu starten und zu entwickeln. In den folgenden Abschnitten werden wir auf den Entwicklungsprozess, die Implementierung und die Herausforderungen bei der Bereitstellung der App näher eingehen.
+		Zu Beginn der Technologieauswahl stand für uns bereits fest, dass Python das Mittel der Wahl für unsere Idee und Umsetzung aller benötigten Algorithmen ist. Wir begaben uns von Anfang an auf die Suche nach geeigneten Symbiosen, die uns die Entwicklung einer App mit Hilfe von Python ermöglichen.
+
+		Als folge dessen haben wir uns bei der Auswahl der weiteren Technologien für unser Projekt intensiv mit den verschiedenen Optionen auseinandergesetzt. Eine entscheidende Überlegung war die Notwendigkeit der Offline-Funktionalität, da unsere App in Umgebungen zum Einsatz kommen sollte, in denen eine dauerhafte Internetverbindung nicht immer gewährleistet ist. Aus diesem Grund haben wir uns bewusst gegen die Realisierung einer API mit React und Flask entschieden. Hinter der Entscheidung stand ein intensives Erproben und Evaluieren der Möglichkeiten mit React und Flask. Schlussendlich wurde jedoch deutlich, dass eine andere Lösung gefunden werden muss.
+
+		Nach genauerer Recherche, Erprobung und Evaluation fiel die Wahl auf Kivy. Die Entscheidung für das Kivy-Framework zur Fronent-Entwicklung war eine nehzu zwingende Konsequenz auf Grund von vielen Vorteilen. Kivy-Apps können auf verschiedenen Systemen zum Einsatz kommen und bieten somit eine breite Einsatzmöglichkeit. Zusätzlich synergiert Kivy mit Python und wurde einst für diese Programmiersprache entwickelt. Dies legte final den Grundstein für die Verbindung unseres Frontends mit unserer Logik, die ausschließlich auf Python basiert. Die Wahl von Kivy ermöglichte es uns, unser Projekt in den verschiedenen Fassetten starten und entwickeln zu können.
 		
 	\subsubsection{Entwicklungsprozess}
 	\label{sssec:entwicklung}
@@ -38,16 +34,16 @@
 		%Entwurf des Benutzeroberflächen-Designs
 		%Implementierung und Code-Struktur
 		
-		Zu Beginn des Entwicklungsprozess war zwar klar welche Technologien wir verwenden wollen, jedoch blieb die Frage der Implementierung noch aus. Es bildeten sich drei Teilbereiche welche diese Frage beantworten konnten:
+		Zu Beginn des Entwicklungsprozess war zwar entschieden, welche Technologien wir verwenden wollen, jedoch blieb die Frage der Implementierung noch aus. Es bildeten sich drei Teilbereiche, welche diese Frage beantworten konnten:
 		\begin{itemize}
-			\item Entwicklung des App Grundgerüst
-			\item Entwicklung des Layout der App
+			\item Entwicklung des App-Grundgerüsts
+			\item Entwicklung des Layouts der App
 			\item Entwicklung der Integration von Logik und Layout
 		\end{itemize}
 		
-		\noindent Ersteres definierte notwendige Schnittstellen und legte den Rahmen fest in dem wir agierten. Es wurde eine Hauptdatei erstellt (mainmediapipe.py) welche die Logik des Backend aus einer externen Datei und ebenso das Layout beinhaltete und verschmelzen ließ. Zweiteres hingegen Setzte alle notwendigen Design Entscheidungen fest in einer Datei (mainmediapipe.kv) hierfür verwendeten wird das von Kivy (für diese Zwecke) mit gelieferte Dateiformat '.kv'. Letzteres beanspruchte mit Abstand an meisten Zeit, as mussten Verlinkungen zwischen der Logik und dem Layout vorgenommen werden. Es wurden Mechanismen für die visuelle und akustische Alarmierung entwickelt. Alles Schnittstellen wurden sozusagen in Betrieb genommen und mussten untereinander kommunizieren können. Wir haben mittels der uns zur Verfügung stehenden Möglichkeiten all diese Hürden bezwingen können und ein funktionierendes Gesamtpaket entstehen lassen, als Produkt des Entwicklungsprozess.
-		\\\\
-		Der Stand der App war zu diesem Zeitpunkt rein Desktop basiert. Im Lessons Learned-Teil werden wir näher darauf eingehen, warum wir uns gegen die Fortsetzung der Bereitstellung bis zur Erstellung einer APK-Datei entschieden haben. Dabei werden wir auf die Herausforderungen und Lernprozesse eingehen, die diese Entscheidung beeinflusst haben.
+		\noindent Ersteres definierte notwendige Schnittstellen und legte den Rahmen fest, in dem wir agierten. Es wurde eine Hauptdatei erstellt (mainmediapipe.py), welche die Logik des Backend aus einer externen Datei und ebenso das Layout beinhaltete und kombinierte. Zweiteres hingegen setzte alle notwendigen Entscheidungen bezüglich des Designs in einer Datei (mainmediapipe.kv) fest. Hierfür verwendeten wird das von Kivy mitgelieferte Dateiformat '.kv'. Letzteres beanspruchte am meisten Zeit, es mussten Verlinkungen zwischen der Logik und dem Layout vorgenommen werden. Es wurden Mechanismen für die visuelle und akustische Alarmierung entwickelt. Alles Schnittstellen wurden in Betrieb genommen und mussten untereinander kommunizieren können. Wir haben mittels der uns zur Verfügung stehenden Möglichkeiten all diese Hürden bezwingen können und als Produkt des Entwicklungsprozesses ein funktionierendes Gesamtpaket entstehen lassen.
+
+		Zu diesem Zeitpunkt war die App rein desktopbasiert. Im Abschnitt \ref{ssec:lldeployment} werden wir näher darauf eingehen, warum wir uns gegen die Fortsetzung der Bereitstellung bis zur Erstellung einer APK-Datei entschieden haben. Dabei werden wir auf die Herausforderungen und Lernprozesse eingehen, die diese Entscheidung beeinflusst haben.
 		
 	\subsubsection{Deployment-Strategie}
 	\label{sssec:deployment}
@@ -55,9 +51,7 @@
 		%Deployment-Tools und -Methoden
 		%Herausforderungen bei der Bereitstellung
 		
-		Das große Ziel war ein funktionierendes Stück Software zu haben die unseren Projekt Anforderungen gerecht wird. Darüber hinaus hatten wir noch einen weiteren selbst gewählten Anspruch: wir wollten eine App entwickeln, die wenn möglich so weit wie nur erreichbar verfügbar ist. Das heißt konkret das das Ziel war sich sukzessive von Softwarecode, zu Desktop App bis hin zur APK Datei zu verbessern. Dies war ein Vorhaben das über die Anforderungen des Modul hinaus ging.
-		\\\\
-		Start der Deployment-Strategie war es folgende drei Faktoren zu betrachten:
+		Das große Ziel war, eine funktionierende Software zu haben, die unseren Projektanforderungen gerecht wird. Darüber hinaus hatten wir noch einen weiteren selbstgewählten Anspruch, wir wollten eine App entwickeln, die sich über eine maximale Verfügbarkeit auszeichnet. Das heißt konkret, das Ziel war sich sukzessive von Softwarecode, zu Desktop-App bis hin zur APK-Datei zu verbessern. Dies war ein Vorhaben, welches über die Anforderungen des Modul hinaus ging. Der Start der Deployment-Strategie stellte die Betrachtung folgender Faktoren dar:
 		
 		\begin{itemize}
 			\item Zielplattformen und -geräte
@@ -65,4 +59,4 @@
 			\item Herausforderungen bei der Bereitstellung
 		\end{itemize}
 		
-		\noindent Zielplattformen und -geräte sollten zunächst Windows und Linux abbilden und in zweiter Instanz Android. Deployment-Tools und -Methoden waren und durch unsere Technologieauswahl bereits bindend vorgegeben. Herausforderungen bei der Bereitstellung ergaben sich dann zu häuft, denn die zunächst naiv eingeschätzte Möglichkeit eine App möglichst unkompliziert bereit zu stellen stellte sich als massive Fehleinschätzung heraus. Wir konnten relativ unkompliziert unseren Code als Desktop App anbieten der auf Windows und Linux funktionierte. Jedoch war der weg zur APK Datei wesentlich widerstandsfähiger. Es folgten diverse versuche einen Build Prozess anzustoßen der unseren Code zur benötigten Datei umbauen sollte. Jedoch hatten wir einen entscheidenden Fehler in der Technologieauswahl begangen: wir legten uns von Anfang an auf Python fest und limitierten uns damit ausschlaggebend in der Wahl der Build Möglichkeiten. Für eine nähere Betrachtung dieses Fehlers verweisen wir jedoch in unseren Lesson Learnd Teil auf den Eintrag \ref{ssec:lldeployment}.
+		\noindent Zielplattformen und -geräte sollten zunächst Windows und Linux abbilden und in zweiter Instanz Android. Deployment-Tools und -Methoden waren und durch unsere Technologieauswahl bereits bindend vorgegeben. Herausforderungen bei der Bereitstellung ergaben sich dann zu häuft, denn die Möglichkeit, eine App möglichst unkompliziert bereit zu stellen, enttarnte sich als starke Fehleinschätzung. Wir konnten relativ unkompliziert unseren Code als Desktop-App anbieten, der auf Windows und Linux funktionierte, jedoch war der weg zur APK-Datei wesentlich widerstandsfähiger. Es folgten diverse Versuche, einen Build-Prozess anzustoßen, welcher unseren Code zur benötigten Datei umbauen sollte. Jedoch hatten wir einen entscheidenden Fehler in der Technologieauswahl begangen, wir legten uns von Anfang an auf Python fest und limitierten uns damit ausschlaggebend in der Wahl der Build-Möglichkeiten. Für eine nähere Betrachtung dieses Fehlers verweisen wir im Abschnitt \ref{ssec:lldeployment}.

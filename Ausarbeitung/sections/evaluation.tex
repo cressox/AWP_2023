@@ -1,39 +1,35 @@
 \subsection{Das Interface/Die App}
 \label{ssec:interface}
-	%Beschreibung der App-Funktionen
-	%Benutzeroberfläche und Interaktion
 
-	\subsubsection{Realisierung}
-	\label{sssec:realisierung}
-		%Implementierte Features und Funktionen
-		%Herausforderungen bei der Umsetzung
-		
-		Die App bietet eine Benutzeroberfläche mit verschiedenen Bildschirmen:
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=5cm]{images/mainscreen.png} % Ersetzen Sie 'path_to_the_logo.jpg' durch den Pfad zum Logo
-			\caption{Hauptbildschirm (MainScreen)}
-			\label{fig:mainscreen}
-		\end{figure}
-		Dies ist der Einstiegsbildschirm der App. Hier erhalten Benutzer eine kurze Einführung in die App und können die Müdigkeitserkennung starten oder auf die Einstellungen zugreifen.
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=5cm]{images/detectionscreen.png} % Ersetzen Sie 'path_to_the_logo.jpg' durch den Pfad zum Logo
-			\caption{Erkennungsbildschirm (DetectionScreen)}
-			\label{fig:detectionscreen}
-		\end{figure}
-		Hier findet die eigentliche Müdigkeitserkennung statt. Die Kamera zeigt eine Echtzeitansicht, und erkannte Gesichtsmerkmale wie die Augen werden markiert. Bei Erkennung von Müdigkeitsmerkmalen kann die App Warnungen anzeigen oder Alarmtöne abspielen.
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=5cm]{images/settingscreen.png} % Ersetzen Sie 'path_to_the_logo.jpg' durch den Pfad zum Logo
-			\caption{Einstellungsbildschirm (SettingsScreen)}
-			\label{fig:settingscreen}
-		\end{figure}
-		Benutzer können hier verschiedene Einstellungen für die Benutzeröberfläche anpassen.
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=5cm]{images/helpscreen.png} % Ersetzen Sie 'path_to_the_logo.jpg' durch den Pfad zum Logo
-			\caption{Hilfebildschirm (HelpScreen)}
-			\label{fig:helpscreen}
-		\end{figure}
-		Dieser Bildschirm bietet detaillierte Informationen zur Verwendung der App und ihrer Funktionen.
+Die App bietet eine Benutzeroberfläche mit verschiedenen Bildschirmen, wie in den Abbildungen \ref{fig:mainscreen}, \ref{fig:detectionscreen}, \ref{fig:settingscreen}, und \ref{fig:helpscreen} zu erkennen ist.
+
+\begin{figure}[h]
+	\centering
+	\begin{minipage}[b]{0.22\textwidth}
+		\includegraphics[width=\linewidth]{images/mainscreen.png}
+		\caption{}
+		\label{fig:mainscreen}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[b]{0.22\textwidth}
+		\includegraphics[width=\linewidth]{images/detectionscreen.png}
+		\caption{}
+		\label{fig:detectionscreen}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[b]{0.22\textwidth}
+		\includegraphics[width=\linewidth]{images/settingscreen.png}
+		\caption{}
+		\label{fig:settingscreen}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[b]{0.22\textwidth}
+		\includegraphics[width=\linewidth]{images/helpscreen.png}
+		\caption{}
+		\label{fig:helpscreen}
+	\end{minipage}
+\end{figure}
+
+In Abbildung \ref{fig:mainscreen} ist der Einstiegsbildschirm der App zu sehen. Hier erhalten Benutzer eine kurze Einführung in die App und können die Müdigkeitserkennung starten oder auf die Einstellungen zugreifen. Die eigentliche Müdigkeitserkennung findet im Erkennungsbildschirm (Abbildung \ref{fig:detectionscreen}) statt, wo erkannte Gesichtsmerkmale wie die Augen markiert werden. Bei Erkennung von Müdigkeitsmerkmalen kann die App Warnungen anzeigen oder Alarmtöne abspielen. Im Einstellungsbildschirm (Abbildung \ref{fig:settingscreen}) können Benutzer verschiedene Einstellungen für die Benutzeroberfläche anpassen. Der Hilfebildschirm (Abbildung \ref{fig:helpscreen}) bietet detaillierte Informationen zur Verwendung der App und ihrer Funktionen.
+
+Grundsätzlich sind wir mit dem Layout zufrieden, da es Minimalismus und Nutzbarkeit vereint. Der gesamte Funktionsumfang wird von der App abgedeckt und dem Nutzer zur Verfügung gestellt. Hierbei ist die Bedienung selbsterklärend und zielführend, ohne die potenziellen Nutzer vor Schwierigkeiten der Orientierung zu stellen. Wie in Abschnitt \ref{ssec:llentwicklung} bereits erwähnt, hätte mehr Zeit in die Möglichkeiten der Entwicklung investiert werden können, somit hätte das Design noch interaktiver und flexibler sein können. 
